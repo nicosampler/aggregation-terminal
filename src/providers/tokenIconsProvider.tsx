@@ -1,5 +1,6 @@
 import { FC, PropsWithChildren, createContext, useContext } from 'react'
 
+import isEmpty from 'lodash/isEmpty'
 import useSWR from 'swr'
 
 import { withGenericSuspense } from '@/src/components/helpers/SafeSuspense'
@@ -88,6 +89,10 @@ export const TokenIconsContextProvider: FC<PropsWithChildren> = ({ children }) =
 
 export default withGenericSuspense(TokenIconsContextProvider)
 
-export function useTokenIcons(): TokenListQueryReturn {
+export function useTokensInfo(): TokenListQueryReturn {
+  const context = useContext(TokenIconsContext)
+  if (context === undefined || isEmpty(context)) {
+    throw new Error('useWeb3Connection must be used within a Web3ConnectionProvider')
+  }
   return useContext<TokenListQueryReturn>(TokenIconsContext)
 }

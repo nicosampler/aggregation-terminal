@@ -6,7 +6,7 @@ import { ButtonDropdown } from '@/src/components/buttons/Button'
 import { Dropdown, DropdownItem } from '@/src/components/common/Dropdown'
 import { TextfieldCSS } from '@/src/components/form/Textfield'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
-import { useTokensLists } from '@/src/hooks/useTokensLists'
+import { useTokensLists } from '@/src/components/token/useTokensLists'
 import { Token } from '@/types/token'
 
 const Wrapper = styled(Dropdown)`

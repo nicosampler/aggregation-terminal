@@ -32,7 +32,7 @@ const STORAGE_CONNECTED_WALLET = 'onboard_selectedWallet'
 // Default chain id from env var
 nullthrows(
   Object.values(Chains).includes(INITIAL_APP_CHAIN_ID) ? INITIAL_APP_CHAIN_ID : null,
-  'No default chain ID is defined or is not supported',
+  `Default chainID: ${INITIAL_APP_CHAIN_ID ?? 'null'} is not supported`,
 )
 
 const injected = injectedModule()
