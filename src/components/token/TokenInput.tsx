@@ -128,7 +128,7 @@ interface Props extends DOMAttributes<HTMLDivElement>, HTMLAttributes<HTMLDivEle
   decimals: number
   disabled?: boolean
   maxDisabled?: boolean
-  maxValue: string
+  maxValue?: string
   setStatus: (status: TextfieldStatus | undefined) => void
   setStatusText: (statusText: string | undefined) => void
   setValue: (value: string) => void
@@ -149,9 +149,9 @@ export const TokenInput = ({
   value,
   ...restProps
 }: Props) => {
-  const maxValueFormatted = formatUnits(maxValue, decimals)
+  const maxValueFormatted = formatUnits(maxValue || '0', decimals)
   const valueGreaterThanMaxValue = useMemo(
-    () => (value && BigNumber.from(value).gt(maxValue) ? true : false),
+    () => (value && BigNumber.from(value).gt(maxValue || '0') ? true : false),
     [maxValue, value],
   )
 
@@ -161,19 +161,22 @@ export const TokenInput = ({
   }, [setStatus, setStatusText])
 
   useEffect(() => {
-    if (valueGreaterThanMaxValue) {
+    if (maxValue && valueGreaterThanMaxValue) {
       setStatus(TextfieldStatus.error)
       setStatusText('Insufficient balance')
     } else {
       clearStatuses()
     }
-  }, [clearStatuses, setStatus, setStatusText, valueGreaterThanMaxValue])
+  }, [clearStatuses, setStatus, setStatusText, valueGreaterThanMaxValue, maxValue])
 
   return (
     <Wrapper {...restProps}>
-      <Balance balancePosition={balancePosition}>
-        Balance: {maxValueFormatted} {symbol ? symbol : 'tokens'}
-      </Balance>
+      {maxValue && (
+        <Balance balancePosition={balancePosition}>
+          Balance: {maxValueFormatted} {symbol ? symbol : 'tokens'}
+        </Balance>
+      )}
+
       <BigNumberInput
         decimals={decimals}
         onChange={(value) => {
@@ -184,16 +187,18 @@ export const TokenInput = ({
             disabled={disabled}
             min="0"
             placeholder="0.00"
-            status={valueGreaterThanMaxValue ? TextfieldStatus.error : undefined}
+            status={undefined}
             type="number"
             {...props}
           />
         )}
         value={value}
       />
-      <MaxButton disabled={maxDisabled} onClick={() => setValue(maxValue)}>
-        Max
-      </MaxButton>
+      {maxValue && (
+        <MaxButton disabled={maxDisabled} onClick={() => setValue(maxValue)}>
+          Max
+        </MaxButton>
+      )}
     </Wrapper>
   )
 }

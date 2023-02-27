@@ -1,20 +1,20 @@
 import type { NextPage } from 'next'
-import { useEffect, useReducer } from 'react'
+import { useReducer } from 'react'
 import styled from 'styled-components'
 
-import { chain } from 'lodash'
+import ReactSlider from 'react-slider'
 
 import { BaseCard } from '@/src/components/common/BaseCard'
 import { withGenericSuspense } from '@/src/components/helpers/SafeSuspense'
 import { BaseParagraph } from '@/src/components/text/BaseParagraph'
 import { BaseTitle } from '@/src/components/text/BaseTitle'
-import { Code } from '@/src/components/text/Code'
 import { TokenInput } from '@/src/components/token/TokenInput'
 import { Chains, chainsConfig } from '@/src/config/web3'
 import useProtocols from '@/src/hooks/useProtocols'
+import GMXStats from '@/src/pagePartials/GMXStats'
 import { useTokensInfo } from '@/src/providers/tokenIconsProvider'
-import { useWeb3ConnectedApp, useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { ChainsValues } from '@/types/chains'
+import { Position } from '@/types/utils'
 
 const Card = styled(BaseCard)`
   min-height: 300px;
@@ -38,15 +38,15 @@ const ProtocolWrapper = styled.div`
   justify-content: center;
 `
 
-type Protocols = 'Kwenta' | 'GMX'
-
 interface Form {
   token: string
+  amount: string
+  leverage: number
+  position: Position
   protocolA: string
   chainA: string
   protocolB: string
   chainB: string
-  amount: string
 }
 
 const Home: NextPage = () => {
@@ -58,6 +58,8 @@ const Home: NextPage = () => {
     (data: Form, partial: Partial<Form>): Form => ({ ...data, ...partial }),
     {
       token: 'ETH',
+      leverage: 2,
+      position: 'long',
       protocolA: 'Kwenta',
       chainA: Chains.optimism.toString(),
       protocolB: 'GMX',
@@ -67,7 +69,8 @@ const Home: NextPage = () => {
   )
 
   const existsTokenInProtocolA = exitsTokenInProtocol(form.protocolA, form.chainA, form.token)
-  const existsTokenInProtocolB = exitsTokenInProtocol(form.protocolB, form.chainB, form.token)
+
+  const selectedTokenInfo = tokensInfo.tokensBySymbol[form.token.toLowerCase()]
 
   return (
     <>
@@ -82,6 +85,45 @@ const Home: NextPage = () => {
             </option>
           ))}
         </select>
+
+        <TokenInput
+          decimals={selectedTokenInfo.decimals}
+          setStatus={() => undefined}
+          setStatusText={() => undefined}
+          setValue={(value) => setForm({ amount: value })}
+          symbol={form.token}
+          value={form.amount}
+        />
+
+        <div>
+          <div>
+            <input
+              checked={form.position == 'long'}
+              onChange={(e) => setForm({ position: e.target.value as Position })}
+              type="radio"
+              value="long"
+            />
+            LONG
+          </div>
+
+          <div>
+            <input
+              checked={form.position == 'short'}
+              onChange={(e) => setForm({ position: e.target.value as Position })}
+              type="radio"
+              value="short"
+            />
+            SHORT
+          </div>
+        </div>
+
+        <ReactSlider
+          defaultValue={form.leverage}
+          max={50}
+          min={1}
+          onChange={(value) => setForm({ leverage: value })}
+          renderThumb={(props, state) => <div {...props}>{state.valueNow}</div>}
+        />
 
         <br />
 
@@ -111,6 +153,7 @@ const Home: NextPage = () => {
               <div>Token not supported for the given protocol and chain</div>
             )}
           </ProtocolWrapper>
+
           <ProtocolWrapper>
             <select onChange={(e) => setForm({ protocolB: e.target.value })} value={form.protocolB}>
               {protocolsNames
@@ -130,10 +173,14 @@ const Home: NextPage = () => {
               ))}
             </select>
 
-            {existsTokenInProtocolB ? (
-              <div>Show perpetual conditions for {form.protocolB}</div>
-            ) : (
-              <div>Token not supported for the given protocol and chain</div>
+            {form.protocolB == 'GMX' && form.amount && (
+              <GMXStats
+                amount={form.amount}
+                chainId={Number(form.chainB) as ChainsValues}
+                leverage={form.leverage}
+                position={form.position}
+                token={form.token}
+              />
             )}
           </ProtocolWrapper>
         </TwoColumns>

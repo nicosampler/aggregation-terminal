@@ -1,5 +1,7 @@
 import protocols from '../../public/protocols.json'
 import tokens from '../../public/tokens.json'
+import { Chains } from '@/src/config/web3'
+import { ChainsValues } from '@/types/chains'
 import { Token } from '@/types/token'
 
 type Protocols = Record<string, Record<string, string[]>>
@@ -11,25 +13,32 @@ export default function useProtocols() {
 
   const protocolsNames = Object.keys(protocolsInfo)
 
-  const getProtocolByName = (name: string) => {
-    const protocolInfo = protocolsInfo[name]
+  const getProtocolByName = (protocolName: string) => {
+    const protocolInfo = protocolsInfo[protocolName]
     if (!protocolInfo) {
-      throw `Protocol of name ${name} not found`
+      throw `Protocol of name ${protocolName} not found`
     }
     return protocolInfo
   }
 
-  const getProtocolChains = (name: string) => {
-    const protocolInfo = getProtocolByName(name)
-    return Object.keys(protocolInfo).map(Number)
+  const getProtocolChains = (protocolName: string) => {
+    const protocolInfo = getProtocolByName(protocolName)
+    return Object.keys(protocolInfo)
+      .map((chainId) => {
+        if (!Object.values(Chains).includes(Number(chainId) as ChainsValues)) {
+          throw `Protocol ${protocolName} is configured with chain ${chainId} which is not configured in "web3.ts"`
+        }
+        return Number(chainId)
+      })
+      .map((chain) => chain as unknown as ChainsValues)
   }
 
-  const getProtocolTokens = (name: string, chainId: string) => {
+  const getProtocolTokensSymbols = (protocolName: string, chainId: string) => {
     const tokensInfo: Tokens = tokens
-    const protocolInfo = getProtocolByName(name)
+    const protocolInfo = getProtocolByName(protocolName)
     const protocolTokens = protocolInfo[chainId]
     if (!protocolTokens) {
-      throw `There are not tokens configured for protocol ${name} and chain ${chainId}`
+      throw `There are not tokens configured for protocol ${protocolName} and chain ${chainId}`
     }
 
     protocolTokens.forEach((tokenName) => {
@@ -37,15 +46,25 @@ export default function useProtocols() {
         (t) => t.symbol === tokenName && t.chainId.toString() === chainId,
       )
       if (!tokenInfo) {
-        throw `protocol ${name} for chain ${chainId} has a token that is not configured on "tokens.json" file.`
+        throw `protocol ${protocolName} for chain ${chainId} has a token that is not configured on "tokens.json" file.`
       }
     })
 
     return protocolTokens
   }
 
-  const exitsTokenInProtocol = (name: string, chainId: string, tokenSymbol: string) => {
-    const protocolInfo = protocolsInfo[name]
+  const getProtocolTokens = (protocolName: string, chainId: string) => {
+    const protocolInfo = getProtocolByName(protocolName)
+    const protocolTokens = protocolInfo[chainId]
+    if (!protocolTokens) {
+      throw `There are not tokens configured for protocol ${protocolName} and chain ${chainId}`
+    }
+
+    return tokens.tokens.filter((t) => t.chainId.toString() == chainId)
+  }
+
+  const exitsTokenInProtocol = (protocolName: string, chainId: string, tokenSymbol: string) => {
+    const protocolInfo = protocolsInfo[protocolName]
     if (!protocolInfo) {
       return false
     }
@@ -54,11 +73,16 @@ export default function useProtocols() {
     return protocolTokens.includes(tokenSymbol)
   }
 
+  const getTokenBySymbolAndChain = (tokenSymbol: string, chainId: string) =>
+    tokens.tokens.find((t) => t.symbol == tokenSymbol && t.chainId.toString() == chainId)
+
   return {
     protocolsNames,
     getProtocolByName,
     getProtocolChains,
-    getProtocolTokens,
+    getProtocolTokensSymbols,
     exitsTokenInProtocol,
+    getProtocolTokens,
+    getTokenBySymbolAndChain,
   }
 }
