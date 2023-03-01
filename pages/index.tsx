@@ -164,7 +164,6 @@ const Home: NextPage = () => {
                   </option>
                 ))}
             </select>
-
             <select onChange={(e) => setForm({ chainB: e.target.value })} value={form.chainB}>
               {getProtocolChains(form.protocolB).map((chainId) => (
                 <option key={chainId} value={chainId}>
@@ -173,7 +172,7 @@ const Home: NextPage = () => {
               ))}
             </select>
 
-            {form.protocolB == 'GMX' && form.amount && (
+            {form.protocolB == 'GMX' && form.amount && form.amount != '0' && (
               <GMXStats
                 amount={form.amount}
                 chainId={Number(form.chainB) as ChainsValues}

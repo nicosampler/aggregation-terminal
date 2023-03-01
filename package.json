@@ -11,7 +11,7 @@
     "prepare": "husky install",
     "prettier:fix": "prettier --write \"./**/*.{js,jsx,ts,tsx}\"",
     "start": "next start",
-    "typechain": "typechain --target=ethers-v5 ./src/contracts/abis/**/*.json --out-dir ./types/generated/typechain/",
+    "typechain": "typechain --target=ethers-v5 \"./src/contracts/**/*.json\" --out-dir ./types/generated/typechain/",
     "subgraph-codegen": "graphql-codegen --config subgraph-config.js",
     "types-gen": "yarn typechain ",
     "postinstall": "yarn typechain"

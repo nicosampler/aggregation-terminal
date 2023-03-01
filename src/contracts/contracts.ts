@@ -1,8 +1,8 @@
 import { Chains } from '@/src/config/web3'
 import ERC20 from '@/src/contracts/abis/ERC20.json'
+import GMXVault from '@/src/contracts/abis/GMX/GMXVault.json'
 import PositionRouter from '@/src/contracts/abis/GMX/PositionRouter.json'
 import ReaderV2 from '@/src/contracts/abis/GMX/ReaderV2.json'
-import Vault from '@/src/contracts/abis/GMX/Vault.json'
 import VaultReader from '@/src/contracts/abis/GMX/VaultReader.json'
 
 export const contracts = {
@@ -18,14 +18,14 @@ export const contracts = {
       [Chains.optimism]: '',
       [Chains.arbitrum]: '0x489ee077994B6658eAfA855C308275EAd8097C4A',
     },
-    abi: Vault,
+    abi: GMXVault, // ref. vaultV2 in GMX repo
   },
   GMX_VaultReader: {
     address: {
       [Chains.optimism]: '',
       [Chains.arbitrum]: '0xfebB9f4CAC4cD523598fE1C5771181440143F24A',
     },
-    abi: VaultReader,
+    abi: VaultReader, // ref. vaultV2 in GMX repo
   },
   GMX_PositionRouter: {
     address: {
@@ -38,6 +38,13 @@ export const contracts = {
     address: {
       [Chains.optimism]: '',
       [Chains.arbitrum]: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+    },
+    abi: ERC20,
+  },
+  USDG: {
+    address: {
+      [Chains.optimism]: '',
+      [Chains.arbitrum]: '0x45096e7aA921f27590f8F19e457794EB09678141',
     },
     abi: ERC20,
   },

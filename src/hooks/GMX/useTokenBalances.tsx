@@ -9,6 +9,7 @@ function useTokenBalances() {
   const reader = useReadContractInstance(Chains.arbitrum, ReaderV2__factory, 'GMX_ReaderV2')
 
   const calls = [reader.getTokenBalances] as const
+  // TODO: add more tokens as they are needed
   const tokens = ['0x0000000000000000000000000000000000000000']
 
   const res = useContractCall<ReaderV2, typeof calls>(
