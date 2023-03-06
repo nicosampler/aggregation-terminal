@@ -9,10 +9,15 @@ import { useGMXTokensInfo } from '@/src/hooks/GMX/useGMXTokensInfo'
 import useGMXVaultStats from '@/src/hooks/GMX/useGMXVaultStats'
 import useUSDGStats from '@/src/hooks/GMX/useUSDGStats'
 import useProtocols from '@/src/hooks/useProtocols'
-import { BASIS_POINTS_DIVISOR, MARGIN_FEE_BASIS_POINTS } from '@/src/utils/GMX/constants'
+import {
+  BASIS_POINTS_DIVISOR,
+  MARGIN_FEE_BASIS_POINTS,
+  USD_DECIMALS,
+} from '@/src/utils/GMX/constants'
+import { formatAmount } from '@/src/utils/GMX/format'
+import { getLiquidationPrice } from '@/src/utils/GMX/getLiquidationPrice'
 import { getNextToAmount } from '@/src/utils/GMX/getNextToAmount'
 import { expandDecimals } from '@/src/utils/GMX/numbers'
-import { InfoTokens } from '@/types/GMX/types'
 import { ChainsValues } from '@/types/chains'
 import { Position } from '@/types/utils'
 
@@ -37,7 +42,9 @@ function GMXStats({ amount, chainId, leverage, position, token }: Props) {
   const usdgTotalSupply = usdgStats[0].data ? usdgStats[0].data[0] : null
   const gmxVaultStats = useGMXVaultStats(chainId)
   const totalTokenWeights = gmxVaultStats[0].data ? gmxVaultStats[0].data[0] : null
-  const USDCToken = tokens.tokens.find((t) => t.chainId == Chains.arbitrum && t.symbol == 'USDC')
+  const collateralToken = tokens.tokens.find(
+    (t) => t.chainId == Chains.arbitrum && t.symbol == 'USDC',
+  )
 
   if (!usdgTotalSupply) {
     throw `There was not possible to get USDG total supply`
@@ -47,7 +54,7 @@ function GMXStats({ amount, chainId, leverage, position, token }: Props) {
     throw `There was not possible to get GMX total token weights`
   }
 
-  if (!USDCToken) {
+  if (!collateralToken) {
     throw `There was not possible to get token USDC for chain ${chainId}.`
   }
 
@@ -61,25 +68,38 @@ function GMXStats({ amount, chainId, leverage, position, token }: Props) {
     throw `There was not possible to get GMX token stats for ${token}. (token.minPrice and token.minPrice are required)`
   }
 
-  const toTokenInfo = gmxTokensInfo.infoTokens[USDCToken.address]
+  const collateralTokenInfo = gmxTokensInfo.infoTokens[collateralToken.address]
 
   // All this calculations were taken following the fronted code of GMX.
   // file: SwapBox.js
   // the logic starts in a useEffect containing a function called: updateLeverageAmounts
   const amountBN = BigNumber.from(amount)
-  const fromUsdMin = amountBN.mul(fromTokenInfo.minPrice).div(expandDecimals(1, tokenInfo.decimals))
+  // const fromUsdMax = amountBN
+  //   .mul(fromTokenInfo.maxPrice)
+  //   .div(expandDecimals(1, fromTokenInfo.decimals))
+  const fromUsdMin = amountBN
+    .mul(fromTokenInfo.minPrice)
+    .div(expandDecimals(1, fromTokenInfo.decimals))
+
   const leverageMultiplier = leverage * BASIS_POINTS_DIVISOR
   const toTokenPriceUsd = fromTokenInfo.maxPrice // Fixed for market order
 
-  const feeBasisPoints = getNextToAmount(
+  const { feeBasisPoints } = getNextToAmount(
     chainId,
     BigNumber.from(amount),
-    fromTokenInfo, // fromToken: InfoTokens,
-    toTokenInfo, // toTokenAddress: InfoTokens,
+    fromTokenInfo,
+    collateralTokenInfo,
     usdgTotalSupply,
     totalTokenWeights,
-  ) // TODO: hardcoded for ETH.
-  const fromUsdMinAfterFee = fromUsdMin // TODO: when feeBasisPoints, it needs calculation
+  )
+
+  let fromUsdMinAfterFee = fromUsdMin
+  if (feeBasisPoints) {
+    fromUsdMinAfterFee = fromUsdMin
+      .mul(BASIS_POINTS_DIVISOR - feeBasisPoints)
+      .div(BASIS_POINTS_DIVISOR)
+  }
+
   const toNumerator = fromUsdMinAfterFee.mul(leverageMultiplier).mul(BASIS_POINTS_DIVISOR)
   const toDenominator = BigNumber.from(MARGIN_FEE_BASIS_POINTS)
     .mul(leverageMultiplier)
@@ -89,6 +109,20 @@ function GMXStats({ amount, chainId, leverage, position, token }: Props) {
 
   const nextToValue = formatUnits(nextToAmount, tokenInfo.decimals)
 
+  const entryMarkPrice = position === 'long' ? fromTokenInfo.maxPrice : fromTokenInfo.minPrice
+  const exitMarkPrice = position === 'long' ? fromTokenInfo.minPrice : fromTokenInfo.maxPrice
+
+  const sizeDelta = nextToAmount
+    .mul(fromTokenInfo.maxPrice)
+    .div(expandDecimals(1, fromTokenInfo.decimals))
+
+  const liquidationPrice = getLiquidationPrice(
+    position === 'long',
+    entryMarkPrice, //averagePrice
+    sizeDelta, // sizeDelta
+    fromUsdMin, // collateralDelta
+  )
+
   if (!existsTokenInProtocol) {
     return <div>Token not supported for the given protocol and chain</div>
   }
@@ -96,6 +130,14 @@ function GMXStats({ amount, chainId, leverage, position, token }: Props) {
   return (
     <div>
       <div>Order Size: {nextToValue}</div>
+      <div>Collateral in: {collateralToken.symbol}</div>
+      <div>Entry price: {formatAmount(entryMarkPrice, USD_DECIMALS)}</div>
+      <div>Exit price: {formatAmount(exitMarkPrice, USD_DECIMALS)}</div>
+      <div>Liq price: {formatAmount(liquidationPrice, USD_DECIMALS)}</div>
+
+      <div>Fees: ??</div>
+      <div>Borrow fee: ??</div>
+      <div>Available Liq: ??</div>
     </div>
   )
 }

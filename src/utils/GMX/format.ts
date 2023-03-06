@@ -1,0 +1,44 @@
+import { BigNumberish, ethers } from 'ethers'
+
+export const limitDecimals = (amount: BigNumberish, maxDecimals?: number) => {
+  let amountStr = amount.toString()
+  if (maxDecimals === undefined) {
+    return amountStr
+  }
+  if (maxDecimals === 0) {
+    return amountStr.split('.')[0]
+  }
+  const dotIndex = amountStr.indexOf('.')
+  if (dotIndex !== -1) {
+    const decimals = amountStr.length - dotIndex - 1
+    if (decimals > maxDecimals) {
+      amountStr = amountStr.substr(0, amountStr.length - (decimals - maxDecimals))
+    }
+  }
+  return amountStr
+}
+
+export const padDecimals = (amount: BigNumberish, minDecimals: number) => {
+  let amountStr = amount.toString()
+  const dotIndex = amountStr.indexOf('.')
+  if (dotIndex !== -1) {
+    const decimals = amountStr.length - dotIndex - 1
+    if (decimals < minDecimals) {
+      amountStr = amountStr.padEnd(amountStr.length + (minDecimals - decimals), '0')
+    }
+  } else {
+    amountStr = amountStr + '.0000'
+  }
+  return amountStr
+}
+
+export function formatAmount(amount: BigNumberish, tokenDecimals: number) {
+  let amountStr = ethers.utils.formatUnits(amount, tokenDecimals)
+  amountStr = limitDecimals(amountStr, 2)
+  amountStr = padDecimals(amountStr, 2)
+
+  return amountStr
+  //   if (useCommas) {
+  //     return numberWithCommas(amountStr)
+  //   }
+}
