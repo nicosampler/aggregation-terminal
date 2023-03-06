@@ -7,10 +7,11 @@ import { ChainsValues } from '@/types/chains'
 
 export function usePrices(chainId: ChainsValues) {
   const url = `${GMX_URL[chainId]}/prices`
-  const { data: indexPrices } = useSWR<{ [address: string]: BigNumber }>(
+  const { data: indexPrices } = useSWR<{ data: { [address: string]: BigNumber } }>(
     url,
     () => axios.get(url),
-    { refreshInterval: 30_000 },
+    { refreshInterval: 5_000 },
   )
-  return indexPrices || {}
+
+  return indexPrices?.data || {}
 }

@@ -42,9 +42,7 @@ function GMXStats({ amount, chainId, leverage, position, token }: Props) {
   const usdgTotalSupply = usdgStats[0].data ? usdgStats[0].data[0] : null
   const gmxVaultStats = useGMXVaultStats(chainId)
   const totalTokenWeights = gmxVaultStats[0].data ? gmxVaultStats[0].data[0] : null
-  const collateralToken = tokens.tokens.find(
-    (t) => t.chainId == Chains.arbitrum && t.symbol == 'USDC',
-  )
+  const collateralToken = tokens.tokens.find((t) => t.chainId == chainId && t.symbol == 'USDC')
 
   if (!usdgTotalSupply) {
     throw `There was not possible to get USDG total supply`
