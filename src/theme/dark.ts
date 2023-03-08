@@ -1,16 +1,20 @@
 /* Dark Theme            */
 /* Add only colors here. */
 
-import { darken } from 'polished'
+import { darken, transparentize } from 'polished'
 
-const error = '#db3333'
-const success = '#33dd33'
+const error = '#FE6D64'
+const success = '#64FEAB'
+const warning = '#FEF764'
 const primary = '#220022'
 const secondary = '#E56399'
 const tertiary = '#A6CFD5'
 const textColor = '#fff'
-const borderColor = 'rgba(250,250,250,0.2)'
-const darkGray = 'rgb(10, 25, 50)'
+const borderColorAlpha = 'rgba(38,41,44,0.6)'
+const borderColor = '#26292C'
+const gray = '#15181A'
+const darkGray = '#0D0F10'
+const darkestGray = '#101213'
 const darkGrayDarkened = darken(0.1, 'rgb(10, 25, 50)')
 const darkBlue = 'rgb(6, 75, 141)'
 const componentBackgroundColor = 'rgba(13, 2, 2, 0.85)'
@@ -18,12 +22,11 @@ const componentBackgroundColor = 'rgba(13, 2, 2, 0.85)'
 export const dark = {
   body: {
     backgroundColor: darkGray,
-    backgroundImage:
-      'linear-gradient(80deg, rgb(17, 10, 10) 15%, rgb(92, 33, 52) 33%, rgb(6, 75, 141) 65%, rgb(13, 2, 2) 98%)',
+    backgroundImage: 'url(/images/bg.jpg)',
   },
   buttonDropdown: {
-    backgroundColor: darkGray,
-    backgroundColorHover: darkGrayDarkened,
+    backgroundColor: gray,
+    backgroundColorHover: darkGray,
     borderColor: borderColor,
     borderColorHover: borderColor,
     color: textColor,
@@ -38,7 +41,7 @@ export const dark = {
     colorHover: textColor,
   },
   card: {
-    backgroundColor: 'rgba(13, 2, 2, 0.65)',
+    backgroundColor: darkestGray,
     borderColor: borderColor,
   },
   checkBox: {
@@ -58,9 +61,10 @@ export const dark = {
     success: success,
     tertiary: tertiary,
     textColor: textColor,
+    warning: warning,
   },
   dropdown: {
-    background: componentBackgroundColor,
+    background: darkGray,
     borderColor: borderColor,
     boxShadow: 'none',
     item: {
@@ -74,7 +78,7 @@ export const dark = {
     },
   },
   textField: {
-    backgroundColor: darkGray,
+    backgroundColor: gray,
     borderColor: borderColor,
     color: textColor,
     errorColor: error,
@@ -90,7 +94,8 @@ export const dark = {
     },
   },
   header: {
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backgroundColor: transparentize(0.9, darkGray),
+    borderColor: borderColorAlpha,
     color: textColor,
   },
   mainMenu: {

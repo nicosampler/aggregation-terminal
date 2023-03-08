@@ -74,7 +74,8 @@ const Items = styled.div<ItemsProps>`
   min-width: 90px;
   position: absolute;
   white-space: nowrap;
-
+  box-shadow: 0px 27px 80px rgba(0, 0, 0, 0.07), 0px 10.4px 25.4815px rgba(0, 0, 0, 0.0425185),
+    0px 2.2px 6.51852px rgba(0, 0, 0, 0.0274815);
   ${({ dropdownPosition }) =>
     dropdownPosition === DropdownPosition.left &&
     css`
@@ -128,14 +129,14 @@ export const DropdownItemCSS = css<ItemProps>`
   border-bottom: 1px solid ${({ theme: { dropdown } }) => dropdown.item.borderColor};
   cursor: pointer;
   display: flex;
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   font-weight: 400;
   gap: 10px;
   justify-content: ${({ justifyContent }) => justifyContent};
   line-height: 1.4;
   min-height: 30px;
   overflow: hidden;
-  padding: 0 12px;
+  padding: 0 20px;
   text-decoration: none;
   transition: background-color 0.15s linear;
   user-select: none;
