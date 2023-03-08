@@ -2,6 +2,9 @@ import type { NextPage } from 'next'
 import { useReducer } from 'react'
 import styled from 'styled-components'
 
+import { BigNumber } from 'ethers'
+import { parseUnits } from 'ethers/lib/utils'
+import { parse } from 'graphql'
 import ReactSlider from 'react-slider'
 
 import { BaseCard } from '@/src/components/common/BaseCard'
@@ -78,22 +81,25 @@ const Home: NextPage = () => {
       <Card>
         <BaseParagraph>Get started by editing</BaseParagraph>
 
-        <select onChange={(e) => setForm({ token: e.target.value })} value={form.token}>
-          {uniqueTokenSymbols.map((symbol) => (
-            <option key={symbol} value={symbol}>
-              {symbol}
-            </option>
-          ))}
-        </select>
+        <div>
+          Amount in USD:{' '}
+          <input
+            onChange={(event) => setForm({ amount: event.target.value })}
+            type="number"
+            value={form.amount}
+          />
+        </div>
 
-        <TokenInput
-          decimals={selectedTokenInfo.decimals}
-          setStatus={() => undefined}
-          setStatusText={() => undefined}
-          setValue={(value) => setForm({ amount: value })}
-          symbol={form.token}
-          value={form.amount}
-        />
+        <div>
+          Token:
+          <select onChange={(e) => setForm({ token: e.target.value })} value={form.token}>
+            {uniqueTokenSymbols.map((symbol) => (
+              <option key={symbol} value={symbol}>
+                {symbol}
+              </option>
+            ))}
+          </select>
+        </div>
 
         <div>
           <div>
@@ -117,13 +123,16 @@ const Home: NextPage = () => {
           </div>
         </div>
 
-        <ReactSlider
-          defaultValue={form.leverage}
-          max={50}
-          min={1}
-          onChange={(value) => setForm({ leverage: value })}
-          renderThumb={(props, state) => <div {...props}>{state.valueNow}</div>}
-        />
+        <div>
+          Leverage:
+          <ReactSlider
+            defaultValue={form.leverage}
+            max={50}
+            min={1}
+            onChange={(value) => setForm({ leverage: value })}
+            renderThumb={(props, state) => <div {...props}>{state.valueNow}</div>}
+          />
+        </div>
 
         <br />
 
@@ -174,11 +183,12 @@ const Home: NextPage = () => {
 
             {form.protocolB == 'GMX' && form.amount && form.amount != '0' && (
               <GMXStats
-                amount={form.amount}
+                amount={form.amount} /* Hardcoded for USDC */
                 chainId={Number(form.chainB) as ChainsValues}
+                fromTokenSymbol="USDC"
                 leverage={form.leverage}
                 position={form.position}
-                token={form.token}
+                toTokenSymbol="ETH"
               />
             )}
           </ProtocolWrapper>

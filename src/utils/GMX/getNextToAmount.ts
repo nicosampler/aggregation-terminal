@@ -77,18 +77,22 @@ export function getNextToAmount(
   chainId: ChainsValues,
   fromAmount: BigNumber,
   fromToken: TokenInfo,
-  toToken: TokenInfo,
+  collateralToken: TokenInfo,
   usdgSupply: BigNumber,
   totalTokenWeights: BigNumber,
 ) {
+  if (fromToken.address === collateralToken.address) {
+    return { amount: fromAmount }
+  }
+
   const fromTokenMinPrice = fromToken.minPrice
-  const toTokenMaxPrice = toToken.maxPrice
+  const toTokenMaxPrice = collateralToken.maxPrice
 
   if (!fromTokenMinPrice || !toTokenMaxPrice) {
     throw `There was an error, fromToken.minPrice and toToken.maxPrice can not be undefined`
   }
 
-  const adjustDecimals = adjustForDecimalsFactory(toToken.decimals - fromToken.decimals)
+  const adjustDecimals = adjustForDecimalsFactory(collateralToken.decimals - fromToken.decimals)
 
   const toAmount = fromAmount.mul(fromTokenMinPrice).div(toTokenMaxPrice)
   let fromTokenToUSDGAmount = fromAmount.mul(fromTokenMinPrice).div(PRECISION)
@@ -108,8 +112,8 @@ export function getNextToAmount(
   )
 
   const feeBasisPoints1 = getFeeBasisPoints(
-    toToken,
-    toToken.usdgAmount,
+    collateralToken,
+    collateralToken.usdgAmount,
     fromTokenToUSDGAmount,
     false,
     usdgSupply,

@@ -10,7 +10,7 @@ export function usePrices(chainId: ChainsValues) {
   const { data: indexPrices } = useSWR<{ data: { [address: string]: BigNumber } }>(
     url,
     () => axios.get(url),
-    { refreshInterval: 5_000 },
+    { refreshInterval: 30_000 },
   )
 
   return indexPrices?.data || {}
