@@ -22,8 +22,6 @@ import TokenIconsProvider from '@/src/providers/tokenIconsProvider'
 
 const Container = styled(InnerContainer)`
   flex-grow: 1;
-  padding-bottom: 25px;
-  padding-top: 25px;
 `
 
 const Web3ConnectionProvider = dynamic(() => import('@/src/providers/web3ConnectionProvider'), {

@@ -12,6 +12,7 @@ const tertiary = '#A6CFD5'
 const textColor = '#fff'
 const borderColorAlpha = 'rgba(38,41,44,0.6)'
 const borderColor = '#26292C'
+const lightGray = '#737D8D'
 const gray = '#15181A'
 const darkGray = '#0D0F10'
 const darkestGray = '#101213'
@@ -52,6 +53,7 @@ export const dark = {
   colors: {
     borderColor: borderColor,
     componentBackgroundColor: componentBackgroundColor,
+    lightGray: lightGray,
     darkBlue: darkBlue,
     darkGray: darkGray,
     darkGrayDarkened: darkGrayDarkened,
