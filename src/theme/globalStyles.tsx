@@ -54,5 +54,17 @@ export const GlobalStyles = createGlobalStyle<{ theme: any }>`
     color: ${({ theme: { colors } }) => colors.textColor};
   }
 
+  ::selection {
+    color: ${({ theme }) => theme.colors.white} !important;
+    background: ${({ theme }) => theme.colors.primary} !important;
+  }
+  ::-moz-selection {
+    color: ${({ theme }) => theme.colors.white} !important;
+    background: ${({ theme }) => theme.colors.primary} !important;
+  }
+  a, button{
+    transition: all 0.3s ease-in-out;
+  }
+
   ${onBoardCSS}
 `

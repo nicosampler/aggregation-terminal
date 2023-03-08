@@ -29,12 +29,12 @@ export const common = {
     height: '60px',
   },
   layout: {
-    horizontalPaddingDesktopStart: '20px',
-    horizontalPaddingDesktopWideStart: '20px',
+    horizontalPaddingDesktopStart: '40px',
+    horizontalPaddingDesktopWideStart: '40px',
     horizontalPaddingMobile: '10px',
-    horizontalPaddingTabletLandscapeStart: '15px',
-    horizontalPaddingTabletPortraitStart: '15px',
-    maxWidth: '960px',
+    horizontalPaddingTabletLandscapeStart: '20px',
+    horizontalPaddingTabletPortraitStart: '20px',
+    maxWidth: '1000px',
   },
   breakPoints: {
     desktopStart: '1025px',

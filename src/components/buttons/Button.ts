@@ -18,7 +18,7 @@ export const ActiveButtonCSS = css`
 
 export const ButtonCSS = css`
   align-items: center;
-  border-radius: 8px;
+  border-radius: ${({ theme: { common } }) => common.borderRadius};
   border-style: solid;
   border-width: 1px;
   column-gap: 10px;
