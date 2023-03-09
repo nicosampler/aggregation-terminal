@@ -1,7 +1,6 @@
 import { BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 
-import tokens from '@/public/tokens.json'
 import { withGenericSuspense } from '@/src/components/helpers/SafeSuspense'
 import { useGMXTokensInfo } from '@/src/hooks/GMX/useGMXTokensInfo'
 import useGMXVaultStats from '@/src/hooks/GMX/useGMXVaultStats'
@@ -75,11 +74,9 @@ function GMXStats({ amount, chainId, fromTokenSymbol, leverage, position, toToke
     throw `There was not possible to get GMX token stats for ${toTokenSymbol}. (token.minPrice and token.minPrice are required)`
   }
 
+  // ----------------------
   // Generic calculations
-
-  // const fromUsdMax = amountBN
-  //   .mul(fromTokenInfo.maxPrice)
-  //   .div(expandDecimals(1, fromTokenInfo.decimals))
+  // ----------------------
 
   const fromUsdMin = fromAmountBN
     .mul(gmxFromTokenInfo.minPrice)
@@ -87,11 +84,6 @@ function GMXStats({ amount, chainId, fromTokenSymbol, leverage, position, toToke
 
   const toTokenPriceUsd = gmxToTokenInfo.maxPrice
 
-  // Following calculations were taken following the fronted code of GMX.
-  // file: SwapBox.js
-  // the logic starts in a useEffect containing a function called: updateLeverageAmounts
-
-  // Order size
   const { feeBasisPoints } = getNextToAmount(
     chainId,
     fromAmountBN,
@@ -100,6 +92,14 @@ function GMXStats({ amount, chainId, fromTokenSymbol, leverage, position, toToke
     usdgTotalSupply,
     totalTokenWeights,
   )
+
+  // Following calculations were taken following the fronted code of GMX.
+  // file: SwapBox.js
+  // the logic starts in a useEffect containing a function called: updateLeverageAmounts
+
+  // ----------------------
+  // Order size
+  // ----------------------
 
   let fromUsdMinAfterFee = fromUsdMin
   if (feeBasisPoints) {
@@ -118,11 +118,15 @@ function GMXStats({ amount, chainId, fromTokenSymbol, leverage, position, toToke
   const nextToAmount = nextToUsd.mul(expandDecimals(1, toTokenInfo.decimals)).div(toTokenPriceUsd)
   const nextToValue = formatUnits(nextToAmount, toTokenInfo.decimals)
 
+  // ----------------------
   // entry/exit price
+  // ----------------------
   const entryMarkPrice = position === 'long' ? gmxToTokenInfo.maxPrice : gmxToTokenInfo.minPrice
   // const exitMarkPrice = position === 'long' ? gmxToTokenInfo.minPrice : gmxToTokenInfo.maxPrice
 
+  // ----------------------
   // liquidation price
+  // ----------------------
   const sizeDelta = nextToAmount
     .mul(gmxToTokenInfo.maxPrice)
     .div(expandDecimals(1, toTokenInfo.decimals))
@@ -134,6 +138,23 @@ function GMXStats({ amount, chainId, fromTokenSymbol, leverage, position, toToke
     fromUsdMin, // collateralDelta
   )
 
+  // ----------------------
+  // Fees
+  // ----------------------
+
+  const positionFee = sizeDelta.mul(MARGIN_FEE_BASIS_POINTS).div(BASIS_POINTS_DIVISOR)
+  let feesUsd = positionFee
+  let swapFees
+
+  if (feeBasisPoints) {
+    swapFees = fromUsdMin.mul(feeBasisPoints).div(BASIS_POINTS_DIVISOR)
+    feesUsd = feesUsd.add(swapFees)
+  }
+
+  // ----------------------
+  // Render
+  // ----------------------
+
   if (!existsTokenInProtocol) {
     return <div>Token not supported for the given protocol and chain</div>
   }
@@ -142,9 +163,9 @@ function GMXStats({ amount, chainId, fromTokenSymbol, leverage, position, toToke
     <div>
       <div>Investment token: USDC</div>
       <div>Price impact: $0</div>
-      <div>Protocol fee</div>
-      <div> - Trade fee: ??</div>
-      <div> - position fee: ??</div>
+      <div>Protocol fee {formatAmount(feesUsd, USD_DECIMALS)} </div>
+      <div> - Trade fee: {formatAmount(swapFees || 0, USD_DECIMALS)}</div>
+      <div> - position fee: {formatAmount(positionFee, USD_DECIMALS)}</div>
       <div>Order Size: {nextToValue}</div>
       <div>Liq price: {formatAmount(liquidationPrice, USD_DECIMALS)}</div>
       <div>1 hour funding: ??</div>
