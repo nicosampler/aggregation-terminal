@@ -32,10 +32,10 @@ export const padDecimals = (amount: BigNumberish, minDecimals: number) => {
   return amountStr
 }
 
-export function formatAmount(amount: BigNumberish, tokenDecimals: number) {
+export function formatAmount(amount: BigNumberish, tokenDecimals: number, decimals = 2) {
   let amountStr = ethers.utils.formatUnits(amount, tokenDecimals)
-  amountStr = limitDecimals(amountStr, 2)
-  amountStr = padDecimals(amountStr, 2)
+  amountStr = limitDecimals(amountStr, decimals)
+  amountStr = padDecimals(amountStr, decimals)
 
   return amountStr
   //   if (useCommas) {
