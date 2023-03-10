@@ -4,6 +4,7 @@ import GMXVault from '@/src/contracts/abis/GMX/GMXVault.json'
 import PositionRouter from '@/src/contracts/abis/GMX/PositionRouter.json'
 import ReaderV2 from '@/src/contracts/abis/GMX/ReaderV2.json'
 import VaultReader from '@/src/contracts/abis/GMX/VaultReader.json'
+import PerpsV2Market from '@/src/contracts/abis/KWENTA/PerpsV2Market.json'
 
 export const contracts = {
   GMX_ReaderV2: {
@@ -47,6 +48,13 @@ export const contracts = {
       [Chains.arbitrum]: '0x45096e7aA921f27590f8F19e457794EB09678141',
     },
     abi: ERC20,
+  },
+  KWENTA_PerpsV2Market: {
+    address: {
+      [Chains.optimism]: '0x2B3bb4c683BFc5239B029131EEf3B1d214478d93',
+      [Chains.arbitrum]: '',
+    },
+    abi: PerpsV2Market,
   },
 } as const
 
