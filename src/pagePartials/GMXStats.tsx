@@ -152,6 +152,16 @@ function GMXStats({ amount, chainId, fromTokenSymbol, leverage, position, toToke
   }
 
   // ----------------------
+  // 1h funding
+  // ----------------------
+
+  const borrowFee =
+    (position == 'long' ? gmxToTokenInfo.fundingRate : gmxFromTokenInfo.fundingRate) ||
+    BigNumber.from(0)
+
+  const borrowFeeAmount = nextToUsd.mul(borrowFee).div(BASIS_POINTS_DIVISOR).div(100)
+
+  // ----------------------
   // Render
   // ----------------------
 
@@ -168,7 +178,7 @@ function GMXStats({ amount, chainId, fromTokenSymbol, leverage, position, toToke
       <div> - position fee: {formatAmount(positionFee, USD_DECIMALS)}</div>
       <div>Order Size: {nextToValue}</div>
       <div>Liq price: {formatAmount(liquidationPrice, USD_DECIMALS)}</div>
-      <div>1 hour funding: ??</div>
+      <div>1 hour funding: {formatUnits(borrowFeeAmount, USD_DECIMALS)}</div>
       {/* <div>Entry price: {formatAmount(entryMarkPrice, USD_DECIMALS)}</div>
       <div>Exit price: {formatAmount(exitMarkPrice, USD_DECIMALS)}</div> */}
     </div>
