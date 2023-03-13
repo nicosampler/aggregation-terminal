@@ -4,6 +4,7 @@ import GMXVault from '@/src/contracts/abis/GMX/GMXVault.json'
 import PositionRouter from '@/src/contracts/abis/GMX/PositionRouter.json'
 import ReaderV2 from '@/src/contracts/abis/GMX/ReaderV2.json'
 import VaultReader from '@/src/contracts/abis/GMX/VaultReader.json'
+import ExchangeRates from '@/src/contracts/abis/KWENTA/ExchangeRates.json'
 import PerpsV2Market from '@/src/contracts/abis/KWENTA/PerpsV2Market.json'
 import SynthUtil from '@/src/contracts/abis/KWENTA/PerpsV2Market.json'
 
@@ -63,6 +64,13 @@ export const contracts = {
       [Chains.arbitrum]: '',
     },
     abi: SynthUtil,
+  },
+  KWENTA_ExchangeRates: {
+    address: {
+      [Chains.optimism]: '0x0cA3985f973f044978d2381AFEd9c4D85a762d11',
+      [Chains.arbitrum]: '',
+    },
+    abi: ExchangeRates,
   },
   sUSD: {
     address: {
