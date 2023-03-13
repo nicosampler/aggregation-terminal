@@ -19,27 +19,54 @@ const Wrapper = styled(Dropdown)`
 `
 
 const Button = styled(ButtonDropdown)`
+  justify-content: start;
   > span {
     flex-shrink: 0;
+  }
+  &:after {
+    margin-left: auto;
   }
 `
 
 const TextfieldContainer = styled.div<{ closeOnClick?: boolean }>`
   background-color: ${({ theme }) => theme.dropdown.background};
-  border-bottom: 1px solid ${({ theme: { colors } }) => colors.borderColor};
   padding: var(--inner-padding);
   position: sticky;
   top: 0;
   z-index: 1;
+  &:before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    background-image: url('data:image/svg+xml;base64, PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTcuMzMzMzMgMTIuNjY2N0MxMC4yNzg5IDEyLjY2NjcgMTIuNjY2NyAxMC4yNzg5IDEyLjY2NjcgNy4zMzMzM0MxMi42NjY3IDQuMzg3ODEgMTAuMjc4OSAyIDcuMzMzMzMgMkM0LjM4NzgxIDIgMiA0LjM4NzgxIDIgNy4zMzMzM0MyIDEwLjI3ODkgNC4zODc4MSAxMi42NjY3IDcuMzMzMzMgMTIuNjY2N1oiIHN0cm9rZT0iIzczN0Q4RCIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNMTQgMTQuMDAwMUwxMS4xIDExLjEwMDEiIHN0cm9rZT0iIzczN0Q4RCIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K');
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
 `
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Textfield: any = styled(DebounceInput)`
   ${TextfieldCSS};
-
   flex-shrink: 0;
-  max-width: 100%;
-  width: auto;
+  width: 100%;
+  height: 48px;
+  padding-left: 44px;
+`
+const TokenDetails = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+  line-height: 1.2;
+  small {
+    font-size: 1rem;
+    text-transform: none;
+    color: ${({ theme: { colors } }) => colors.lightGray};
+  }
 `
 
 const NoResults = styled.div<{ closeOnClick?: boolean }>`
@@ -54,10 +81,10 @@ const NoResults = styled.div<{ closeOnClick?: boolean }>`
   padding: var(--inner-padding);
 `
 
-export const TokenDropdown: React.FC<{ onChange?: (token: Token | null) => void }> = ({
-  onChange,
-  ...restProps
-}) => {
+export const TokenDropdown: React.FC<{
+  onChange?: (token: Token | null) => void
+  changeToken: (newToken: string) => void
+}> = ({ changeToken, onChange, ...restProps }) => {
   const { onSelectToken, searchString, setSearchString, token, tokensList } =
     useTokensLists(onChange)
 
@@ -66,7 +93,10 @@ export const TokenDropdown: React.FC<{ onChange?: (token: Token | null) => void 
       dropdownButton={
         <Button>
           {token && <TokenIcon symbol={token.symbol} />}
-          {token ? token.symbol : 'Select a token...'}
+          <TokenDetails>
+            {token ? token.symbol : 'Select a token...'}
+            <small>{token ? token.name : ''}</small>
+          </TokenDetails>
         </Button>
       }
       items={[
@@ -74,7 +104,7 @@ export const TokenDropdown: React.FC<{ onChange?: (token: Token | null) => void 
           <Textfield
             debounceTimeout={300}
             onChange={(e: { target: { value: string } }) => setSearchString(e.target.value)}
-            placeholder="Search token..."
+            placeholder="Search by name or ticker"
             type="search"
             value={searchString}
           />
@@ -84,10 +114,14 @@ export const TokenDropdown: React.FC<{ onChange?: (token: Token | null) => void 
             key={index}
             onClick={() => {
               onSelectToken(item)
+              changeToken(item.symbol)
             }}
           >
             <TokenIcon symbol={item.symbol} />
-            {item.symbol}
+            <TokenDetails>
+              {item.symbol}
+              <small>{item.name}</small>
+            </TokenDetails>
           </DropdownItem>
         )),
         tokensList.length === 0 ? <NoResults closeOnClick={false}>Not found.</NoResults> : <></>,

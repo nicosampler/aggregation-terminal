@@ -58,7 +58,8 @@ export const ButtonPrimaryCSS = css`
   border-color: ${({ theme: { buttonPrimary } }) => buttonPrimary.borderColor};
   color: ${({ theme: { buttonPrimary } }) => buttonPrimary.color};
 
-  &:hover {
+  &:hover,
+  &.active {
     background-color: ${({ theme: { buttonPrimary } }) => buttonPrimary.backgroundColorHover};
     border-color: ${({ theme: { buttonPrimary } }) => buttonPrimary.borderColorHover};
     color: ${({ theme: { buttonPrimary } }) => buttonPrimary.colorHover};

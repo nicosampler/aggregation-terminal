@@ -7,7 +7,7 @@ const error = '#FE6D64'
 const success = '#64FEAB'
 const warning = '#FEF764'
 const primary = '#996939'
-const secondary = '#E56399'
+const secondary = error
 const tertiary = '#A6CFD5'
 const textColor = '#fff'
 const borderColorAlpha = 'rgba(38,41,44,0.6)'
@@ -19,6 +19,7 @@ const darkestGray = '#101213'
 const darkGrayDarkened = darken(0.1, 'rgb(10, 25, 50)')
 const darkBlue = 'rgb(6, 75, 141)'
 const componentBackgroundColor = 'rgba(13, 2, 2, 0.85)'
+const white = '#fff'
 
 export const dark = {
   body: {
@@ -34,10 +35,10 @@ export const dark = {
     colorHover: textColor,
   },
   buttonPrimary: {
-    backgroundColor: darkGray,
-    backgroundColorHover: darkGrayDarkened,
+    backgroundColor: gray,
+    backgroundColorHover: darkGray,
     borderColor: borderColor,
-    borderColorHover: borderColor,
+    borderColorHover: white,
     color: textColor,
     colorHover: textColor,
   },
@@ -57,6 +58,7 @@ export const dark = {
     lightGray: lightGray,
     darkBlue: darkBlue,
     darkGray: darkGray,
+    darkestGray: darkestGray,
     darkGrayDarkened: darkGrayDarkened,
     error: error,
     primary: primary,
@@ -67,12 +69,12 @@ export const dark = {
     warning: warning,
   },
   dropdown: {
-    background: darkGray,
+    background: darkestGray,
     borderColor: borderColor,
-    boxShadow: 'none',
+    boxShadow: '0px 8px 12px rgba(13, 15, 16, 0.2)',
     item: {
       backgroundColor: 'transparent',
-      backgroundColorHover: darkGrayDarkened,
+      backgroundColorHover: gray,
       borderColor: borderColor,
       color: textColor,
       colorDanger: error,
@@ -88,12 +90,12 @@ export const dark = {
     successColor: success,
     active: {
       backgroundColor: darkGray,
-      borderColor: secondary,
+      borderColor: lightGray,
       boxShadow: 'none',
       color: textColor,
     },
     placeholder: {
-      color: 'lightGray',
+      color: '#8A93A2',
     },
   },
   header: {

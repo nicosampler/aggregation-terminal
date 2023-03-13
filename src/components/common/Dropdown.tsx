@@ -72,10 +72,9 @@ const Items = styled.div<ItemsProps>`
   box-shadow: ${({ theme: { dropdown } }) => dropdown.boxShadow};
   display: ${({ isOpen }) => (isOpen ? 'block' : 'none')};
   min-width: 90px;
+  width: 100%;
   position: absolute;
   white-space: nowrap;
-  box-shadow: 0px 27px 80px rgba(0, 0, 0, 0.07), 0px 10.4px 25.4815px rgba(0, 0, 0, 0.0425185),
-    0px 2.2px 6.51852px rgba(0, 0, 0, 0.0274815);
   ${({ dropdownPosition }) =>
     dropdownPosition === DropdownPosition.left &&
     css`
@@ -126,7 +125,6 @@ export interface ItemProps {
 export const DropdownItemCSS = css<ItemProps>`
   align-items: center;
   background-color: ${({ theme: { dropdown } }) => dropdown.item.backgroundColor};
-  border-bottom: 1px solid ${({ theme: { dropdown } }) => dropdown.item.borderColor};
   cursor: pointer;
   display: flex;
   font-size: 1.4rem;
@@ -136,7 +134,7 @@ export const DropdownItemCSS = css<ItemProps>`
   line-height: 1.4;
   min-height: 30px;
   overflow: hidden;
-  padding: 0 20px;
+  padding: 16px 20px;
   text-decoration: none;
   transition: background-color 0.15s linear;
   user-select: none;

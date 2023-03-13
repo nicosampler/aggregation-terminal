@@ -3,25 +3,24 @@ import { useReducer, useState } from 'react'
 import styled from 'styled-components'
 
 import { BigNumber } from 'ethers'
-import ReactSlider from 'react-slider'
 
 import { BaseCard } from '@/src/components/common/BaseCard'
 import SafeSuspense from '@/src/components/helpers/SafeSuspense'
 import { withGenericSuspense } from '@/src/components/helpers/SafeSuspense'
-import { BaseParagraph } from '@/src/components/text/BaseParagraph'
+import { Configuration } from '@/src/components/position/Configuration'
 import { Chains, chainsConfig } from '@/src/config/web3'
 import useProtocols from '@/src/hooks/useProtocols'
 import GMXStats from '@/src/pagePartials/GMXStats'
 import { OutputDetails } from '@/src/pagePartials/index/OutputDetails'
 import { useTokensInfo } from '@/src/providers/tokenIconsProvider'
-import { formatAmount } from '@/src/utils/GMX/format'
 import { ChainsValues } from '@/types/chains'
-import { ColoredOutputs, Outputs, Position } from '@/types/utils'
+import { Outputs, Position } from '@/types/utils'
 
 const Card = styled(BaseCard)`
   display: flex;
   flex-direction: column;
   justify-content: center;
+  min-width: 50%;
 `
 
 const Layout = styled.div`
@@ -32,7 +31,6 @@ const Layout = styled.div`
   grid-row-gap: 20px;
   @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
     grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(2, 1fr);
   }
 `
 
@@ -82,66 +80,38 @@ const Home: NextPage = () => {
       amount: '',
     },
   )
-
   const existsTokenInProtocolA = exitsTokenInProtocol(form.protocolA, form.chainA, form.token)
+
+  const selectedTokenInfo = tokensInfo.tokensBySymbol[form.token.toLowerCase()]
+
+  const min = 1
+  const max = 25
+
+  const changePosition = (newPosition: Position) => {
+    setForm({ position: newPosition as Position })
+  }
+  const changeAmount = (newAmount: string) => {
+    setForm({ amount: newAmount })
+  }
+  const changeLeverage = (newLeverage: number) => {
+    const limitLeverage = Math.max(min, Math.min(max, Number(newLeverage)))
+    setForm({ leverage: limitLeverage })
+  }
+  const changeToken = (newToken: string) => {
+    setForm({ token: newToken })
+  }
 
   return (
     <Layout>
       <Filter>
-        <Card>
-          <BaseParagraph>Get started by editing</BaseParagraph>
-
-          <div>
-            Amount in USD:{' '}
-            <input
-              onChange={(event) => setForm({ amount: event.target.value })}
-              type="number"
-              value={form.amount}
-            />
-          </div>
-
-          <div>
-            Token:
-            <select onChange={(e) => setForm({ token: e.target.value })} value={form.token}>
-              {uniqueTokenSymbols.map((symbol) => (
-                <option key={symbol} value={symbol}>
-                  {symbol}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <input
-              checked={form.position == 'long'}
-              onChange={(e) => setForm({ position: e.target.value as Position })}
-              type="radio"
-              value="long"
-            />
-            LONG
-          </div>
-
-          <div>
-            <input
-              checked={form.position == 'short'}
-              onChange={(e) => setForm({ position: e.target.value as Position })}
-              type="radio"
-              value="short"
-            />
-            SHORT
-          </div>
-
-          <div>
-            Leverage:
-            <ReactSlider
-              defaultValue={form.leverage}
-              max={50}
-              min={1}
-              onChange={(value) => setForm({ leverage: value })}
-              renderThumb={(props, state) => <div {...props}>{state.valueNow}</div>}
-            />
-          </div>
-        </Card>
+        <Configuration
+          {...form}
+          changeAmount={changeAmount}
+          changeLeverage={changeLeverage}
+          changePosition={changePosition}
+          changeToken={changeToken}
+          defaultToken={form.token}
+        />
       </Filter>
       {/* Protocol A */}
       <Card>

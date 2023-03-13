@@ -88,5 +88,3 @@ export interface Outputs {
   liquidationPrice?: BigNumber
   oneHourFunding?: BigNumber
 }
-
-export type ColoredOutputs = Record<keyof Outputs, 'green' | 'red' | 'default'>
