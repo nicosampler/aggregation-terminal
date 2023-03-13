@@ -1,22 +1,22 @@
 import type { NextPage } from 'next'
-import { useReducer } from 'react'
+import { useReducer, useState } from 'react'
 import styled from 'styled-components'
 
 import { BigNumber } from 'ethers'
-import { parseUnits } from 'ethers/lib/utils'
-import { parse } from 'graphql'
 import ReactSlider from 'react-slider'
 
 import { BaseCard } from '@/src/components/common/BaseCard'
+import SafeSuspense from '@/src/components/helpers/SafeSuspense'
 import { withGenericSuspense } from '@/src/components/helpers/SafeSuspense'
 import { BaseParagraph } from '@/src/components/text/BaseParagraph'
-import { TokenInput } from '@/src/components/token/TokenInput'
 import { Chains, chainsConfig } from '@/src/config/web3'
 import useProtocols from '@/src/hooks/useProtocols'
 import GMXStats from '@/src/pagePartials/GMXStats'
+import { OutputDetails } from '@/src/pagePartials/index/OutputDetails'
 import { useTokensInfo } from '@/src/providers/tokenIconsProvider'
+import { formatAmount } from '@/src/utils/GMX/format'
 import { ChainsValues } from '@/types/chains'
-import { Position } from '@/types/utils'
+import { ColoredOutputs, Outputs, Position } from '@/types/utils'
 
 const Card = styled(BaseCard)`
   display: flex;
@@ -66,6 +66,9 @@ const Home: NextPage = () => {
   const uniqueTokenSymbols = [...new Set(tokensInfo.tokens.map((t) => t.symbol))]
   const { exitsTokenInProtocol, getProtocolChains, protocolsNames } = useProtocols()
 
+  const [protocolAValues, setProtocolAValues] = useState<Outputs>()
+  const [protocolBValues, setProtocolBValues] = useState<Outputs>()
+
   const [form, setForm] = useReducer(
     (data: Form, partial: Partial<Form>): Form => ({ ...data, ...partial }),
     {
@@ -81,8 +84,6 @@ const Home: NextPage = () => {
   )
 
   const existsTokenInProtocolA = exitsTokenInProtocol(form.protocolA, form.chainA, form.token)
-
-  const selectedTokenInfo = tokensInfo.tokensBySymbol[form.token.toLowerCase()]
 
   return (
     <Layout>
@@ -142,6 +143,7 @@ const Home: NextPage = () => {
           </div>
         </Card>
       </Filter>
+      {/* Protocol A */}
       <Card>
         <ProtocolWrapper>
           <select onChange={(e) => setForm({ protocolA: e.target.value })} value={form.protocolA}>
@@ -169,6 +171,7 @@ const Home: NextPage = () => {
           )}
         </ProtocolWrapper>
       </Card>
+      {/* Protocol B */}
       <Card>
         <ProtocolWrapper>
           <select onChange={(e) => setForm({ protocolB: e.target.value })} value={form.protocolB}>
@@ -189,14 +192,29 @@ const Home: NextPage = () => {
           </select>
 
           {form.protocolB == 'GMX' && form.amount && form.amount != '0' && (
-            <GMXStats
-              amount={form.amount} /* Hardcoded for USDC */
-              chainId={Number(form.chainB) as ChainsValues}
-              fromTokenSymbol="USDC"
-              leverage={form.leverage}
-              position={form.position}
-              toTokenSymbol="ETH"
-            />
+            <>
+              <SafeSuspense>
+                <GMXStats
+                  amount={form.amount}
+                  chainId={Number(form.chainB) as ChainsValues}
+                  fromTokenSymbol="USDC"
+                  leverage={form.leverage}
+                  position={form.position}
+                  setValues={setProtocolBValues}
+                  toTokenSymbol={form.token}
+                />
+              </SafeSuspense>
+              {protocolBValues ? (
+                <OutputDetails
+                  comparison={{
+                    investmentTokenSymbol: 'sUSD',
+                    protocolFee: BigNumber.from('666000000000000000000'),
+                    tradeFee: BigNumber.from('10'),
+                  }}
+                  local={protocolBValues}
+                />
+              ) : null}
+            </>
           )}
         </ProtocolWrapper>
       </Card>

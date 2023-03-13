@@ -1,6 +1,7 @@
 import type { DetailedHTMLProps, HTMLAttributes } from 'react'
 
 import { Contract } from '@ethersproject/contracts'
+import { BigNumber } from 'ethers'
 import { KeyedMutator } from 'swr'
 
 import { ChainsValues } from '@/types/chains'
@@ -76,3 +77,16 @@ export const isFulfilled = <T>(
 ): input is PromiseFulfilledResult<T> => input.status === 'fulfilled'
 
 export type Position = 'long' | 'short'
+
+export interface Outputs {
+  investmentTokenSymbol: string
+  fillPrice?: BigNumber
+  priceImpact?: BigNumber
+  protocolFee?: BigNumber
+  tradeFee?: BigNumber
+  keeperFee?: BigNumber
+  liquidationPrice?: BigNumber
+  oneHourFunding?: BigNumber
+}
+
+export type ColoredOutputs = Record<keyof Outputs, 'green' | 'red' | 'default'>

@@ -1,7 +1,8 @@
-import { BigNumber } from 'ethers'
+import { Dispatch, memo } from 'react'
+
+import { BigNumber, constants } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 
-import { withGenericSuspense } from '@/src/components/helpers/SafeSuspense'
 import { useGMXTokensInfo } from '@/src/hooks/GMX/useGMXTokensInfo'
 import useGMXVaultStats from '@/src/hooks/GMX/useGMXVaultStats'
 import useUSDGStats from '@/src/hooks/GMX/useUSDGStats'
@@ -14,9 +15,9 @@ import {
 import { formatAmount } from '@/src/utils/GMX/format'
 import { getLiquidationPrice } from '@/src/utils/GMX/getLiquidationPrice'
 import { getNextToAmount } from '@/src/utils/GMX/getNextToAmount'
-import { expandDecimals } from '@/src/utils/GMX/numbers'
+import { contractDecimals, expandDecimals } from '@/src/utils/GMX/numbers'
 import { ChainsValues } from '@/types/chains'
-import { Position } from '@/types/utils'
+import { Outputs, Position } from '@/types/utils'
 
 type Props = {
   amount: string
@@ -25,14 +26,18 @@ type Props = {
   position: Position
   fromTokenSymbol: string
   toTokenSymbol: string
+  setValues: Dispatch<Outputs>
 }
 
-const SHORT_COLLATERAL_SYMBOL: Record<ChainsValues, string> = {
-  10: '',
-  42161: 'USDC',
-}
-
-function GMXStats({ amount, chainId, fromTokenSymbol, leverage, position, toTokenSymbol }: Props) {
+const GMXStatsComponent = memo(function GMXStats({
+  amount,
+  chainId,
+  fromTokenSymbol,
+  leverage,
+  position,
+  setValues,
+  toTokenSymbol,
+}: Props) {
   const { exitsTokenInProtocol, getTokenBySymbolAndChain } = useProtocols()
   const existsTokenInProtocol = exitsTokenInProtocol('GMX', chainId.toString(), toTokenSymbol)
   const gmxTokensInfo = useGMXTokensInfo(chainId)
@@ -144,7 +149,7 @@ function GMXStats({ amount, chainId, fromTokenSymbol, leverage, position, toToke
 
   const positionFee = sizeDelta.mul(MARGIN_FEE_BASIS_POINTS).div(BASIS_POINTS_DIVISOR)
   let feesUsd = positionFee
-  let swapFees
+  let swapFees = constants.Zero
 
   if (feeBasisPoints) {
     swapFees = fromUsdMin.mul(feeBasisPoints).div(BASIS_POINTS_DIVISOR)
@@ -162,27 +167,25 @@ function GMXStats({ amount, chainId, fromTokenSymbol, leverage, position, toToke
   const borrowFeeAmount = nextToUsd.mul(borrowFee).div(BASIS_POINTS_DIVISOR).div(100)
 
   // ----------------------
-  // Render
+  // Set values
   // ----------------------
 
-  if (!existsTokenInProtocol) {
-    return <div>Token not supported for the given protocol and chain</div>
-  }
+  setValues({
+    investmentTokenSymbol: 'USDC',
+    fillPrice: nextToAmount, // 18
+    priceImpact: undefined,
+    protocolFee: feesUsd.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
+    tradeFee: swapFees.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
+    keeperFee: positionFee.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
+    liquidationPrice: liquidationPrice.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
+    oneHourFunding: borrowFeeAmount.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
+  })
 
-  return (
-    <div>
-      <div>Investment token: USDC</div>
-      <div>Price impact: $0</div>
-      <div>Protocol fee {formatAmount(feesUsd, USD_DECIMALS)} </div>
-      <div> - Trade fee: {formatAmount(swapFees || 0, USD_DECIMALS)}</div>
-      <div> - position fee: {formatAmount(positionFee, USD_DECIMALS)}</div>
-      <div>Order Size: {nextToValue}</div>
-      <div>Liq price: {formatAmount(liquidationPrice, USD_DECIMALS)}</div>
-      <div>1 hour funding: {formatUnits(borrowFeeAmount, USD_DECIMALS)}</div>
-      {/* <div>Entry price: {formatAmount(entryMarkPrice, USD_DECIMALS)}</div>
-      <div>Exit price: {formatAmount(exitMarkPrice, USD_DECIMALS)}</div> */}
-    </div>
-  )
-}
+  // ----------------------
+  // Render
+  // ----------------------
+  // This component is only used to call setValues
+  return null
+})
 
-export default withGenericSuspense(GMXStats)
+export default GMXStatsComponent

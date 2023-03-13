@@ -1,4 +1,4 @@
-import { BigNumberish, ethers } from 'ethers'
+import { BigNumber, BigNumberish, ethers } from 'ethers'
 
 export const limitDecimals = (amount: BigNumberish, maxDecimals?: number) => {
   let amountStr = amount.toString()
@@ -32,8 +32,8 @@ export const padDecimals = (amount: BigNumberish, minDecimals: number) => {
   return amountStr
 }
 
-export function formatAmount(amount: BigNumberish, tokenDecimals: number, decimals = 2) {
-  let amountStr = ethers.utils.formatUnits(amount, tokenDecimals)
+export function formatAmount(amount: BigNumberish | undefined, tokenDecimals = 18, decimals = 2) {
+  let amountStr = ethers.utils.formatUnits(amount || ethers.constants.Zero, tokenDecimals)
   amountStr = limitDecimals(amountStr, decimals)
   amountStr = padDecimals(amountStr, decimals)
 

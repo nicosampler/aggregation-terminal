@@ -7,7 +7,7 @@ import {
   TAX_BASIS_POINTS,
   USDG_DECIMALS,
 } from '@/src/utils/GMX/constants'
-import { adjustForDecimals, adjustForDecimalsFactory } from '@/src/utils/GMX/numbers'
+import { contractDecimals, foldUnfoldDecimals } from '@/src/utils/GMX/numbers'
 import { TokenInfo } from '@/types/GMX/types'
 import { ChainsValues } from '@/types/chains'
 
@@ -92,15 +92,11 @@ export function getNextToAmount(
     throw `There was an error, fromToken.minPrice and toToken.maxPrice can not be undefined`
   }
 
-  const adjustDecimals = adjustForDecimalsFactory(collateralToken.decimals - fromToken.decimals)
+  const adjustDecimals = foldUnfoldDecimals(collateralToken.decimals - fromToken.decimals)
 
   const toAmount = fromAmount.mul(fromTokenMinPrice).div(toTokenMaxPrice)
   let fromTokenToUSDGAmount = fromAmount.mul(fromTokenMinPrice).div(PRECISION)
-  fromTokenToUSDGAmount = adjustForDecimals(
-    fromTokenToUSDGAmount,
-    fromToken.decimals,
-    USDG_DECIMALS,
-  )
+  fromTokenToUSDGAmount = contractDecimals(fromTokenToUSDGAmount, fromToken.decimals, USDG_DECIMALS)
 
   const feeBasisPoints0 = getFeeBasisPoints(
     fromToken,
