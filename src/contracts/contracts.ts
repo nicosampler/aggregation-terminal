@@ -38,7 +38,7 @@ export const contracts = {
   },
   WETH: {
     address: {
-      [Chains.optimism]: '',
+      [Chains.optimism]: '0x7cade2beb25ede5f8590602b1b24c4f610fde605',
       [Chains.arbitrum]: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
     },
     abi: ERC20,
@@ -63,6 +63,13 @@ export const contracts = {
       [Chains.arbitrum]: '',
     },
     abi: SynthUtil,
+  },
+  sUSD: {
+    address: {
+      [Chains.optimism]: '0x8c6f28f2f1a3c87f0f938b96d27520d9751ec8d9',
+      [Chains.arbitrum]: '',
+    },
+    abi: ERC20,
   },
 } as const
 
