@@ -26,7 +26,9 @@ export const useTokensLists = (onChange?: (token: Token | null) => void) => {
     } else {
       setTokensList(
         tokens.filter(
-          (item) => item.symbol.toLowerCase().indexOf(searchString.toLowerCase()) !== -1,
+          (item) =>
+            (item.name.toLowerCase().indexOf(searchString.toLowerCase()) &&
+              item.symbol.toLowerCase().indexOf(searchString.toLowerCase())) !== -1,
         ),
       )
     }
