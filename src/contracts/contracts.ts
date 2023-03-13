@@ -5,6 +5,7 @@ import PositionRouter from '@/src/contracts/abis/GMX/PositionRouter.json'
 import ReaderV2 from '@/src/contracts/abis/GMX/ReaderV2.json'
 import VaultReader from '@/src/contracts/abis/GMX/VaultReader.json'
 import PerpsV2Market from '@/src/contracts/abis/KWENTA/PerpsV2Market.json'
+import SynthUtil from '@/src/contracts/abis/KWENTA/PerpsV2Market.json'
 
 export const contracts = {
   GMX_ReaderV2: {
@@ -55,6 +56,13 @@ export const contracts = {
       [Chains.arbitrum]: '',
     },
     abi: PerpsV2Market,
+  },
+  KWENTA_SynthUtil: {
+    address: {
+      [Chains.optimism]: '0x87b1481c82913301Fc6c884Ac266a7c430F92cFA',
+      [Chains.arbitrum]: '',
+    },
+    abi: SynthUtil,
   },
 } as const
 
