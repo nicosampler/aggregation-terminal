@@ -14,6 +14,7 @@ import { Configuration as PositionParams } from '@/src/components/position/Posit
 import { Chains, chainsConfig } from '@/src/config/web3'
 import useProtocols from '@/src/hooks/useProtocols'
 import GMXStats from '@/src/pagePartials/GMXStats'
+import KWENTAStats from '@/src/pagePartials/KWENTAStats'
 import { OutputDetails } from '@/src/pagePartials/index/OutputDetails'
 import { ChainsValues } from '@/types/chains'
 import { ComparisonForm, Outputs } from '@/types/utils'

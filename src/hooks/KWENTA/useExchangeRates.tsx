@@ -21,7 +21,7 @@ function useRatesForCurrencies(currencyKeys: CurrencyKey[]) {
 
   console.log('RatesForCurrencies ', res)
 
-  return !res[0].data ? undefined : res[0].data[0]
+  return !res[0].data ? [] : res[0].data[0]
 }
 
 export default useRatesForCurrencies
