@@ -2,6 +2,7 @@ import styled from 'styled-components'
 
 import { ButtonPrimary } from '@/src/components/buttons/Button'
 import { BaseCard } from '@/src/components/common/BaseCard'
+import { Label } from '@/src/components/form/Label'
 import { Textfield } from '@/src/components/form/Textfield'
 import { TokenDropdown as BaseDropdown } from '@/src/components/token/TokenDropdown'
 import { Position } from '@/types/utils'
@@ -88,22 +89,6 @@ const TabContent = styled.div`
   }
 `
 
-const Label = styled.label`
-  color: ${({ theme: { colors } }) => colors.lightGray};
-  font-weight: 500;
-  font-size: 1rem;
-  line-height: 1.2;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  display: block;
-  span {
-    display: block;
-    margin-bottom: 10px;
-  }
-  button {
-    width: 100%;
-  }
-`
 const InputWrapper = styled.div`
   position: relative;
   margin-top: 10px;
@@ -152,11 +137,11 @@ interface Props {
   changeLeverage: (newLeverage: number) => void
   changePosition: (newPosition: Position) => void
   changeToken: (newToken: string) => void
-  defaultToken: string
   disableTokenDropdown?: boolean
   leverage: number
   onTokenChange?: (token: string) => void
   position: string
+  token: string
 }
 
 export const Configuration: React.FC<Props> = ({
@@ -164,9 +149,9 @@ export const Configuration: React.FC<Props> = ({
   changeLeverage,
   changePosition,
   changeToken,
-  defaultToken,
   leverage,
   position,
+  token,
 }) => {
   return (
     <Wrapper>
@@ -199,7 +184,7 @@ export const Configuration: React.FC<Props> = ({
           </Label>
           <Label>
             <span>Token</span>
-            <TokenDropdown changeToken={changeToken} />
+            <TokenDropdown changeToken={changeToken} defaultToken={token} />
           </Label>
           <Label>
             <span>Leverage</span>

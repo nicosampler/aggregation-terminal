@@ -5,6 +5,9 @@ import styled from 'styled-components'
 import { BigNumber } from 'ethers'
 
 import { BaseCard } from '@/src/components/common/BaseCard'
+import { DropdownDirection } from '@/src/components/common/Dropdown'
+import { Label } from '@/src/components/form/Label'
+import Select from '@/src/components/form/Select'
 import SafeSuspense from '@/src/components/helpers/SafeSuspense'
 import { withGenericSuspense } from '@/src/components/helpers/SafeSuspense'
 import { Configuration } from '@/src/components/position/Configuration'
@@ -19,10 +22,9 @@ import { Outputs, Position } from '@/types/utils'
 const Card = styled(BaseCard)`
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  min-width: 50%;
+  gap: 20px;
+  min-width: 0;
 `
-
 const Layout = styled.div`
   display: grid;
   grid-template-columns: 1fr;
@@ -33,19 +35,12 @@ const Layout = styled.div`
     grid-template-columns: repeat(2, 1fr);
   }
 `
-
-const Filter = styled.section`
-  grid-area: unset;
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
-    grid-area: 1 / 1 / 2 / 3;
-  }
-`
-
-const ProtocolWrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+const Message = styled.div`
+  padding: 20px;
+  border-radius: 8px;
+  background-color: ${({ theme: { colors } }) => colors.gray};
+  color: ${({ theme }) => theme.colors.lighterGray};
+  font-weight: 400;
 `
 
 interface Form {
@@ -63,10 +58,6 @@ const Home: NextPage = () => {
   const tokensInfo = useTokensInfo()
   const uniqueTokenSymbols = [...new Set(tokensInfo.tokens.map((t) => t.symbol))]
   const { exitsTokenInProtocol, getProtocolChains, protocolsNames } = useProtocols()
-
-  const [protocolAValues, setProtocolAValues] = useState<Outputs>()
-  const [protocolBValues, setProtocolBValues] = useState<Outputs>()
-
   const [form, setForm] = useReducer(
     (data: Form, partial: Partial<Form>): Form => ({ ...data, ...partial }),
     {
@@ -81,7 +72,8 @@ const Home: NextPage = () => {
     },
   )
   const existsTokenInProtocolA = exitsTokenInProtocol(form.protocolA, form.chainA, form.token)
-
+  const [protocolAValues, setProtocolAValues] = useState<Outputs>()
+  const [protocolBValues, setProtocolBValues] = useState<Outputs>()
   const selectedTokenInfo = tokensInfo.tokensBySymbol[form.token.toLowerCase()]
 
   const min = 1
@@ -100,96 +92,118 @@ const Home: NextPage = () => {
   const changeToken = (newToken: string) => {
     setForm({ token: newToken })
   }
+  const changeProtocolA = (newProtocol: string) => {
+    setForm({ protocolA: newProtocol })
+  }
+  const changeProtocolB = (newProtocol: string) => {
+    setForm({ protocolB: newProtocol })
+  }
+  const changeChainA = (newChain: string) => {
+    setForm({ chainA: newChain })
+  }
+  const changeChainB = (newChain: string) => {
+    setForm({ chainB: newChain })
+  }
+
+  const chainsStoreNamed = (chainsStore: Array<number>) =>
+    chainsStore.reduce((namedArray: string[], chainId) => {
+      namedArray.push(
+        chainsConfig[Number(chainId) as ChainsValues]?.shortName || chainId.toString(),
+      )
+      return namedArray
+    }, [])
 
   return (
     <Layout>
-      <Filter>
-        <Configuration
-          {...form}
-          changeAmount={changeAmount}
-          changeLeverage={changeLeverage}
-          changePosition={changePosition}
-          changeToken={changeToken}
-          defaultToken={form.token}
-        />
-      </Filter>
-      {/* Protocol A */}
+      <Configuration
+        {...form}
+        changeAmount={changeAmount}
+        changeLeverage={changeLeverage}
+        changePosition={changePosition}
+        changeToken={changeToken}
+      />
       <Card>
-        <ProtocolWrapper>
-          <select onChange={(e) => setForm({ protocolA: e.target.value })} value={form.protocolA}>
-            {protocolsNames
-              .filter((pn) => pn !== form.protocolB)
-              .map((protocolName) => (
-                <option key={protocolName} value={protocolName}>
-                  {protocolName}
-                </option>
-              ))}
-          </select>
+        <Label>
+          <span>Exchange</span>
+          <Select
+            defaultItem={protocolsNames[0]}
+            disabled
+            onChange={changeProtocolA}
+            options={protocolsNames}
+          />
+        </Label>
+        <Label>
+          <span>Chain</span>
+          <Select
+            disabled={chainsStoreNamed(getProtocolChains(form.protocolA)).length < 2}
+            dropdownDirection={
+              !form.amount ? DropdownDirection.upwards : DropdownDirection.downwards
+            }
+            onChange={changeChainA}
+            options={chainsStoreNamed(getProtocolChains(form.protocolA))}
+          />
+        </Label>
 
-          <select onChange={(e) => setForm({ chainA: e.target.value })} value={form.chainA}>
-            {getProtocolChains(form.protocolA).map((chainId) => (
-              <option key={chainId} value={chainId}>
-                {chainsConfig[Number(chainId) as ChainsValues]?.shortName || chainId}
-              </option>
-            ))}
-          </select>
-
-          {existsTokenInProtocolA ? (
-            <div>Show perpetual conditions for {form.protocolA}</div>
-          ) : (
-            <div>Token not supported for the given protocol and chain</div>
-          )}
-        </ProtocolWrapper>
-      </Card>
-      {/* Protocol B */}
-      <Card>
-        <ProtocolWrapper>
-          <select onChange={(e) => setForm({ protocolB: e.target.value })} value={form.protocolB}>
-            {protocolsNames
-              .filter((pn) => pn !== form.protocolA)
-              .map((protocolName) => (
-                <option key={protocolName} value={protocolName}>
-                  {protocolName}
-                </option>
-              ))}
-          </select>
-          <select onChange={(e) => setForm({ chainB: e.target.value })} value={form.chainB}>
-            {getProtocolChains(form.protocolB).map((chainId) => (
-              <option key={chainId} value={chainId}>
-                {chainsConfig[Number(chainId) as ChainsValues]?.shortName || chainId}
-              </option>
-            ))}
-          </select>
-
-          {form.protocolB == 'GMX' && form.amount && form.amount != '0' && (
+        {form.protocolA !== 'GMX' &&
+          (existsTokenInProtocolA ? (
             <>
-              <SafeSuspense>
-                <GMXStats
-                  amount={form.amount}
-                  chainId={Number(form.chainB) as ChainsValues}
-                  fromTokenSymbol="USDC"
-                  leverage={form.leverage}
-                  position={form.position}
-                  setValues={setProtocolBValues}
-                  toTokenSymbol={form.token}
-                />
-              </SafeSuspense>
-              {protocolBValues ? (
-                <OutputDetails
-                  comparison={{
-                    investmentTokenSymbol: 'sUSD',
-                    protocolFee: BigNumber.from('666000000000000000000'),
-                    tradeFee: BigNumber.from('10'),
-                  }}
-                  local={protocolBValues}
-                />
-              ) : null}
+              {/* @todo: Kwenta stats
+                <Message>Show perpetual conditions for {form.protocolA}</Message>
+              */}
             </>
-          )}
-        </ProtocolWrapper>
+          ) : (
+            <Message>Token not supported for the given protocol and chain</Message>
+          ))}
+      </Card>
+      <Card>
+        <Label>
+          <span>Exchange</span>
+          <Select
+            defaultItem={protocolsNames[1]}
+            disabled
+            onChange={changeProtocolB}
+            options={protocolsNames}
+          />
+        </Label>
+        <Label>
+          <span>Chain</span>
+          <Select
+            disabled={chainsStoreNamed(getProtocolChains(form.protocolB)).length < 2}
+            dropdownDirection={
+              !form.amount ? DropdownDirection.upwards : DropdownDirection.downwards
+            }
+            onChange={changeChainB}
+            options={chainsStoreNamed(getProtocolChains(form.protocolB))}
+          />
+        </Label>
+
+        {form.protocolB == 'GMX' && form.amount && form.amount != '0' && (
+          <>
+            <SafeSuspense>
+              <GMXStats
+                amount={form.amount}
+                chainId={Number(form.chainB) as ChainsValues}
+                fromTokenSymbol="USDC"
+                leverage={form.leverage}
+                position={form.position}
+                setValues={setProtocolBValues}
+                toTokenSymbol={form.token}
+              />
+            </SafeSuspense>
+            {protocolBValues ? (
+              <OutputDetails
+                comparison={{
+                  investmentTokenSymbol: 'sUSD',
+                  protocolFee: BigNumber.from('666000000000000000000'),
+                  tradeFee: BigNumber.from('10'),
+                }}
+                local={protocolBValues}
+              />
+            ) : null}
+          </>
+        )}
       </Card>
     </Layout>
   )
 }
-
 export default withGenericSuspense(Home)
