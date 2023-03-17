@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { DebounceInput } from 'react-debounce-input'
 
 import { ButtonDropdown } from '@/src/components/buttons/Button'
-import { Dropdown, DropdownItem } from '@/src/components/common/Dropdown'
+import { Dropdown, DropdownDirection, DropdownItem } from '@/src/components/common/Dropdown'
 import { TextfieldCSS } from '@/src/components/form/Textfield'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
 import { useTokensLists } from '@/src/components/token/useTokensLists'
@@ -84,18 +84,23 @@ const NoResults = styled.div<{ closeOnClick?: boolean }>`
 export const TokenDropdown: React.FC<{
   onChange?: (token: Token | null) => void
   changeToken: (newToken: string) => void
-}> = ({ changeToken, onChange, ...restProps }) => {
+  defaultToken: string
+}> = ({ changeToken, defaultToken, onChange, ...restProps }) => {
   const { onSelectToken, searchString, setSearchString, token, tokensList } =
     useTokensLists(onChange)
+
+  const selectedToken = tokensList.filter((obj) => {
+    return obj.symbol === defaultToken
+  })
 
   return (
     <Wrapper
       dropdownButton={
         <Button>
-          {token && <TokenIcon symbol={token.symbol} />}
+          <TokenIcon symbol={token ? token.symbol : selectedToken[0].symbol} />
           <TokenDetails>
-            {token ? token.symbol : 'Select a token...'}
-            <small>{token ? token.name : ''}</small>
+            {token ? token.symbol : selectedToken[0].symbol}
+            <small>{token ? token.name : selectedToken[0].name}</small>
           </TokenDetails>
         </Button>
       }

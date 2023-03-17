@@ -5,7 +5,7 @@ import { darken, transparentize } from 'polished'
 
 const error = '#FE6D64'
 const success = '#64FEAB'
-const warning = '#FEF764'
+const warning = '#FE6D64'
 const primary = '#996939'
 const secondary = error
 const tertiary = '#A6CFD5'
@@ -13,6 +13,7 @@ const textColor = '#fff'
 const borderColorAlpha = 'rgba(38,41,44,0.6)'
 const borderColor = '#26292C'
 const lightGray = '#737D8D'
+const lighterGray = '#8A93A1'
 const gray = '#15181A'
 const darkGray = '#0D0F10'
 const darkestGray = '#101213'
@@ -56,6 +57,7 @@ export const dark = {
     componentBackgroundColor: componentBackgroundColor,
     gray: gray,
     lightGray: lightGray,
+    lighterGray: lighterGray,
     darkBlue: darkBlue,
     darkGray: darkGray,
     darkestGray: darkestGray,

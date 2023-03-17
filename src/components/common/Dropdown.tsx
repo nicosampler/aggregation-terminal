@@ -291,7 +291,7 @@ export const Dropdown: React.FC<Props> = (props) => {
                 e.stopPropagation()
 
                 if (item.props.closeOnClick) {
-                  setIsOpen(false)
+                  setIsOpen(true)
                 }
 
                 if (!item.props.onClick) {
