@@ -31,7 +31,7 @@ export function OutputDetails({ comparison, local }: Props) {
       <div> - position fee: {formatAmount(local.keeperFee)}</div>
       <div>fill price: {formatAmount(local.fillPrice)}</div>
       <div>Liq price: {formatAmount(local.liquidationPrice)}</div>
-      <div>1 hour funding: {formatAmount(local.oneHourFunding)}</div>
+      <div>1 hour funding: {formatAmount(local.oneHourFunding, 18, 4)}</div>
     </div>
   )
 }
