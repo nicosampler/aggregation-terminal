@@ -5,7 +5,7 @@ import { BaseCard } from '@/src/components/common/BaseCard'
 import { Label } from '@/src/components/form/Label'
 import { Textfield } from '@/src/components/form/Textfield'
 import { TokenDropdown as BaseDropdown } from '@/src/components/token/TokenDropdown'
-import { Position } from '@/types/utils'
+import { ComparisonForm } from '@/types/utils'
 
 const Wrapper = styled.section`
   grid-area: unset;
@@ -133,25 +133,15 @@ const TokenDropdown = styled(BaseDropdown)`
 `
 
 interface Props {
-  changeAmount: (newAmount: string) => void
-  changeLeverage: (newLeverage: number) => void
-  changePosition: (newPosition: Position) => void
-  changeToken: (newToken: string) => void
+  form: ComparisonForm
+  setForm: (value: Partial<ComparisonForm>) => void
   disableTokenDropdown?: boolean
-  leverage: number
   onTokenChange?: (token: string) => void
-  position: string
-  token: string
 }
 
 export const Configuration: React.FC<Props> = ({
-  changeAmount,
-  changeLeverage,
-  changePosition,
-  changeToken,
-  leverage,
-  position,
-  token,
+  form: { leverage, position, token },
+  setForm,
 }) => {
   return (
     <Wrapper>
@@ -159,33 +149,42 @@ export const Configuration: React.FC<Props> = ({
         <Positions>
           <Position
             className={`long ${position == 'long' && 'active'}`}
-            onClick={() => changePosition('long')}
+            onClick={() => setForm({ position: 'long' })}
           >
             Long
           </Position>
           <Position
             className={`short ${position == 'short' && 'active'}`}
-            onClick={() => changePosition('short')}
+            onClick={() => setForm({ position: 'short' })}
           >
             Short
           </Position>
         </Positions>
+
         <TabContent>
           <Label>
             <span>Amount in usd </span>
             <InputWrapper>
               <span>$</span>
               <Textfield
-                onChange={(event) => changeAmount(event.target.value)}
+                onChange={(event) => setForm({ amount: event.target.value })}
+                onKeyDown={(event) => {
+                  const key = event.key
+                  if (key == '-') {
+                    event.preventDefault()
+                  }
+                }}
                 placeholder="0.00"
                 type="number"
               />
             </InputWrapper>
           </Label>
+
           <Label>
             <span>Token</span>
-            <TokenDropdown changeToken={changeToken} defaultToken={token} />
+            <TokenDropdown changeToken={(token) => setForm({ token })} defaultToken={token} />
           </Label>
+
           <Label>
             <span>Leverage</span>
             <InputWrapper>
@@ -193,50 +192,31 @@ export const Configuration: React.FC<Props> = ({
               <Textfield
                 max="25"
                 min="1"
-                onChange={(event) => changeLeverage(parseFloat(event.target.value))}
+                onChange={(event) => setForm({ leverage: Number(event.target.value) })}
+                onKeyDown={(event) => {
+                  const key = event.key
+                  if (key == '.' || key == ',') {
+                    event.preventDefault()
+                  }
+                }}
                 placeholder="10"
+                step={1}
                 type="number"
                 value={leverage}
               />
             </InputWrapper>
           </Label>
+
           <LeverageOptions>
-            <ButtonPrimary
-              className={leverage == 1 ? 'active' : ''}
-              onClick={() => changeLeverage(1)}
-            >
-              1
-            </ButtonPrimary>
-            <ButtonPrimary
-              className={leverage == 5 ? 'active' : ''}
-              onClick={() => changeLeverage(5)}
-            >
-              5
-            </ButtonPrimary>
-            <ButtonPrimary
-              className={leverage == 10 ? 'active' : ''}
-              onClick={() => changeLeverage(10)}
-            >
-              10
-            </ButtonPrimary>
-            <ButtonPrimary
-              className={leverage == 15 ? 'active' : ''}
-              onClick={() => changeLeverage(15)}
-            >
-              15
-            </ButtonPrimary>
-            <ButtonPrimary
-              className={leverage == 20 ? 'active' : ''}
-              onClick={() => changeLeverage(20)}
-            >
-              20
-            </ButtonPrimary>
-            <ButtonPrimary
-              className={leverage == 25 ? 'active' : ''}
-              onClick={() => changeLeverage(25)}
-            >
-              25
-            </ButtonPrimary>
+            {[1, 5, 10, 15, 20, 25].map((value) => (
+              <ButtonPrimary
+                className={leverage == value ? 'active' : ''}
+                key={value}
+                onClick={() => setForm({ leverage: value })}
+              >
+                {value}
+              </ButtonPrimary>
+            ))}
           </LeverageOptions>
         </TabContent>
       </Card>

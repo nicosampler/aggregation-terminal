@@ -88,3 +88,14 @@ export interface Outputs {
   liquidationPrice?: BigNumber
   oneHourFunding?: BigNumber
 }
+
+export interface ComparisonForm {
+  token: string
+  amount: string
+  leverage: number
+  position: Position
+  protocolA: string
+  chainA: string
+  protocolB: string
+  chainB: string
+}
