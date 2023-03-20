@@ -2,8 +2,9 @@ import styled from 'styled-components'
 
 import { ButtonPrimary } from '@/src/components/buttons/Button'
 import { BaseCard } from '@/src/components/common/BaseCard'
+import { Formfield } from '@/src/components/form/Formfield'
 import { Label } from '@/src/components/form/Label'
-import { Textfield } from '@/src/components/form/Textfield'
+import { Textfield, TextfieldStatus } from '@/src/components/form/Textfield'
 import { TokenDropdown as BaseDropdown } from '@/src/components/token/TokenDropdown'
 import { ComparisonForm } from '@/types/utils'
 
@@ -189,20 +190,26 @@ export const Configuration: React.FC<Props> = ({
             <span>Leverage</span>
             <InputWrapper>
               <span>x</span>
-              <Textfield
-                max="25"
-                min="1"
-                onChange={(event) => setForm({ leverage: event.target.value })}
-                onKeyDown={(event) => {
-                  const key = event.key
-                  if (key == '.' || key == ',') {
-                    event.preventDefault()
-                  }
-                }}
-                placeholder="10"
-                step={1}
-                type="number"
-                value={leverage}
+              <Formfield
+                formControl={
+                  <Textfield
+                    max="25"
+                    min="1"
+                    onChange={(event) => setForm({ leverage: event.target.value })}
+                    onKeyDown={(event) => {
+                      const key = event.key
+                      if (key == '.' || key == ',') {
+                        event.preventDefault()
+                      }
+                    }}
+                    placeholder="10"
+                    step={1}
+                    type="number"
+                    value={leverage}
+                  />
+                }
+                status={leverage && Number(leverage) > 25 ? TextfieldStatus.error : undefined}
+                statusText={leverage && Number(leverage) > 25 ? 'Max value is 25' : undefined}
               />
             </InputWrapper>
           </Label>

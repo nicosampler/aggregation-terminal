@@ -64,7 +64,8 @@ const Home: NextPage = () => {
   const [protocolAValues, setProtocolAValues] = useState<Outputs>()
   const [protocolBValues, setProtocolBValues] = useState<Outputs>()
 
-  const allParamsEntered = form.amount && form.amount != '0' && Number(form.leverage) > 0
+  const allParamsEntered =
+    form.amount && form.amount != '0' && Number(form.leverage) > 0 && Number(form.leverage) < 26
 
   const chainsStoreNamed = (chainsStore: Array<number>) =>
     chainsStore.reduce((namedArray: string[], chainId) => {
