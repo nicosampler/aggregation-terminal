@@ -1,6 +1,8 @@
 /* eslint-disable no-debugger */
 import { Dispatch, memo } from 'react'
 
+import Wei, { wei } from '@synthetixio/wei'
+
 import { FuturesMarketKey, kwentaFixedFee } from '../utils/KWENTA/constants'
 import { useMarketPrices, useSkewAdjustedPrice } from '@/src/hooks/KWENTA/useMarketPrice'
 import { usePostTradeDetails } from '@/src/hooks/KWENTA/usePositionDetails'
@@ -41,7 +43,7 @@ const KWENTAStatsComponent = memo(function KWENTAStats({
   const marketPrices = useMarketPrices()
   const perpMarketPrice = marketPrices[toTokenInfo?.symbol as string]
   const skewAdjustedPrice = useSkewAdjustedPrice(perpMarketPrice, marketKey)
-  debugger
+  // debugger
 
   const { nativeSize, nativeSizeDelta, sizeDelta, susdSize, susdSizeDelta } = formatOrderSizes(
     amount,
@@ -62,7 +64,7 @@ const KWENTAStatsComponent = memo(function KWENTAStats({
     nativeSizeDelta,
     position,
   )
-  debugger
+  // debugger
 
   // @wouldbenice: show maxUsdInputAmount and add amount input value verification
   //  const maxUsdInputAmount = useAppSelector(selectMaxUsdInputAmount);
@@ -72,7 +74,7 @@ const KWENTAStatsComponent = memo(function KWENTAStats({
   //  );
   setValues({
     investmentTokenSymbol: 'sUSD',
-    fillPrice: values.price.toBN(), // 18
+    fillPrice: wei(amount).mul(leverage).div(perpMarketPrice).toBN(),
     priceImpact: values.priceImpact.toBN(),
     protocolFee: values.fee.add(kwentaFixedFee).toBN(), // sum tradeFee & keeperFee
     tradeFee: values.fee.toBN(),
