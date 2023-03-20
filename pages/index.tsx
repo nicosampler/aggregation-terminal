@@ -51,7 +51,7 @@ const Home: NextPage = () => {
     }),
     {
       token: 'ETH',
-      leverage: 2,
+      leverage: '2',
       position: 'long',
       protocolA: 'Kwenta',
       chainA: Chains.optimism.toString(),
@@ -64,7 +64,7 @@ const Home: NextPage = () => {
   const [protocolAValues, setProtocolAValues] = useState<Outputs>()
   const [protocolBValues, setProtocolBValues] = useState<Outputs>()
 
-  const allParamsEntered = form.amount && form.amount != '0' && form.leverage > 0
+  const allParamsEntered = form.amount && form.amount != '0' && Number(form.leverage) > 0
 
   const chainsStoreNamed = (chainsStore: Array<number>) =>
     chainsStore.reduce((namedArray: string[], chainId) => {
@@ -139,7 +139,7 @@ const Home: NextPage = () => {
                 amount={form.amount}
                 chainId={Number(form.chainB) as ChainsValues}
                 fromTokenSymbol="USDC"
-                leverage={form.leverage}
+                leverage={Number(form.leverage)}
                 position={form.position}
                 setValues={setProtocolBValues}
                 toTokenSymbol={form.token}

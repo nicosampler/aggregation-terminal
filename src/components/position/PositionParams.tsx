@@ -192,7 +192,7 @@ export const Configuration: React.FC<Props> = ({
               <Textfield
                 max="25"
                 min="1"
-                onChange={(event) => setForm({ leverage: Number(event.target.value) })}
+                onChange={(event) => setForm({ leverage: event.target.value })}
                 onKeyDown={(event) => {
                   const key = event.key
                   if (key == '.' || key == ',') {
@@ -210,9 +210,9 @@ export const Configuration: React.FC<Props> = ({
           <LeverageOptions>
             {[1, 5, 10, 15, 20, 25].map((value) => (
               <ButtonPrimary
-                className={leverage == value ? 'active' : ''}
+                className={leverage == value.toString() ? 'active' : ''}
                 key={value}
-                onClick={() => setForm({ leverage: value })}
+                onClick={() => setForm({ leverage: value.toString() })}
               >
                 {value}
               </ButtonPrimary>

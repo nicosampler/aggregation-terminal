@@ -92,7 +92,7 @@ export interface Outputs {
 export interface ComparisonForm {
   token: string
   amount: string
-  leverage: number
+  leverage: string
   position: Position
   protocolA: string
   chainA: string
