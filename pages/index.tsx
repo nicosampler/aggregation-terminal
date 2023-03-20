@@ -101,16 +101,31 @@ const Home: NextPage = () => {
           />
         </Label>
 
-        {form.protocolA !== 'GMX' &&
-          (existsTokenInProtocolA ? (
-            <>
-              {/* @todo: Kwenta stats
-                <Message>Show perpetual conditions for {form.protocolA}</Message>
-              */}
-            </>
-          ) : (
-            <Message>Token not supported for the given protocol and chain</Message>
-          ))}
+        {form.protocolA == 'Kwenta' && form.amount && form.amount != '0' && (
+          <>
+            <SafeSuspense>
+              <KWENTAStats
+                amount={form.amount}
+                chainId={Number(form.chainB) as ChainsValues}
+                fromTokenSymbol="sUSD"
+                leverage={form.leverage}
+                position={form.position}
+                setValues={setProtocolAValues}
+                toTokenSymbol={form.token}
+              />
+            </SafeSuspense>
+            {protocolAValues ? (
+              <OutputDetails
+                comparison={{
+                  investmentTokenSymbol: 'sUSD',
+                  protocolFee: BigNumber.from('666000000000000000000'),
+                  tradeFee: BigNumber.from('10'),
+                }}
+                local={protocolAValues}
+              />
+            ) : null}
+          </>
+        )}
       </Card>
       <Card>
         <Label>
