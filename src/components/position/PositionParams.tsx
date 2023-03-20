@@ -102,6 +102,7 @@ const InputWrapper = styled.div`
     color: ${({ theme: { colors } }) => colors.lightGray};
     pointer-events: none;
     text-transform: lowercase;
+    z-index: 10;
   }
   input {
     margin-top: 0px;
