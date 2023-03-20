@@ -1,5 +1,6 @@
 import { BigNumber } from 'ethers'
 
+import { Tooltip } from '@/src/components/common/Tooltip'
 import { List, Stats } from '@/src/components/text/List'
 import { formatAmount } from '@/src/utils/GMX/format'
 import { Outputs } from '@/types/utils'
@@ -20,37 +21,57 @@ export function OutputDetails({ comparison, local }: Props) {
   return (
     <Stats>
       <List>
-        <span>Investment token</span>
+        <span>Investment Token</span>
         <strong>{local.investmentTokenSymbol}</strong>
       </List>
-
+      <List>
+        <span>
+          <Tooltip text="The notional price of the position, expressed in the spot value of the token selected.">
+            Fill Price
+          </Tooltip>
+        </span>
+        <strong>{formatAmount(local.fillPrice)}</strong>
+      </List>
       <List status={setStyle(local.priceImpact, comparison?.priceImpact)}>
-        <span>Price impact</span>
+        <span>
+          <Tooltip text="Correlation between the incoming trade, and the price of the asset.">
+            Price Impact
+          </Tooltip>
+        </span>
         <strong>{formatAmount(local.priceImpact)}</strong>
       </List>
       <List status={setStyle(local.protocolFee, comparison?.protocolFee)}>
-        <span>Protocol fee</span>
+        <span>
+          <Tooltip text="Overall fees the protocol charges for a trade.">Protocol Fee</Tooltip>
+        </span>
         <strong>{formatAmount(local.protocolFee)} </strong>
       </List>
       <List status={setStyle(local.tradeFee, comparison?.tradeFee)}>
-        <span>Trade fee</span>
+        <span>
+          <Tooltip text="The cost of swapping tokens to execute the trade.">Trade Fee</Tooltip>
+        </span>
         <strong>{formatAmount(local.tradeFee)}</strong>
       </List>
       <List>
-        <span>Position fee</span>
+        <span>
+          <Tooltip text="The cost of opening a position.">Position Fee</Tooltip>
+        </span>
         <strong>{formatAmount(local.keeperFee)}</strong>
       </List>
+
       <List>
-        <span>Fill price</span>
-        <strong>{formatAmount(local.fillPrice)}</strong>
-      </List>
-      <List>
-        <span>Liq price</span>
+        <span>
+          <Tooltip text="The price at which the position is liquidated.">Liquidation Price</Tooltip>
+        </span>
         <strong>{formatAmount(local.liquidationPrice)}</strong>
       </List>
       <List>
-        <span>1 hour funding</span>
-        <strong>{formatAmount(local.oneHourFunding, 18, 4)}</strong>
+        <span>
+          <Tooltip text="Hourly payments to or from traders depending on their trade direction.">
+            1H Funding
+          </Tooltip>
+        </span>
+        <strong>{formatAmount(local.oneHourFunding)}</strong>
       </List>
     </Stats>
   )

@@ -20,7 +20,7 @@ const darkestGray = '#101213'
 const darkGrayDarkened = darken(0.1, 'rgb(10, 25, 50)')
 const darkBlue = 'rgb(6, 75, 141)'
 const componentBackgroundColor = 'rgba(13, 2, 2, 0.85)'
-const white = '#fff'
+const white = '#ffffff'
 
 export const dark = {
   body: {
@@ -69,6 +69,7 @@ export const dark = {
     tertiary: tertiary,
     textColor: textColor,
     warning: warning,
+    white: white,
   },
   dropdown: {
     background: darkestGray,
