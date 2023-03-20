@@ -50,7 +50,7 @@ export function OutputDetails({ comparison, local }: Props) {
       </List>
       <List>
         <span>1 hour funding</span>
-        <strong>{formatAmount(local.oneHourFunding)}</strong>
+        <strong>{formatAmount(local.oneHourFunding, 18, 4)}</strong>
       </List>
     </Stats>
   )
