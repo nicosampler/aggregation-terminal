@@ -1,5 +1,6 @@
 import { BigNumber } from 'ethers'
 
+import { List, Stats } from '@/src/components/text/List'
 import { formatAmount } from '@/src/utils/GMX/format'
 import { Outputs } from '@/types/utils'
 
@@ -8,30 +9,49 @@ type Props = {
   comparison?: Outputs
 }
 
-function setColor(value?: BigNumber, comparison?: BigNumber) {
+function setStyle(value?: BigNumber, comparison?: BigNumber) {
   if (!comparison || !value || value.eq(comparison)) {
-    return 'black'
+    return 'equal'
   }
-  return value.gt(comparison) ? 'green' : 'red'
+  return value.gt(comparison) ? 'better' : 'worse'
 }
 
 export function OutputDetails({ comparison, local }: Props) {
   return (
-    <div>
-      <div>Investment token: {local.investmentTokenSymbol}</div>
-      <div style={{ color: setColor(local.priceImpact, comparison?.priceImpact) }}>
-        Price impact: {formatAmount(local.priceImpact)}
-      </div>
-      <div style={{ color: setColor(local.protocolFee, comparison?.protocolFee) }}>
-        Protocol fee {formatAmount(local.protocolFee)}{' '}
-      </div>
-      <div style={{ color: setColor(local.tradeFee, comparison?.tradeFee) }}>
-        - Trade fee: {formatAmount(local.tradeFee)}
-      </div>
-      <div> - position fee: {formatAmount(local.keeperFee)}</div>
-      <div>fill price: {formatAmount(local.fillPrice)}</div>
-      <div>Liq price: {formatAmount(local.liquidationPrice)}</div>
-      <div>1 hour funding: {formatAmount(local.oneHourFunding, 18, 4)}</div>
-    </div>
+    <Stats>
+      <List>
+        <span>Investment token</span>
+        <strong>{local.investmentTokenSymbol}</strong>
+      </List>
+
+      <List status={setStyle(local.priceImpact, comparison?.priceImpact)}>
+        <span>Price impact</span>
+        <strong>{formatAmount(local.priceImpact)}</strong>
+      </List>
+      <List status={setStyle(local.protocolFee, comparison?.protocolFee)}>
+        <span>Protocol fee</span>
+        <strong>{formatAmount(local.protocolFee)} </strong>
+      </List>
+      <List status={setStyle(local.tradeFee, comparison?.tradeFee)}>
+        <span>Trade fee</span>
+        <strong>{formatAmount(local.tradeFee)}</strong>
+      </List>
+      <List>
+        <span>Position fee</span>
+        <strong>{formatAmount(local.keeperFee)}</strong>
+      </List>
+      <List>
+        <span>Fill price</span>
+        <strong>{formatAmount(local.fillPrice)}</strong>
+      </List>
+      <List>
+        <span>Liq price</span>
+        <strong>{formatAmount(local.liquidationPrice)}</strong>
+      </List>
+      <List>
+        <span>1 hour funding</span>
+        <strong>{formatAmount(local.oneHourFunding, 18, 4)}</strong>
+      </List>
+    </Stats>
   )
 }

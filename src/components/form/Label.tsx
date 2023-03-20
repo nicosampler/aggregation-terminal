@@ -1,12 +1,21 @@
 import styled from 'styled-components'
 
 export const Label = styled.label`
-  color: ${({ theme: { colors } }) => colors.textColor};
-  display: block;
-  font-size: 1.3rem;
-  font-weight: 500;
-  line-height: 1.2;
   white-space: nowrap;
+  color: ${({ theme: { colors } }) => colors.lightGray};
+  font-weight: 500;
+  font-size: 1rem;
+  line-height: 1.2;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  display: block;
+  span {
+    display: block;
+    margin-bottom: 10px;
+  }
+  button {
+    width: 100%;
+  }
 `
 
 Label.defaultProps = {
