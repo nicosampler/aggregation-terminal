@@ -2,11 +2,14 @@ import styled from 'styled-components'
 
 import { DebounceInput } from 'react-debounce-input'
 
+import protocolsConfig from '@/public/protocols.json'
 import { ButtonDropdown } from '@/src/components/buttons/Button'
 import { Dropdown, DropdownDirection, DropdownItem } from '@/src/components/common/Dropdown'
 import { TextfieldCSS } from '@/src/components/form/Textfield'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
 import { useTokensLists } from '@/src/components/token/useTokensLists'
+import { TokensLists } from '@/src/config/web3'
+import { ChainsKeys } from '@/types/chains'
 import { Token } from '@/types/token'
 
 const Wrapper = styled(Dropdown)`
@@ -86,8 +89,32 @@ export const TokenDropdown: React.FC<{
   changeToken: (newToken: string) => void
   defaultToken: string
 }> = ({ changeToken, defaultToken, onChange, ...restProps }) => {
-  const { onSelectToken, searchString, setSearchString, token, tokensList } =
-    useTokensLists(onChange)
+  const {
+    onSelectToken,
+    searchString,
+    setSearchString,
+    token,
+    tokensList: tokenListOriginal,
+  } = useTokensLists(onChange)
+
+  // Filter protocol tokens.
+  // First, we gather all the tokens symbols of all the protocols supported.
+  // Then, we get the info of each token using the list of symbols.
+  // If the tokens is not found, we throw.
+  // note: we return the first token found, it might be of any chain
+  // TODO: we should change how we define Tokens in "tokens.json" by using the "extensions" key supported
+  // and setting the different addresses of each token in the same object. https://github.com/Uniswap/token-list-bridge-utils.
+  let protocolTokens: string[] = []
+  Object.keys(protocolsConfig).forEach((protocolKey) =>
+    Object.keys((protocolsConfig as any)[protocolKey]).forEach((chainId) => {
+      protocolTokens = [...protocolTokens, ...(protocolsConfig as any)[protocolKey][chainId]]
+    }),
+  )
+  const tokensList = [...new Set(protocolTokens)].map((symbol: string) => {
+    const t = tokenListOriginal.find((t) => t.symbol == symbol)
+    if (!t) throw `Token config not found for symbol ${symbol}`
+    return t
+  })
 
   const selectedToken = tokensList.filter((obj) => {
     return obj.symbol === defaultToken
