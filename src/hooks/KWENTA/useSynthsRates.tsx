@@ -3,7 +3,7 @@ import { useReadContractInstance } from '../useContractInstance'
 import { Chains } from '@/src/config/web3'
 import { SynthUtil, SynthUtil__factory } from '@/types/generated/typechain'
 
-function useSynthsRates() {
+export function useSynthsRates() {
   const reader = useReadContractInstance(Chains.optimism, SynthUtil__factory, 'KWENTA_SynthUtil')
   const calls = [reader.synthsRates] as const
 
@@ -17,5 +17,3 @@ function useSynthsRates() {
 
   return !res[0].data ? [[], []] : res[0].data[0]
 }
-
-export default useSynthsRates

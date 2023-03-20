@@ -72,6 +72,24 @@ export const contracts = {
     },
     abi: ExchangeRates,
   },
+  KWENTA_PerpsV2MarketData: {
+    address: {
+      [Chains.optimism]: '0xF7D3D05cCeEEcC9d77864Da3DdE67Ce9a0215A9D',
+      [Chains.arbitrum]: '',
+    },
+  },
+  KWENTA_PerpsV2MarketSettings: {
+    address: {
+      [Chains.optimism]: '0xd442Dc2Ac1f3cA1C86C8329246e47Ca0C91D0471',
+      [Chains.arbitrum]: '',
+    },
+  },
+  KWENTA_SystemStatus: {
+    address: {
+      [Chains.optimism]: '0xE8c41bE1A167314ABAF2423b72Bf8da826943FFD',
+      [Chains.arbitrum]: '',
+    },
+  },
   sUSD: {
     address: {
       [Chains.optimism]: '0x8c6f28f2f1a3c87f0f938b96d27520d9751ec8d9',

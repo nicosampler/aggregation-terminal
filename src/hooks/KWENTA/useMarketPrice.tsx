@@ -1,13 +1,16 @@
+/* eslint-disable no-debugger */
 import Wei, { wei } from '@synthetixio/wei'
 import { BigNumberish } from 'ethers'
 import { formatEther, parseBytes32String } from 'ethers/lib/utils'
 
-import useRatesForCurrencies from '@/src/hooks/KWENTA/useExchangeRates'
-import useSynthsRates from '@/src/hooks/KWENTA/useSynthsRates'
+import { useFetchMarket } from './useMarketInfo'
+import { useRatesForCurrencies } from '@/src/hooks/KWENTA/useExchangeRates'
+import { useSynthsRates } from '@/src/hooks/KWENTA/useSynthsRates'
 import { ADDITIONAL_SYNTHS, FuturesMarketKey, MarketAssetByKey } from '@/src/utils/KWENTA/constants'
 
 export type CurrencySymbol = string
 export type CurrencyPrice = BigNumberish
+export const zeroBN = wei(0)
 
 export function useMarketPrices() {
   const synthsRates = useSynthsRates()
@@ -20,7 +23,7 @@ export function useMarketPrices() {
 
   // merges currencies and prices
   synths.forEach((currencyKeyBytes32: CurrencySymbol, idx: number) => {
-    const currencyKey = parseBytes32String(currencyKeyBytes32) as CurrencySymbol
+    const currencyKey = parseBytes32String(currencyKeyBytes32) as CurrencySymbol // tokenSymbols are hashed @todo: doublecheck!
     const marketAsset = MarketAssetByKey[currencyKey as FuturesMarketKey]
 
     const rate = Number(formatEther(rates[idx]))
@@ -30,8 +33,20 @@ export function useMarketPrices() {
     if (marketAsset) synthPrices[marketAsset] = price
   })
 
-  console.log('SynthPrices ', { synthPrices })
-
-  // return !res[0].data ? undefined : res[0].data[0]
   return synthPrices
+}
+
+export function useSkewAdjustedPrice(marketPrice: Wei, marketKey: FuturesMarketKey) {
+  const fetchedMarket = useFetchMarket(marketKey)
+  debugger
+
+  const skewAdjustedPrice = marketPrice
+    ? wei(marketPrice).mul(
+        wei(fetchedMarket.marketSkew).div(fetchedMarket.settings.skewScale).add(1),
+      )
+    : zeroBN
+
+  // returnVALUE: Wei
+  debugger
+  return skewAdjustedPrice
 }

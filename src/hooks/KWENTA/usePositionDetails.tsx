@@ -21,12 +21,14 @@ type PostTradeDetailsProps = {
 }
 
 export function usePostTradeDetails({
-  orderType = 0,
+  orderType = 1,
   price,
   sizeDelta,
   wallet,
 }: PostTradeDetailsProps) {
-  // recreates 'futures/fetchIsolatedMarginTradePreview' action
+  // @todo: change the way marketAddress value is fetched
+  //   instead of using KWENTA_PerpsV2Market value inside useReadContractInstance
+  //   marketAddress must be passed by parameter on usePostTradeDetails
   const reader = useReadContractInstance(
     Chains.optimism,
     PerpsV2Market__factory,
@@ -55,7 +57,7 @@ export function usePostTradeDetails({
     `KWENTA_PostTradeDetails_${Chains.optimism}`,
   )
 
-  console.log('Position Details ', res)
-
+  // eslint-disable-next-line no-debugger
+  debugger
   return !res[0].data ? undefined : (res[0].data[0] as PostTradeDetailsResponse)
 }
