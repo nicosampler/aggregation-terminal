@@ -1,6 +1,6 @@
-import { useContractCall } from '../useContractCall'
-import { useReadContractInstance } from '../useContractInstance'
 import { Chains } from '@/src/config/web3'
+import { useContractCall } from '@/src/hooks/useContractCall'
+import { useReadContractInstance } from '@/src/hooks/useContractInstance'
 import { ParametersStructOutput } from '@/src/utils/KWENTA/format'
 import { PerpsV2MarketSettings, PerpsV2MarketSettings__factory } from '@/types/generated/typechain'
 
@@ -18,7 +18,5 @@ export function useFetchParameters(marketKey: string) {
     `KWENTA_PerpV2MarketSettings_${Chains.optimism}`,
   )
 
-  // eslint-disable-next-line no-debugger
-  debugger
   return !res[0].data ? ({} as ParametersStructOutput) : res[0].data[0]
 }

@@ -3,7 +3,7 @@ import Wei, { wei } from '@synthetixio/wei'
 import { BigNumber } from 'ethers'
 import { parseBytes32String } from 'ethers/lib/utils'
 
-import { FuturesMarketAsset, FuturesMarketKey } from './constants'
+import { FuturesMarketAsset, FuturesMarketKey, PotentialTradeStatus } from './constants'
 import { PerpsV2MarketData } from '@/types/generated/typechain'
 import { Position } from '@/types/utils'
 
@@ -63,21 +63,44 @@ export type ParametersStructOutput = [
   offchainPriceDivergence: BigNumber
 }
 
-export const formatPosition = (
-  preview: PostTradeDetailsResponse,
-  basePrice: Wei,
+export type TradePreviewResponse = {
+  liqPrice: BigNumber
+  fee: BigNumber
+  price: BigNumber
+  status: PotentialTradeStatus
+  id: string
+  lastPrice: BigNumber
+  size: BigNumber
+  margin: BigNumber
+  lastFundingIndex: BigNumber
+}
+
+export type FormattedPosition = {
+  fee: Wei
+  liqPrice: Wei
+  margin: Wei
+  price: Wei
+  size: Wei
+  sizeDelta: Wei
+  side: Position
+  leverage: Wei
+  notionalValue: Wei
+  status: PotentialTradeStatus
+  priceImpact: Wei
+}
+
+export function formatPosition(
+  preview: TradePreviewResponse,
+  skewAdjustedPrice: Wei,
   nativeSizeDelta: Wei,
-  leverageSide: Position,
-) => {
+  positionSide: Position,
+) {
   const { fee, liqPrice, margin, price, size, status } = preview
 
-  // eslint-disable-next-line no-debugger
-  debugger
-  const tradeValueWithoutSlippage = wei(nativeSizeDelta).abs().mul(wei(basePrice))
-  const notionalValue = wei(size).mul(wei(basePrice))
+  const tradeValueWithoutSlippage = wei(nativeSizeDelta).abs().mul(wei(skewAdjustedPrice))
+  const notionalValue = wei(size).mul(wei(skewAdjustedPrice))
   const leverage = notionalValue.div(wei(margin))
-
-  const priceImpact = wei(price).sub(basePrice).div(basePrice)
+  const priceImpact = wei(price).sub(skewAdjustedPrice).div(skewAdjustedPrice)
   const slippageDirection = nativeSizeDelta.gt(0)
     ? priceImpact.gt(0)
       ? -1
@@ -85,22 +108,21 @@ export const formatPosition = (
       ? priceImpact.lt(0)
       : -1
     : 1
-  // eslint-disable-next-line no-debugger
   debugger
   return {
-    fee: wei(fee),
-    liqPrice: wei(liqPrice),
-    margin: wei(margin),
-    price: wei(price),
-    size: wei(size),
-    sizeDelta: nativeSizeDelta,
-    side: leverageSide,
-    leverage: leverage,
-    notionalValue: notionalValue,
-    status,
-    showStatus: status > 0, // 0 is success
-    priceImpact: priceImpact,
-    slippageAmount: priceImpact.mul(slippageDirection).mul(tradeValueWithoutSlippage),
+    positionStats: {
+      fee: wei(fee),
+      liqPrice: wei(liqPrice),
+      margin: wei(margin),
+      price: wei(price),
+      size: wei(size),
+      sizeDelta: nativeSizeDelta,
+      side: positionSide,
+      leverage: leverage,
+      notionalValue: notionalValue,
+      status,
+      priceImpact: priceImpact,
+    },
   }
 }
 
@@ -110,35 +132,29 @@ export const formatOrderSizes = (
   assetRate: Wei,
   position: string,
 ) => {
-  const susdSize = wei(size)
-  const nativeSize = wei(size).div(assetRate)
+  const susdSize = wei(size).mul(leverage)
+  const nativeSize = wei(size).mul(leverage).div(assetRate)
   const susdSizeDelta = position == 'long' ? susdSize : susdSize.neg()
   const nativeSizeDelta = position == 'long' ? nativeSize : nativeSize.neg()
-  const sizeDelta = wei(leverage).mul(size).div(assetRate)
-  // eslint-disable-next-line no-debugger
-  debugger
   return {
     susdSize,
     nativeSize,
     susdSizeDelta,
     nativeSizeDelta,
-    sizeDelta,
   }
-}
-
-export const getDisplayAsset = (asset: string | null) => {
-  return asset ? (asset[0] === 's' ? asset.slice(1) : asset) : null
-}
-
-export const getMarketName = (asset: FuturesMarketAsset | null) => {
-  return `${getDisplayAsset(asset)}-PERP`
 }
 
 export const formatFuturesMarket = (
   futuresMarket: PerpsV2MarketData.MarketSummaryStructOutput,
   currentRoundId: any,
-  marketParameters: ParametersStructOutput,
+  marketParameters: any,
 ) => {
+  const getDisplayAsset = (asset: string | null) => {
+    return asset ? (asset[0] === 's' ? asset.slice(1) : asset) : null
+  }
+  const getMarketName = (asset: FuturesMarketAsset | null) => {
+    return `${getDisplayAsset(asset)}-PERP`
+  }
   const {
     asset,
     currentFundingRate,
@@ -151,7 +167,6 @@ export const formatFuturesMarket = (
     maxLeverage,
     price,
   } = futuresMarket
-  debugger
   const futuresMarkets = {
     market,
     marketKey: parseBytes32String(key) as FuturesMarketKey,
@@ -197,6 +212,5 @@ export const formatFuturesMarket = (
       maxDelayTimeDelta: wei(marketParameters.maxDelayTimeDelta, 0).toNumber(),
     },
   }
-  debugger
   return futuresMarkets
 }

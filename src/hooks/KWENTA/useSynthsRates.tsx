@@ -1,6 +1,6 @@
-import { useContractCall } from '../useContractCall'
-import { useReadContractInstance } from '../useContractInstance'
 import { Chains } from '@/src/config/web3'
+import { useContractCall } from '@/src/hooks/useContractCall'
+import { useReadContractInstance } from '@/src/hooks/useContractInstance'
 import { SynthUtil, SynthUtil__factory } from '@/types/generated/typechain'
 
 export function useSynthsRates() {

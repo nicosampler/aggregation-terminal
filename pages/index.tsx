@@ -35,16 +35,9 @@ const Layout = styled.div`
     grid-template-columns: repeat(2, 1fr);
   }
 `
-const Message = styled.div`
-  padding: 20px;
-  border-radius: 8px;
-  background-color: ${({ theme: { colors } }) => colors.gray};
-  color: ${({ theme }) => theme.colors.lighterGray};
-  font-weight: 400;
-`
 
 const Home: NextPage = () => {
-  const { exitsTokenInProtocol, getProtocolChains, protocolsNames } = useProtocols()
+  const { getProtocolChains, protocolsNames } = useProtocols()
   const [form, setForm] = useReducer(
     (data: ComparisonForm, partial: Partial<ComparisonForm>): ComparisonForm => ({
       ...data,
@@ -61,7 +54,6 @@ const Home: NextPage = () => {
       amount: '',
     },
   )
-  const existsTokenInProtocolA = exitsTokenInProtocol(form.protocolA, form.chainA, form.token)
   const [protocolAValues, setProtocolAValues] = useState<Outputs>()
   const [protocolBValues, setProtocolBValues] = useState<Outputs>()
 
@@ -106,9 +98,9 @@ const Home: NextPage = () => {
             <SafeSuspense>
               <KWENTAStats
                 amount={form.amount}
-                chainId={Number(form.chainB) as ChainsValues}
+                chainId={Number(form.chainA) as ChainsValues}
                 fromTokenSymbol="sUSD"
-                leverage={form.leverage}
+                leverage={Number(form.leverage)}
                 position={form.position}
                 setValues={setProtocolAValues}
                 toTokenSymbol={form.token}

@@ -38,15 +38,16 @@ export function useMarketPrices() {
 
 export function useSkewAdjustedPrice(marketPrice: Wei, marketKey: FuturesMarketKey) {
   const fetchedMarket = useFetchMarket(marketKey)
-  debugger
+  // debugger
 
   const skewAdjustedPrice = marketPrice
     ? wei(marketPrice).mul(
         wei(fetchedMarket.marketSkew).div(fetchedMarket.settings.skewScale).add(1),
       )
     : zeroBN
+  const oneHourlyFundingRate = fetchedMarket.currentFundingRate
 
-  // returnVALUE: Wei
-  debugger
-  return skewAdjustedPrice
+  // // returnVALUE: Wei
+  // debugger
+  return { skewAdjustedPrice, oneHourlyFundingRate }
 }

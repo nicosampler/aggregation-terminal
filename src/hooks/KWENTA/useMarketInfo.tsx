@@ -6,7 +6,7 @@ import { useFetchCurrentRoundId } from './useExchangeRates'
 import { useFetchProxiedMarketSummaries } from './useMarketData'
 import { useFetchParameters } from './useMarketSettings'
 import { FuturesMarketAsset, FuturesMarketKey } from '@/src/utils/KWENTA/constants'
-import { formatFuturesMarket } from '@/src/utils/KWENTA/format'
+import { ParametersStructOutput, formatFuturesMarket } from '@/src/utils/KWENTA/format'
 import { MAINNET_MARKETS } from '@/src/utils/KWENTA/markets'
 import { PerpsV2MarketData } from '@/types/generated/typechain'
 
@@ -59,31 +59,16 @@ export type FuturesGlobalsStructOutput = [BigNumber, BigNumber, BigNumber, BigNu
 }
 
 export function useFetchMarket(marketKey: string) {
-  // const enabledMarkets = MAINNET_MARKETS
   const markets =
     useFetchProxiedMarketSummaries() as unknown as PerpsV2MarketData.MarketSummaryStructOutput[]
-  // const globals = useFetchGlobals()
   const formattedMarketKey = formatBytes32String(marketKey)
-
-  // const filteredMarkets = markets.filter((m) => {
-  //   const parsedMarketKey = parseBytes32String(m.key) as FuturesMarketKey
-  //   const market = enabledMarkets.find((market) => {
-  //     return parsedMarketKey === market.key
-  //   })
-  //   return !!market
-  // })
-
   const fetchedMarket = markets.find((market) => {
     return formattedMarketKey === market.key
   })
-  // eslint-disable-next-line no-debugger
-  debugger
 
   const currentRoundId = useFetchCurrentRoundId(formattedMarketKey)
   const marketParameters = useFetchParameters(formattedMarketKey)
 
-  // eslint-disable-next-line no-debugger
-  debugger
   return formatFuturesMarket(
     fetchedMarket ?? ({} as PerpsV2MarketData.MarketSummaryStructOutput),
     currentRoundId,

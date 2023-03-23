@@ -1,7 +1,6 @@
-/* eslint-disable no-debugger */
-import { useContractCall } from '../useContractCall'
-import { useReadContractInstance } from '../useContractInstance'
 import { Chains } from '@/src/config/web3'
+import { useContractCall } from '@/src/hooks/useContractCall'
+import { useReadContractInstance } from '@/src/hooks/useContractInstance'
 import { PerpsV2MarketData, PerpsV2MarketData__factory } from '@/types/generated/typechain'
 
 export function useFetchProxiedMarketSummaries() {
