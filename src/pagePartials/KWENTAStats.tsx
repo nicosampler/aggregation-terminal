@@ -1,15 +1,19 @@
 /* eslint-disable no-debugger */
-import { Dispatch, memo, useState } from 'react'
+import { Dispatch, memo } from 'react'
 
 import { wei } from '@synthetixio/wei'
-import { BigNumber } from 'ethers'
+import { formatBytes32String } from 'ethers/lib/utils'
 
+import { useFetchCurrentRoundId, useRatesForCurrencies } from '../hooks/KWENTA/useExchangeRates'
+import { extractMarketInfo, useFetchMarket } from '../hooks/KWENTA/useMarketData'
+import { useFetchParameters } from '../hooks/KWENTA/useMarketSettings'
+import { useSynthsRates } from '../hooks/KWENTA/useSynthsRates'
 import { contracts } from '@/src/contracts/contracts'
-import { useGetTradePreview } from '@/src/hooks/KWENTA/useGetTradePreview'
-import { useMarketPrices, useSkewAdjustedPrice } from '@/src/hooks/KWENTA/useMarketPrice'
+import { getMarketPrices } from '@/src/hooks/KWENTA/useMarketPrice'
+import { useGetTradePreview } from '@/src/hooks/KWENTA/usePositionDetails'
 import useProtocols from '@/src/hooks/useProtocols'
 import { FuturesMarketKey, KWENTA_FIXED_FEE } from '@/src/utils/KWENTA/constants'
-import { formatOrderSizes, formatPosition } from '@/src/utils/KWENTA/format'
+import { formatFuturesMarket, formatOrderSizes, formatPosition } from '@/src/utils/KWENTA/format'
 import { ChainsValues } from '@/types/chains'
 import { Outputs, Position } from '@/types/utils'
 
@@ -39,46 +43,63 @@ const KWENTAStatsComponent = memo(function KWENTAStats({
   const marketKey = FuturesMarketKey.sETHPERP
   const marketAddress = contracts['KWENTA_PerpsV2Market'].address[chainId]
 
-  const marketPrices = useMarketPrices()
+  // fetches rates for all markets
+  const synthRates = useSynthsRates()
+  const ratesForCurrencies = useRatesForCurrencies()
+  const marketPrices = getMarketPrices(synthRates, ratesForCurrencies)
   if (!marketPrices) {
     throw `There was not possible to fetch Market Prices`
   }
-  const perpMarketPrice = marketPrices[toTokenInfo?.symbol as string]
-  const { oneHourlyFundingRate, skewAdjustedPrice } = useSkewAdjustedPrice(
-    perpMarketPrice,
-    marketKey,
-  )
+
+  // fetches marketInfo and marketParameters for a marketKey
+  const marketKeyBytes = formatBytes32String(marketKey)
+  const market = useFetchMarket(marketKeyBytes)
+  const currentRoundId = useFetchCurrentRoundId(marketKeyBytes)
+  const marketParameters = useFetchParameters(marketKeyBytes)
+  if (!currentRoundId) {
+    throw `There was not possible to fetch currentRoundId for market`
+  }
+  if (!marketParameters) {
+    throw `There was not possible to fetch parameters for market`
+  }
+  if (!market) {
+    throw `Market was not fetched`
+  }
+  const formattedMarket = formatFuturesMarket(market, currentRoundId, marketParameters)
+
+  const assetRate = marketPrices[toTokenInfo?.symbol as string]
+  const { oneHourlyFundingRate, skewAdjustedPrice } = extractMarketInfo(formattedMarket, assetRate)
   if (!skewAdjustedPrice) {
     throw `There was not possible to fetch skew adjusted price`
   }
-  if (!skewAdjustedPrice) {
+  if (!oneHourlyFundingRate) {
     throw `There was not possible to fetch 1hr funding rate`
   }
 
-  const { nativeSize, nativeSizeDelta, susdSize, susdSizeDelta } = formatOrderSizes(
+  const { marginDelta, nativeSizeDelta, sizeDelta } = formatOrderSizes(
     amount,
     leverage,
-    perpMarketPrice,
+    assetRate,
     position,
   )
-  debugger
-  const preview = useGetTradePreview(nativeSizeDelta, marketKey, marketAddress, chainId)
-  if (preview.status !== 0) {
+
+  const tradePreview = useGetTradePreview(sizeDelta, marginDelta, marketKey, marketAddress, chainId)
+  if (tradePreview.status !== 0) {
     throw `There was not possible to fetch Position Stats`
   }
 
-  const { positionStats } = formatPosition(preview, skewAdjustedPrice, nativeSizeDelta, position)
+  // destruct returned object from formatPosition
+  const { positionStats } = formatPosition(
+    tradePreview,
+    skewAdjustedPrice,
+    nativeSizeDelta,
+    position,
+  )
 
-  // @wouldbenice: show maxUsdInputAmount and add amount input value verification
-  //  const maxUsdInputAmount = useAppSelector(selectMaxUsdInputAmount);
-  //  const maxNativeValue = useMemo(
-  // 	  () => (!isZero(tradePrice) ? maxUsdInputAmount.div(tradePrice) : zeroBN),
-  // 	  [tradePrice, maxUsdInputAmount]
-  //  );
   debugger
   setValues({
     investmentTokenSymbol: 'sUSD',
-    fillPrice: wei(amount).mul(leverage).div(perpMarketPrice).toBN(),
+    fillPrice: wei(amount).mul(leverage).div(assetRate).toBN(),
     priceImpact: positionStats.priceImpact.toBN(),
     protocolFee: positionStats.fee.add(KWENTA_FIXED_FEE).toBN(), // sum tradeFee & keeperFee
     tradeFee: positionStats.fee.toBN(),

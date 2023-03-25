@@ -7,16 +7,15 @@ export const zeroBN = wei(0)
 export const UNIT_BN = new BN('10').pow(new BN(18))
 export const UNIT_BIG_NUM = BigNumber.from('10').pow(18)
 export const ZERO_BIG_NUM = BigNumber.from('0')
-
 export const divideDecimal = (x: BigNumber, y: BigNumber) => {
   return x.mul(UNIT_BIG_NUM).div(y)
 }
 export const multiplyDecimal = (x: BigNumber, y: BigNumber) => {
   return x.mul(y).div(UNIT_BIG_NUM)
 }
-
-export const KWENTA_TRACKING_CODE = formatBytes32String('KWENTA')
 export const KWENTA_FIXED_FEE = wei(2)
+export const KWENTA_TRACKING_CODE = formatBytes32String('KWENTA')
+
 export const ADDITIONAL_SYNTHS = [
   'SNX',
   'ETH',
@@ -45,26 +44,6 @@ export const ADDITIONAL_SYNTHS = [
   'GBP',
 ].map(formatBytes32String)
 
-export enum PotentialTradeStatus {
-  // Contract status mapping
-  OK = 0,
-  INVALID_PRICE = 1,
-  INVALID_ORDER_PRICE = 2,
-  PRICE_OUT_OF_BOUNDS = 3,
-  CAN_LIQUIDATE = 4,
-  CANNOT_LIQUIDATE = 5,
-  MAX_MARKET_SIZE_EXCEEDED = 6,
-  MAX_LEVERAGE_EXCEEDED = 7,
-  INSUFFICIENT_MARGIN = 8,
-  NOT_PERMITTED = 9,
-  NIL_ORDER = 10,
-  NO_POSITION_OPEN = 11,
-  PRICE_TOO_VOLATILE = 12,
-  PRICE_IMPACT_TOLERANCE_EXCEEDED = 13,
-
-  // Our own local status
-  INSUFFICIENT_FREE_MARGIN = 100,
-}
 export enum FuturesMarketKey {
   sBTCPERP = 'sBTCPERP',
   sETHPERP = 'sETHPERP',
@@ -90,6 +69,7 @@ export enum FuturesMarketKey {
   sAUDPERP = 'sAUDPERP',
   sGBPPERP = 'sGBPPERP',
 }
+
 export enum FuturesMarketAsset {
   sBTC = 'sBTC',
   sETH = 'sETH',
@@ -115,6 +95,7 @@ export enum FuturesMarketAsset {
   AUD = 'AUD',
   GBP = 'GBP',
 }
+
 export const MarketAssetByKey: Record<FuturesMarketKey, FuturesMarketAsset> = {
   [FuturesMarketKey.sBTCPERP]: FuturesMarketAsset.sBTC,
   [FuturesMarketKey.sETHPERP]: FuturesMarketAsset.sETH,
@@ -140,6 +121,7 @@ export const MarketAssetByKey: Record<FuturesMarketKey, FuturesMarketAsset> = {
   [FuturesMarketKey.sAUDPERP]: FuturesMarketAsset.AUD,
   [FuturesMarketKey.sGBPPERP]: FuturesMarketAsset.GBP,
 } as const
+
 export const marketOverrides: Partial<Record<FuturesMarketKey, Record<string, unknown>>> = {
   [FuturesMarketKey.sETHPERP]: {
     maxLeverage: wei(25),
@@ -210,4 +192,25 @@ export const marketOverrides: Partial<Record<FuturesMarketKey, Record<string, un
   [FuturesMarketKey.sGBPPERP]: {
     maxLeverage: wei(25),
   },
+}
+
+export enum PotentialTradeStatus {
+  // Contract status mapping
+  OK = 0,
+  INVALID_PRICE = 1,
+  INVALID_ORDER_PRICE = 2,
+  PRICE_OUT_OF_BOUNDS = 3,
+  CAN_LIQUIDATE = 4,
+  CANNOT_LIQUIDATE = 5,
+  MAX_MARKET_SIZE_EXCEEDED = 6,
+  MAX_LEVERAGE_EXCEEDED = 7,
+  INSUFFICIENT_MARGIN = 8,
+  NOT_PERMITTED = 9,
+  NIL_ORDER = 10,
+  NO_POSITION_OPEN = 11,
+  PRICE_TOO_VOLATILE = 12,
+  PRICE_IMPACT_TOLERANCE_EXCEEDED = 13,
+
+  // Our own local status
+  INSUFFICIENT_FREE_MARGIN = 100,
 }

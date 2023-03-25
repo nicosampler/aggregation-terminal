@@ -1,41 +1,29 @@
 /* eslint-disable no-debugger */
 import { JsonRpcProvider } from '@ethersproject/providers'
-import Wei, { wei } from '@synthetixio/wei'
+import Wei from '@synthetixio/wei'
 import { BigNumber, ethers } from 'ethers'
 import useSWR from 'swr'
 
 import { getNetworkConfig } from '@/src/config/web3'
 import PerpsV2MarketInternal from '@/src/contracts/PerpsV2MarketInternalV2'
 import { FuturesMarketKey, PotentialTradeStatus } from '@/src/utils/KWENTA/constants'
-import { TradePreviewResponse } from '@/src/utils/KWENTA/format'
 import { ChainsValues } from '@/types/chains'
 
-type TradePreviewProps = {
-  marketKey: FuturesMarketKey
-  sizeDelta: BigNumber
-  marginDelta: BigNumber
-}
-
-type PositionDetails = {
-  lastFundingIndex: BigNumber
-  margin: BigNumber
+type TradePreviewResponse = {
+  liqPrice: BigNumber
+  fee: BigNumber
+  price: BigNumber
+  status: PotentialTradeStatus
+  id: string
   lastPrice: BigNumber
   size: BigNumber
-}
-
-type TradeParams = {
-  sizeDelta: BigNumber
-  price: BigNumber
-  takerFee: BigNumber
-  makerFee: BigNumber
-  marketSkew: BigNumber
-  fundingSequenceLength: BigNumber
-  maxMarketValue: BigNumber
-  trackingCode: string
+  margin: BigNumber
+  lastFundingIndex: BigNumber
 }
 
 export function useGetTradePreview(
   sizeDelta: Wei,
+  marginDelta: Wei,
   marketKey: FuturesMarketKey,
   marketAddress: string,
   chainId: ChainsValues,
@@ -46,17 +34,16 @@ export function useGetTradePreview(
       const market = new PerpsV2MarketInternal(chainId, provider, marketKey, marketAddress)
       return await market.getTradePreview(
         ethers.constants.AddressZero,
-        sizeDelta.toBN(),
-        ethers.constants.MaxUint256,
+        sizeDelta.toBN(), // sizeDelta => orderSize (SUSD) / assetRate (ETH USD MARKET VALUE) | wei(size).div(assetRate)
+        marginDelta.toBN(), // marginDelta => sizeDelta * assetRate / leverageInput | inputs.sizeDelta.mul(inputs.price).div(inputs.leverage).toBN()
       )
     } catch (e) {
-      debugger
       console.log({ error: e })
+      throw `There was not possible to fetch trade preview`
     }
   })
 
-  debugger
-  const noTradePreview = {
+  const zeroStatePreview = {
     id: '0',
     liqPrice: BigNumber.from(0),
     fee: BigNumber.from(0),
@@ -67,6 +54,5 @@ export function useGetTradePreview(
     margin: BigNumber.from(0),
     lastFundingIndex: BigNumber.from(0),
   }
-  debugger
-  return !data ? noTradePreview : data
+  return !data ? zeroStatePreview : data
 }

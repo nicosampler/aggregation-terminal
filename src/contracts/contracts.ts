@@ -58,13 +58,6 @@ export const contracts = {
     },
     abi: PerpsV2Market,
   },
-  KWENTA_PerpsV2MarketState: {
-    address: {
-      [Chains.optimism]: '0x038dC05D68ED32F23e6856c0D44b0696B325bfC8',
-      [Chains.arbitrum]: '',
-    },
-    abi: PerpsV2Market,
-  },
   KWENTA_SynthUtil: {
     address: {
       [Chains.optimism]: '0x87b1481c82913301Fc6c884Ac266a7c430F92cFA',
@@ -87,7 +80,6 @@ export const contracts = {
   },
   KWENTA_PerpsV2MarketSettings: {
     address: {
-      // [Chains.optimism]: '0xd442Dc2Ac1f3cA1C86C8329246e47Ca0C91D0471',
       [Chains.optimism]: '0x09793Aad1518B8d8CC72FDd356479E3CBa7B4Ad1',
       [Chains.arbitrum]: '',
     },

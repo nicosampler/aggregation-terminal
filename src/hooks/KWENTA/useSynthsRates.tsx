@@ -1,9 +1,13 @@
+import { BigNumber } from 'ethers'
+
+import { useContractCall } from '../useContractCall'
+import { useReadContractInstance } from '../useContractInstance'
 import { Chains } from '@/src/config/web3'
-import { useContractCall } from '@/src/hooks/useContractCall'
-import { useReadContractInstance } from '@/src/hooks/useContractInstance'
 import { SynthUtil, SynthUtil__factory } from '@/types/generated/typechain'
 
-export function useSynthsRates() {
+export type SynthsRates = [string[], BigNumber[]]
+
+export function useSynthsRates(): SynthsRates {
   const reader = useReadContractInstance(Chains.optimism, SynthUtil__factory, 'KWENTA_SynthUtil')
   const calls = [reader.synthsRates] as const
 
@@ -12,8 +16,6 @@ export function useSynthsRates() {
     [[]],
     `KWENTA_SynthsRates_${Chains.optimism}`,
   )
-
-  console.log('SynthRates ', res)
 
   return !res[0].data ? [[], []] : res[0].data[0]
 }

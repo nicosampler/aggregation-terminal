@@ -1,11 +1,15 @@
+import { BigNumber } from 'ethers'
+
+import { useContractCall } from '../useContractCall'
+import { useReadContractInstance } from '../useContractInstance'
 import { Chains } from '@/src/config/web3'
-import { useContractCall } from '@/src/hooks/useContractCall'
-import { useReadContractInstance } from '@/src/hooks/useContractInstance'
+import { ADDITIONAL_SYNTHS } from '@/src/utils/KWENTA/constants'
 import { ExchangeRates, ExchangeRates__factory } from '@/types/generated/typechain'
 
 export type CurrencyKey = string
+export type RatesForCurrencies = BigNumber[]
 
-export function useRatesForCurrencies(currencyKeys: CurrencyKey[]) {
+export function useRatesForCurrencies(): RatesForCurrencies {
   const reader = useReadContractInstance(
     Chains.optimism,
     ExchangeRates__factory,
@@ -15,7 +19,7 @@ export function useRatesForCurrencies(currencyKeys: CurrencyKey[]) {
 
   const res = useContractCall<ExchangeRates, typeof calls>(
     calls,
-    [[currencyKeys]],
+    [[ADDITIONAL_SYNTHS]],
     `KWENTA_RatesForCurrencies_${Chains.optimism}`,
   )
 

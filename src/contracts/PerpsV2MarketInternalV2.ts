@@ -103,7 +103,8 @@ export class FuturesMarketInternal {
       '0x038dC05D68ED32F23e6856c0D44b0696B325bfC8',
       PerpsV2Market,
     )
-    await ethcallProvider.init(this._provider as any)
+    debugger
+    await ethcallProvider.init(this._provider)
 
     const preFetchedData = await ethcallProvider.all([
       multiCallContract.assetPrice(),
@@ -116,13 +117,14 @@ export class FuturesMarketInternal {
       multiCallContract.positions(account),
     ])
 
+    const assetPrice = preFetchedData[0] as { price: BigNumber; invalid: boolean }
+    const accruedFunding = preFetchedData[3] as { funding: BigNumber; invalid: boolean }
+
     this._onChainData = {
-      //@ts-ignore
-      assetPrice: preFetchedData[0].price as BigNumber,
+      assetPrice: assetPrice.price as BigNumber,
       marketSkew: preFetchedData[1] as BigNumber,
       marketSize: preFetchedData[2] as BigNumber,
-      //@ts-ignore
-      accruedFunding: preFetchedData[3].funding as BigNumber,
+      accruedFunding: accruedFunding.funding as BigNumber,
       fundingSequenceLength: preFetchedData[4] as BigNumber,
       fundingLastRecomputed: preFetchedData[5] as number,
       fundingRateLastRecomputed: preFetchedData[6] as number,
@@ -131,9 +133,9 @@ export class FuturesMarketInternal {
     const position = preFetchedData[7] as Position
     const price = limitStopPrice || this._onChainData.assetPrice
 
-    const takerFee = await this._getSetting('takerFee', [this._marketKeyBytes])
-    const makerFee = await this._getSetting('makerFee', [this._marketKeyBytes])
-    const readabletakerFee = wei(takerFee)
+    // since Kwenta only supports delayed offchain
+    const takerFee = await this._getSetting('takerFeeOffchainDelayedOrder', [this._marketKeyBytes])
+    const makerFee = await this._getSetting('makerFeeOffchainDelayedOrder', [this._marketKeyBytes])
 
     const tradeParams = {
       sizeDelta,
@@ -142,13 +144,10 @@ export class FuturesMarketInternal {
       makerFee,
       trackingCode: KWENTA_TRACKING_CODE,
     }
-    // debugger
+
     const { fee, newPos, status } = await this._postTradeDetails(position, tradeParams, marginDelta)
 
-    // debugger
     const liqPrice = await this._approxLiquidationPrice(newPos, newPos.lastPrice)
-    const readableLiqPrice = wei(liqPrice)
-    // debugger
     return { ...newPos, liqPrice, fee, price: tradeParams.price, status: status }
   }
 
@@ -169,10 +168,6 @@ export class FuturesMarketInternal {
       tradeParams.price,
       marginDelta.sub(fee),
     )
-
-    const readableFee = wei(fee)
-    const readableOUTPUTMargin = wei(margin)
-    debugger
 
     if (status !== PotentialTradeStatus.OK) {
       return { newPos: oldPos, fee: ZERO_BIG_NUM, status }
@@ -256,12 +251,6 @@ export class FuturesMarketInternal {
     const sameSide = notionalDiff.gte(0) === marketSkew.gte(0)
     const staticRate = sameSide ? tradeParams.takerFee : tradeParams.makerFee
     // IGNORED DYNAMIC FEE //
-    const orderFeeELEMENTS = {
-      notionalDiff: wei(notionalDiff),
-      marketSkew: wei(marketSkew),
-      sameSide: sameSide,
-      staticRate: wei(staticRate),
-    }
     return multiplyDecimal(notionalDiff, staticRate).abs()
   }
 
@@ -363,13 +352,10 @@ export class FuturesMarketInternal {
       return BigNumber.from('0')
     }
     const fundingPerUnit = await this._netFundingPerUnit(position.lastFundingIndex, currentPrice)
-    const readablefundingPerUnit = wei(fundingPerUnit)
     const liqMargin = await this._liquidationMargin(position.size, currentPrice)
-    const readableliqMargin = wei(liqMargin)
     const result = position.lastPrice
-      .add(divideDecimal(liqMargin.sub(position.margin), position.size)) // zero-division!
+      .add(divideDecimal(liqMargin.sub(position.margin), position.size))
       .sub(fundingPerUnit)
-    const readableresult = wei(result)
     return result.lt(0) ? BigNumber.from(0) : result
   }
 
@@ -424,7 +410,7 @@ export class FuturesMarketInternal {
     return a.gte(ZERO_BIG_NUM) === b.gte(ZERO_BIG_NUM)
   }
 
-  _getSetting = async (settingGetter: string, params: any[] = []) => {
+  _getSetting = async (settingGetter: string, params: string[] = []) => {
     const cached = this._cache[settingGetter]
     if (!this._perpsV2MarketSettings) throw new Error('Unsupported network')
     if (cached) return cached

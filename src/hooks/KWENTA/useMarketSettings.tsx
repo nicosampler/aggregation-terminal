@@ -1,10 +1,34 @@
+/* eslint-disable no-debugger */
+import { BigNumber } from 'ethers'
+
+import { useContractCall } from '../useContractCall'
+import { useReadContractInstance } from '../useContractInstance'
 import { Chains } from '@/src/config/web3'
-import { useContractCall } from '@/src/hooks/useContractCall'
-import { useReadContractInstance } from '@/src/hooks/useContractInstance'
-import { ParametersStructOutput } from '@/src/utils/KWENTA/format'
 import { PerpsV2MarketSettings, PerpsV2MarketSettings__factory } from '@/types/generated/typechain'
 
-export function useFetchParameters(marketKey: string) {
+export type ParametersStructOutput = {
+  takerFee: BigNumber
+  makerFee: BigNumber
+  overrideCommitFee: BigNumber
+  takerFeeDelayedOrder: BigNumber
+  makerFeeDelayedOrder: BigNumber
+  takerFeeOffchainDelayedOrder: BigNumber
+  makerFeeOffchainDelayedOrder: BigNumber
+  maxLeverage: BigNumber
+  maxMarketValue: BigNumber
+  maxFundingVelocity: BigNumber
+  skewScale: BigNumber
+  nextPriceConfirmWindow: BigNumber
+  delayedOrderConfirmWindow: BigNumber
+  minDelayTimeDelta: BigNumber
+  maxDelayTimeDelta: BigNumber
+  offchainDelayedOrderMinAge: BigNumber
+  offchainDelayedOrderMaxAge: BigNumber
+  offchainMarketKey: string
+  offchainPriceDivergence: BigNumber
+}
+
+export function useFetchParameters(marketKey: string): ParametersStructOutput | undefined {
   const reader = useReadContractInstance(
     Chains.optimism,
     PerpsV2MarketSettings__factory,
@@ -18,5 +42,5 @@ export function useFetchParameters(marketKey: string) {
     `KWENTA_PerpV2MarketSettings_${Chains.optimism}`,
   )
 
-  return !res[0].data ? ({} as ParametersStructOutput) : res[0].data[0]
+  return !res[0].data ? undefined : res[0].data[0]
 }

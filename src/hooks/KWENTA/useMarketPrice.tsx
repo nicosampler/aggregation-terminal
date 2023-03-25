@@ -3,19 +3,15 @@ import Wei, { wei } from '@synthetixio/wei'
 import { BigNumberish } from 'ethers'
 import { formatEther, parseBytes32String } from 'ethers/lib/utils'
 
-import { useFetchMarket } from './useMarketInfo'
-import { useRatesForCurrencies } from '@/src/hooks/KWENTA/useExchangeRates'
-import { useSynthsRates } from '@/src/hooks/KWENTA/useSynthsRates'
+import { RatesForCurrencies } from './useExchangeRates'
+import { SynthsRates } from './useSynthsRates'
 import { ADDITIONAL_SYNTHS, FuturesMarketKey, MarketAssetByKey } from '@/src/utils/KWENTA/constants'
 
 export type CurrencySymbol = string
 export type CurrencyPrice = BigNumberish
 export const zeroBN = wei(0)
 
-export function useMarketPrices() {
-  const synthsRates = useSynthsRates()
-  const ratesForCurrencies = useRatesForCurrencies(ADDITIONAL_SYNTHS)
-
+export function getMarketPrices(synthsRates: SynthsRates, ratesForCurrencies: RatesForCurrencies) {
   const synths = [...synthsRates[0], ...ADDITIONAL_SYNTHS] as CurrencySymbol[]
   const rates = [...synthsRates[1], ...ratesForCurrencies] as CurrencyPrice[]
 
@@ -32,22 +28,18 @@ export function useMarketPrices() {
     synthPrices[currencyKey] = price
     if (marketAsset) synthPrices[marketAsset] = price
   })
-
   return synthPrices
 }
 
-export function useSkewAdjustedPrice(marketPrice: Wei, marketKey: FuturesMarketKey) {
-  const fetchedMarket = useFetchMarket(marketKey)
-  // debugger
+// export function useSkewAdjustedPrice(marketPrice: Wei, marketKey: FuturesMarketKey) {
+//   const fetchedMarket = useFetchMarket(marketKey)
 
-  const skewAdjustedPrice = marketPrice
-    ? wei(marketPrice).mul(
-        wei(fetchedMarket.marketSkew).div(fetchedMarket.settings.skewScale).add(1),
-      )
-    : zeroBN
-  const oneHourlyFundingRate = fetchedMarket.currentFundingRate
+//   const skewAdjustedPrice = marketPrice
+//     ? wei(marketPrice).mul(
+//         wei(fetchedMarket.marketSkew).div(fetchedMarket.settings.skewScale).add(1),
+//       )
+//     : zeroBN
 
-  // // returnVALUE: Wei
-  // debugger
-  return { skewAdjustedPrice, oneHourlyFundingRate }
-}
+//   const oneHourlyFundingRate = fetchedMarket.currentFundingRate
+//   return { skewAdjustedPrice, oneHourlyFundingRate }
+// }

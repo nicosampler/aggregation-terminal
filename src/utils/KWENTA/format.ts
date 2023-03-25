@@ -3,7 +3,8 @@ import Wei, { wei } from '@synthetixio/wei'
 import { BigNumber } from 'ethers'
 import { parseBytes32String } from 'ethers/lib/utils'
 
-import { FuturesMarketAsset, FuturesMarketKey, PotentialTradeStatus } from './constants'
+import { FuturesMarketAsset, FuturesMarketKey } from './constants'
+import { ParametersStructOutput } from '@/src/hooks/KWENTA/useMarketSettings'
 import { PerpsV2MarketData } from '@/types/generated/typechain'
 import { Position } from '@/types/utils'
 
@@ -21,86 +22,19 @@ export type IsolatedMarginTradeInputs = {
   susdSize: Wei
 }
 
-export type ParametersStructOutput = [
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  BigNumber,
-  string,
-  BigNumber,
-] & {
-  takerFee: BigNumber
-  makerFee: BigNumber
-  overrideCommitFee: BigNumber
-  takerFeeDelayedOrder: BigNumber
-  makerFeeDelayedOrder: BigNumber
-  takerFeeOffchainDelayedOrder: BigNumber
-  makerFeeOffchainDelayedOrder: BigNumber
-  maxLeverage: BigNumber
-  maxMarketValue: BigNumber
-  maxFundingVelocity: BigNumber
-  skewScale: BigNumber
-  nextPriceConfirmWindow: BigNumber
-  delayedOrderConfirmWindow: BigNumber
-  minDelayTimeDelta: BigNumber
-  maxDelayTimeDelta: BigNumber
-  offchainDelayedOrderMinAge: BigNumber
-  offchainDelayedOrderMaxAge: BigNumber
-  offchainMarketKey: string
-  offchainPriceDivergence: BigNumber
-}
-
-export type TradePreviewResponse = {
-  liqPrice: BigNumber
-  fee: BigNumber
-  price: BigNumber
-  status: PotentialTradeStatus
-  id: string
-  lastPrice: BigNumber
-  size: BigNumber
-  margin: BigNumber
-  lastFundingIndex: BigNumber
-}
-
-export type FormattedPosition = {
-  fee: Wei
-  liqPrice: Wei
-  margin: Wei
-  price: Wei
-  size: Wei
-  sizeDelta: Wei
-  side: Position
-  leverage: Wei
-  notionalValue: Wei
-  status: PotentialTradeStatus
-  priceImpact: Wei
-}
-
-export function formatPosition(
-  preview: TradePreviewResponse,
-  skewAdjustedPrice: Wei,
+export const formatPosition = (
+  preview: PostTradeDetailsResponse,
+  basePrice: Wei,
   nativeSizeDelta: Wei,
-  positionSide: Position,
-) {
+  leverageSide: Position,
+) => {
   const { fee, liqPrice, margin, price, size, status } = preview
 
-  const tradeValueWithoutSlippage = wei(nativeSizeDelta).abs().mul(wei(skewAdjustedPrice))
-  const notionalValue = wei(size).mul(wei(skewAdjustedPrice))
+  const tradeValueWithoutSlippage = wei(nativeSizeDelta).abs().mul(wei(basePrice))
+  const notionalValue = wei(size).mul(wei(basePrice))
   const leverage = notionalValue.div(wei(margin))
-  const priceImpact = wei(price).sub(skewAdjustedPrice).div(skewAdjustedPrice)
+
+  const priceImpact = wei(price).sub(basePrice).div(basePrice)
   const slippageDirection = nativeSizeDelta.gt(0)
     ? priceImpact.gt(0)
       ? -1
@@ -117,11 +51,13 @@ export function formatPosition(
       price: wei(price),
       size: wei(size),
       sizeDelta: nativeSizeDelta,
-      side: positionSide,
+      side: leverageSide,
       leverage: leverage,
       notionalValue: notionalValue,
       status,
+      showStatus: status > 0, // 0 is success
       priceImpact: priceImpact,
+      slippageAmount: priceImpact.mul(slippageDirection).mul(tradeValueWithoutSlippage),
     },
   }
 }
@@ -132,22 +68,27 @@ export const formatOrderSizes = (
   assetRate: Wei,
   position: string,
 ) => {
-  const susdSize = wei(size).mul(leverage)
-  const nativeSize = wei(size).mul(leverage).div(assetRate)
+  const susdSize = wei(size)
+  const nativeSize = wei(size).div(assetRate)
   const susdSizeDelta = position == 'long' ? susdSize : susdSize.neg()
   const nativeSizeDelta = position == 'long' ? nativeSize : nativeSize.neg()
+  const sizeDelta = wei(leverage).mul(size).div(assetRate)
+  const marginDelta = sizeDelta.mul(assetRate).div(leverage)
+  // debugger
   return {
     susdSize,
     nativeSize,
     susdSizeDelta,
     nativeSizeDelta,
+    sizeDelta,
+    marginDelta,
   }
 }
 
 export const formatFuturesMarket = (
   futuresMarket: PerpsV2MarketData.MarketSummaryStructOutput,
   currentRoundId: any,
-  marketParameters: any,
+  marketParameters: ParametersStructOutput,
 ) => {
   const getDisplayAsset = (asset: string | null) => {
     return asset ? (asset[0] === 's' ? asset.slice(1) : asset) : null
@@ -167,7 +108,14 @@ export const formatFuturesMarket = (
     maxLeverage,
     price,
   } = futuresMarket
-  const futuresMarkets = {
+  // const readableMarketFeeRates = {
+  //   makerFee: wei(futuresMarket.feeRates.makerFee),
+  //   takerFee: wei(futuresMarket.feeRates.takerFee),
+  //   makerFeeOffchainDelayedOrder: wei(futuresMarket.feeRates.makerFeeOffchainDelayedOrder),
+  //   takerFeeOffchainDelayedOrder: wei(futuresMarket.feeRates.takerFeeOffchainDelayedOrder),
+  // }
+  // debugger
+  return {
     market,
     marketKey: parseBytes32String(key) as FuturesMarketKey,
     marketName: getMarketName(parseBytes32String(asset) as FuturesMarketAsset),
@@ -200,8 +148,6 @@ export const formatFuturesMarket = (
     maxLeverage: wei(maxLeverage),
     marketSize: wei(marketSize),
     marketLimit: wei(marketParameters.maxMarketValue).mul(wei(price)),
-    // minInitialMargin: wei(globals.minInitialMargin),
-    // keeperDeposit: wei(globals.minKeeperFee),
     settings: {
       maxMarketValue: wei(marketParameters.maxMarketValue),
       skewScale: wei(marketParameters.skewScale),
@@ -212,5 +158,4 @@ export const formatFuturesMarket = (
       maxDelayTimeDelta: wei(marketParameters.maxDelayTimeDelta, 0).toNumber(),
     },
   }
-  return futuresMarkets
 }
