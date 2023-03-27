@@ -111,7 +111,7 @@ const KWENTAStatsComponent = memo(function KWENTAStats({
     tradeFee: positionStats.fee.toBN(),
     keeperFee: KWENTA_FIXED_FEE.toBN(),
     liquidationPrice: positionStats.liqPrice.toBN(),
-    oneHourFunding: oneHourlyFundingRate.toBN(),
+    oneHourFunding: assetRate.mul(oneHourlyFundingRate).toBN(),
   })
 
   return null
