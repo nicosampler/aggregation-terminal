@@ -105,6 +105,8 @@ export class FuturesMarketInternal {
     )
     debugger
     await ethcallProvider.init(this._provider)
+    console.log({ ethcallProvider })
+    console.log({ provider: this._provider })
 
     const preFetchedData = await ethcallProvider.all([
       multiCallContract.assetPrice(),
@@ -414,6 +416,8 @@ export class FuturesMarketInternal {
     const cached = this._cache[settingGetter]
     if (!this._perpsV2MarketSettings) throw new Error('Unsupported network')
     if (cached) return cached
+    console.log({ settingGetter })
+    console.log({ settingsAddres: this._perpsV2MarketSettings.address })
     const res = await this._perpsV2MarketSettings[settingGetter](...params)
     this._cache[settingGetter] = res
     return res
