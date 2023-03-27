@@ -14,7 +14,7 @@ function setStyle(value?: BigNumber, comparison?: BigNumber) {
   if (!comparison || !value || value.eq(comparison)) {
     return 'equal'
   }
-  return value.gt(comparison) ? 'better' : 'worse'
+  return comparison.gt(value) ? 'better' : 'worse'
 }
 
 export function OutputDetails({ comparison, local }: Props) {
