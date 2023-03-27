@@ -418,6 +418,7 @@ export class FuturesMarketInternal {
     if (cached) return cached
     console.log({ settingGetter })
     console.log({ perpsv2settings: this._perpsV2MarketSettings })
+    console.log({ perpsv2settingsGETTER: this._perpsV2MarketSettings[settingGetter] })
     const res = await this._perpsV2MarketSettings[settingGetter](...params)
     this._cache[settingGetter] = res
     return res
