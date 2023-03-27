@@ -42,7 +42,6 @@ export const formatPosition = (
       ? priceImpact.lt(0)
       : -1
     : 1
-  debugger
   return {
     positionStats: {
       fee: wei(fee),
@@ -68,13 +67,14 @@ export const formatOrderSizes = (
   assetRate: Wei,
   position: string,
 ) => {
-  const susdSize = wei(size)
-  const nativeSize = wei(size).div(assetRate)
+  const sizeWei = wei(size)
+  const susdSize = wei(leverage).mul(sizeWei)
+  const nativeSize = wei(leverage).mul(sizeWei).div(assetRate)
   const susdSizeDelta = position == 'long' ? susdSize : susdSize.neg()
   const nativeSizeDelta = position == 'long' ? nativeSize : nativeSize.neg()
-  const sizeDelta = wei(leverage).mul(size).div(assetRate)
-  const marginDelta = sizeDelta.mul(assetRate).div(leverage)
-  // debugger
+  const sizeDelta = nativeSizeDelta
+  const marginDelta = sizeWei
+  debugger
   return {
     susdSize,
     nativeSize,

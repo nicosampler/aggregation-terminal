@@ -88,7 +88,7 @@ const KWENTAStatsComponent = memo(function KWENTAStats({
     throw `There was not possible to fetch Position Stats`
   }
 
-  // destruct returned object from formatPosition
+  // destruct object from formatPosition
   const { positionStats } = formatPosition(
     tradePreview,
     skewAdjustedPrice,
@@ -101,7 +101,7 @@ const KWENTAStatsComponent = memo(function KWENTAStats({
     investmentTokenSymbol: 'sUSD',
     fillPrice: wei(amount).mul(leverage).div(assetRate).toBN(),
     priceImpact: positionStats.priceImpact.toBN(),
-    protocolFee: positionStats.fee.add(KWENTA_FIXED_FEE).toBN(), // sum tradeFee & keeperFee
+    protocolFee: positionStats.fee.add(KWENTA_FIXED_FEE).toBN(),
     tradeFee: positionStats.fee.toBN(),
     keeperFee: KWENTA_FIXED_FEE.toBN(),
     liquidationPrice: positionStats.liqPrice.toBN(),

@@ -29,13 +29,13 @@ export function useGetTradePreview(
   chainId: ChainsValues,
 ): TradePreviewResponse {
   const provider = new JsonRpcProvider(getNetworkConfig(chainId)?.rpcUrl, chainId)
-  const { data } = useSWR(sizeDelta.gt(0) ? ['getTradePreview'] : null, async () => {
+  const { data } = useSWR(marginDelta.gt(0) ? ['getTradePreview'] : null, async () => {
     try {
       const market = new PerpsV2MarketInternal(chainId, provider, marketKey, marketAddress)
       return await market.getTradePreview(
         ethers.constants.AddressZero,
-        sizeDelta.toBN(), // sizeDelta => orderSize (SUSD) / assetRate (ETH USD MARKET VALUE) | wei(size).div(assetRate)
-        marginDelta.toBN(), // marginDelta => sizeDelta * assetRate / leverageInput | inputs.sizeDelta.mul(inputs.price).div(inputs.leverage).toBN()
+        sizeDelta.toBN(), // sizeDelta => orderSize (SUSD) / assetRate (ETH USD MARKET VALUE)
+        marginDelta.toBN(), // marginDelta => sizeDelta * assetRate / leverageInput
       )
     } catch (e) {
       console.log({ error: e })
