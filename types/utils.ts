@@ -76,9 +76,11 @@ export const isFulfilled = <T>(
   input: PromiseSettledResult<T>,
 ): input is PromiseFulfilledResult<T> => input.status === 'fulfilled'
 
+export type Protocol = 'kwenta' | 'gmx'
 export type Position = 'long' | 'short'
 
 export interface Outputs {
+  protocol: Protocol
   investmentTokenSymbol: string
   fillPrice?: BigNumber
   priceImpact?: BigNumber

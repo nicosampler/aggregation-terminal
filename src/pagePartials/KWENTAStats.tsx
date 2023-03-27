@@ -104,6 +104,7 @@ const KWENTAStatsComponent = memo(function KWENTAStats({
   )
 
   setValues({
+    protocol: 'kwenta',
     investmentTokenSymbol: 'sUSD',
     fillPrice: wei(amount).mul(leverage).div(assetRate).toBN(),
     priceImpact: positionStats.priceImpact.toBN(),

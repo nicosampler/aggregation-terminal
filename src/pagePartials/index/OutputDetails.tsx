@@ -14,10 +14,24 @@ function setStyle(value?: BigNumber, comparison?: BigNumber) {
   if (!comparison || !value || value.eq(comparison)) {
     return 'equal'
   }
-  return comparison.gt(value) ? 'better' : 'worse'
+  return value.gt(comparison) ? 'better' : 'worse'
 }
 
 export function OutputDetails({ comparison, local }: Props) {
+  const getTradeFeeText = () => {
+    const text =
+      local.protocol === 'kwenta'
+        ? 'Fees are displayed as maker / taker. Maker fees apply to orders that reduce the market skew. Taker fees apply to orders that increase the market skew.'
+        : 'The cost of swapping tokens to execute the trade.'
+    return text
+  }
+  const getKeeperFeeText = () => {
+    const text =
+      local.protocol === 'kwenta'
+        ? 'Fixed fee to cover automated order execution'
+        : 'The cost of opening a position.'
+    return text
+  }
   return (
     <Stats>
       <List>
@@ -48,13 +62,13 @@ export function OutputDetails({ comparison, local }: Props) {
       </List>
       <List status={setStyle(local.tradeFee, comparison?.tradeFee)}>
         <span>
-          <Tooltip text="The cost of swapping tokens to execute the trade.">Trade Fee</Tooltip>
+          <Tooltip text={getTradeFeeText()}>Trade Fee </Tooltip>
         </span>
         <strong>{formatAmount(local.tradeFee)}</strong>
       </List>
-      <List status={setStyle(local.keeperFee, comparison?.keeperFee)}>
+      <List>
         <span>
-          <Tooltip text="The cost of opening a position.">Position Fee</Tooltip>
+          <Tooltip text={getKeeperFeeText()}>Position Fee</Tooltip>
         </span>
         <strong>{formatAmount(local.keeperFee)}</strong>
       </List>

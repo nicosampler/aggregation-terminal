@@ -106,12 +106,14 @@ const Home: NextPage = () => {
                 toTokenSymbol={form.token}
               />
             </SafeSuspense>
-            {protocolAValues ? (
+            {protocolAValues && protocolBValues ? (
               <OutputDetails
                 comparison={{
-                  investmentTokenSymbol: 'sUSD',
-                  protocolFee: BigNumber.from('666000000000000000000'),
-                  tradeFee: BigNumber.from('10'),
+                  protocol: 'kwenta',
+                  investmentTokenSymbol: 'USDC',
+                  protocolFee: protocolBValues?.protocolFee,
+                  tradeFee: protocolBValues?.tradeFee,
+                  keeperFee: protocolBValues?.keeperFee,
                 }}
                 local={protocolAValues}
               />
@@ -154,12 +156,14 @@ const Home: NextPage = () => {
                 toTokenSymbol={form.token}
               />
             </SafeSuspense>
-            {protocolBValues ? (
+            {protocolBValues && protocolAValues ? (
               <OutputDetails
                 comparison={{
+                  protocol: 'gmx',
                   investmentTokenSymbol: 'sUSD',
-                  protocolFee: BigNumber.from('666000000000000000000'),
-                  tradeFee: BigNumber.from('10'),
+                  protocolFee: protocolAValues?.protocolFee,
+                  tradeFee: protocolAValues?.tradeFee,
+                  keeperFee: protocolAValues?.keeperFee,
                 }}
                 local={protocolBValues}
               />
