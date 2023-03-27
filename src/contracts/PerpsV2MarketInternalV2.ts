@@ -417,7 +417,7 @@ export class FuturesMarketInternal {
     if (!this._perpsV2MarketSettings) throw new Error('Unsupported network')
     if (cached) return cached
     console.log({ settingGetter })
-    console.log({ settingsAddres: this._perpsV2MarketSettings.address })
+    console.log({ perpsv2settings: this._perpsV2MarketSettings })
     const res = await this._perpsV2MarketSettings[settingGetter](...params)
     this._cache[settingGetter] = res
     return res
