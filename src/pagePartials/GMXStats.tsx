@@ -171,6 +171,7 @@ const GMXStatsComponent = memo(function GMXStats({
   // ----------------------
 
   setValues({
+    protocol: 'gmx',
     investmentTokenSymbol: 'USDC',
     fillPrice: nextToAmount, // 18
     priceImpact: undefined,

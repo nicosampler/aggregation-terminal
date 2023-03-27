@@ -14,6 +14,7 @@ import { Configuration as PositionParams } from '@/src/components/position/Posit
 import { Chains, chainsConfig } from '@/src/config/web3'
 import useProtocols from '@/src/hooks/useProtocols'
 import GMXStats from '@/src/pagePartials/GMXStats'
+import KWENTAStats from '@/src/pagePartials/KWENTAStats'
 import { OutputDetails } from '@/src/pagePartials/index/OutputDetails'
 import { ChainsValues } from '@/types/chains'
 import { ComparisonForm, Outputs } from '@/types/utils'
@@ -34,16 +35,9 @@ const Layout = styled.div`
     grid-template-columns: repeat(2, 1fr);
   }
 `
-const Message = styled.div`
-  padding: 20px;
-  border-radius: 8px;
-  background-color: ${({ theme: { colors } }) => colors.gray};
-  color: ${({ theme }) => theme.colors.lighterGray};
-  font-weight: 400;
-`
 
 const Home: NextPage = () => {
-  const { exitsTokenInProtocol, getProtocolChains, protocolsNames } = useProtocols()
+  const { getProtocolChains, protocolsNames } = useProtocols()
   const [form, setForm] = useReducer(
     (data: ComparisonForm, partial: Partial<ComparisonForm>): ComparisonForm => ({
       ...data,
@@ -60,7 +54,6 @@ const Home: NextPage = () => {
       amount: '',
     },
   )
-  const existsTokenInProtocolA = exitsTokenInProtocol(form.protocolA, form.chainA, form.token)
   const [protocolAValues, setProtocolAValues] = useState<Outputs>()
   const [protocolBValues, setProtocolBValues] = useState<Outputs>()
 
@@ -100,16 +93,33 @@ const Home: NextPage = () => {
           />
         </Label>
 
-        {form.protocolA !== 'GMX' &&
-          (existsTokenInProtocolA ? (
-            <>
-              {/* @todo: Kwenta stats
-                <Message>Show perpetual conditions for {form.protocolA}</Message>
-              */}
-            </>
-          ) : (
-            <Message>Token not supported for the given protocol and chain</Message>
-          ))}
+        {form.protocolA == 'Kwenta' && form.amount && form.amount != '0' && (
+          <>
+            <SafeSuspense>
+              <KWENTAStats
+                amount={form.amount}
+                chainId={Number(form.chainA) as ChainsValues}
+                fromTokenSymbol="sUSD"
+                leverage={Number(form.leverage)}
+                position={form.position}
+                setValues={setProtocolAValues}
+                toTokenSymbol={form.token}
+              />
+            </SafeSuspense>
+            {protocolAValues && protocolBValues ? (
+              <OutputDetails
+                comparison={{
+                  protocol: 'kwenta',
+                  investmentTokenSymbol: 'USDC',
+                  protocolFee: protocolBValues?.protocolFee,
+                  tradeFee: protocolBValues?.tradeFee,
+                  keeperFee: protocolBValues?.keeperFee,
+                }}
+                local={protocolAValues}
+              />
+            ) : null}
+          </>
+        )}
       </Card>
       <Card>
         <Label>
@@ -146,12 +156,14 @@ const Home: NextPage = () => {
                 toTokenSymbol={form.token}
               />
             </SafeSuspense>
-            {protocolBValues ? (
+            {protocolBValues && protocolAValues ? (
               <OutputDetails
                 comparison={{
+                  protocol: 'gmx',
                   investmentTokenSymbol: 'sUSD',
-                  protocolFee: BigNumber.from('666000000000000000000'),
-                  tradeFee: BigNumber.from('10'),
+                  protocolFee: protocolAValues?.protocolFee,
+                  tradeFee: protocolAValues?.tradeFee,
+                  keeperFee: protocolAValues?.keeperFee,
                 }}
                 local={protocolBValues}
               />

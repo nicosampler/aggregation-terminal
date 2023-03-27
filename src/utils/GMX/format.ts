@@ -32,7 +32,7 @@ export const padDecimals = (amount: BigNumberish, minDecimals: number) => {
   return amountStr
 }
 
-export function formatAmount(amount: BigNumberish | undefined, tokenDecimals = 18, decimals = 2) {
+export function formatAmount(amount: BigNumberish | undefined, tokenDecimals = 18, decimals = 4) {
   let amountStr = ethers.utils.formatUnits(amount || ethers.constants.Zero, tokenDecimals)
   amountStr = limitDecimals(amountStr, decimals)
   amountStr = padDecimals(amountStr, decimals)
