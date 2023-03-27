@@ -1,4 +1,3 @@
-/* eslint-disable no-debugger */
 import { BigNumber } from 'ethers'
 
 import { useContractCall } from '../useContractCall'

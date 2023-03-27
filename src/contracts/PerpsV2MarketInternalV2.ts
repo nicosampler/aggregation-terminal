@@ -1,5 +1,3 @@
-/* eslint-disable no-debugger */
-import { wei } from '@synthetixio/wei'
 import BN from 'bn.js'
 import { Contract as MultiCallContract, Provider } from 'ethcall'
 import { BigNumber, Contract, ethers } from 'ethers'
@@ -103,10 +101,7 @@ export class FuturesMarketInternal {
       '0x038dC05D68ED32F23e6856c0D44b0696B325bfC8',
       PerpsV2Market,
     )
-    debugger
     await ethcallProvider.init(this._provider)
-    console.log({ ethcallProvider })
-    console.log({ provider: this._provider })
 
     const preFetchedData = await ethcallProvider.all([
       multiCallContract.assetPrice(),
@@ -416,9 +411,6 @@ export class FuturesMarketInternal {
     const cached = this._cache[settingGetter]
     if (!this._perpsV2MarketSettings) throw new Error('Unsupported network')
     if (cached) return cached
-    console.log({ settingGetter })
-    console.log({ perpsv2settings: this._perpsV2MarketSettings })
-    console.log({ perpsv2settingsGETTER: this._perpsV2MarketSettings[settingGetter] })
     const res = await this._perpsV2MarketSettings[settingGetter](...params)
     this._cache[settingGetter] = res
     return res

@@ -1,4 +1,3 @@
-/* eslint-disable no-debugger */
 import Wei, { wei } from '@synthetixio/wei'
 import { BigNumberish } from 'ethers'
 import { formatEther, parseBytes32String } from 'ethers/lib/utils'

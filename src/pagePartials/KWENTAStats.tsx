@@ -1,4 +1,3 @@
-/* eslint-disable no-debugger */
 import { Dispatch, memo } from 'react'
 
 import { wei } from '@synthetixio/wei'
@@ -83,7 +82,15 @@ const KWENTAStatsComponent = memo(function KWENTAStats({
     position,
   )
 
-  const tradePreview = useGetTradePreview(sizeDelta, marginDelta, marketKey, marketAddress, chainId)
+  const tradePreview = useGetTradePreview(
+    sizeDelta,
+    marginDelta,
+    marketKey,
+    marketAddress,
+    position,
+    leverage,
+    chainId,
+  )
   if (tradePreview.status !== 0) {
     throw `There was not possible to fetch Position Stats`
   }
@@ -96,7 +103,6 @@ const KWENTAStatsComponent = memo(function KWENTAStats({
     position,
   )
 
-  debugger
   setValues({
     investmentTokenSymbol: 'sUSD',
     fillPrice: wei(amount).mul(leverage).div(assetRate).toBN(),

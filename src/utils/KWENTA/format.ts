@@ -1,4 +1,3 @@
-/* eslint-disable no-debugger */
 import Wei, { wei } from '@synthetixio/wei'
 import { BigNumber } from 'ethers'
 import { parseBytes32String } from 'ethers/lib/utils'
@@ -74,7 +73,6 @@ export const formatOrderSizes = (
   const nativeSizeDelta = position == 'long' ? nativeSize : nativeSize.neg()
   const sizeDelta = nativeSizeDelta
   const marginDelta = sizeWei
-  debugger
   return {
     susdSize,
     nativeSize,
@@ -108,13 +106,7 @@ export const formatFuturesMarket = (
     maxLeverage,
     price,
   } = futuresMarket
-  // const readableMarketFeeRates = {
-  //   makerFee: wei(futuresMarket.feeRates.makerFee),
-  //   takerFee: wei(futuresMarket.feeRates.takerFee),
-  //   makerFeeOffchainDelayedOrder: wei(futuresMarket.feeRates.makerFeeOffchainDelayedOrder),
-  //   takerFeeOffchainDelayedOrder: wei(futuresMarket.feeRates.takerFeeOffchainDelayedOrder),
-  // }
-  // debugger
+
   return {
     market,
     marketKey: parseBytes32String(key) as FuturesMarketKey,

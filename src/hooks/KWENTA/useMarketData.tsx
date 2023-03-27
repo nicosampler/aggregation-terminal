@@ -1,4 +1,3 @@
-/* eslint-disable no-debugger */
 import Wei, { wei } from '@synthetixio/wei'
 
 import { useContractCall } from '../useContractCall'
