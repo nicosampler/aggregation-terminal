@@ -14,7 +14,7 @@ function setStyle(value?: BigNumber, comparison?: BigNumber) {
   if (!comparison || !value || value.eq(comparison)) {
     return 'equal'
   }
-  return value.gt(comparison) ? 'better' : 'worse'
+  return comparison.gt(value) ? 'better' : 'worse'
 }
 
 export function OutputDetails({ comparison, local }: Props) {
@@ -52,7 +52,7 @@ export function OutputDetails({ comparison, local }: Props) {
         </span>
         <strong>{formatAmount(local.tradeFee)}</strong>
       </List>
-      <List>
+      <List status={setStyle(local.keeperFee, comparison?.keeperFee)}>
         <span>
           <Tooltip text="The cost of opening a position.">Position Fee</Tooltip>
         </span>
