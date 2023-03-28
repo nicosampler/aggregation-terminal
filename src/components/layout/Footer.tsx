@@ -81,7 +81,7 @@ export const Footer: React.FC = (props) => {
             target="_blank"
             title="Developed by BootNode"
           >
-            Developed by <Image alt="Bootnode" height={14} src="/images/bn.png" width={89.42} />
+            Developed by <Image alt="Bootnode" height={14} src="/images/bn.png" width={90} />
           </a>
         </Copyright>
 
