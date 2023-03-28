@@ -83,6 +83,7 @@ export interface Outputs {
   protocol: Protocol
   investmentTokenSymbol: string
   fillPrice?: BigNumber
+  orderSize?: BigNumber
   priceImpact?: BigNumber
   protocolFee?: BigNumber
   tradeFee?: BigNumber

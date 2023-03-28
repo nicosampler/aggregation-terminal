@@ -3,6 +3,7 @@ import { useReducer, useState } from 'react'
 import styled from 'styled-components'
 
 import { BigNumber } from 'ethers'
+import { parseUnits } from 'ethers/lib/utils'
 
 import { BaseCard } from '@/src/components/common/BaseCard'
 import { DropdownDirection } from '@/src/components/common/Dropdown'
@@ -106,7 +107,7 @@ const Home: NextPage = () => {
                 toTokenSymbol={form.token}
               />
             </SafeSuspense>
-            {protocolAValues && protocolBValues ? (
+            {protocolAValues ? (
               <OutputDetails
                 comparison={{
                   protocol: 'kwenta',
@@ -116,6 +117,8 @@ const Home: NextPage = () => {
                   keeperFee: protocolBValues?.keeperFee,
                 }}
                 local={protocolAValues}
+                margin={BigNumber.from(form.amount)}
+                tokenSymbol={form.token}
               />
             ) : null}
           </>
@@ -156,7 +159,7 @@ const Home: NextPage = () => {
                 toTokenSymbol={form.token}
               />
             </SafeSuspense>
-            {protocolBValues && protocolAValues ? (
+            {protocolBValues ? (
               <OutputDetails
                 comparison={{
                   protocol: 'gmx',
@@ -166,6 +169,8 @@ const Home: NextPage = () => {
                   keeperFee: protocolAValues?.keeperFee,
                 }}
                 local={protocolBValues}
+                margin={parseUnits(form.amount)}
+                tokenSymbol={form.token}
               />
             ) : null}
           </>

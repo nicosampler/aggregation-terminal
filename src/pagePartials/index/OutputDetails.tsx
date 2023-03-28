@@ -5,11 +5,6 @@ import { List, Stats } from '@/src/components/text/List'
 import { formatAmount } from '@/src/utils/GMX/format'
 import { Outputs } from '@/types/utils'
 
-type Props = {
-  local: Outputs
-  comparison?: Outputs
-}
-
 function setStyle(value?: BigNumber, comparison?: BigNumber) {
   if (!comparison || !value || value.eq(comparison)) {
     return 'equal'
@@ -17,7 +12,13 @@ function setStyle(value?: BigNumber, comparison?: BigNumber) {
   return comparison.gt(value) ? 'better' : 'worse'
 }
 
-export function OutputDetails({ comparison, local }: Props) {
+type Props = {
+  tokenSymbol: string
+  margin: BigNumber
+  local: Outputs
+  comparison?: Outputs
+}
+export function OutputDetails({ comparison, local, margin, tokenSymbol }: Props) {
   const getTradeFeeText = () => {
     const text =
       local.protocol === 'kwenta'
@@ -40,11 +41,25 @@ export function OutputDetails({ comparison, local }: Props) {
       </List>
       <List>
         <span>
+          <Tooltip text="??.">Margin</Tooltip>
+        </span>
+        <strong>{formatAmount(margin, 18, 2)}</strong>
+      </List>
+      <List>
+        <span>
           <Tooltip text="The notional price of the position, expressed in the spot value of the token selected.">
             Fill Price
           </Tooltip>
         </span>
-        <strong>{formatAmount(local.fillPrice)}</strong>
+        <strong>
+          {formatAmount(local.fillPrice)} {tokenSymbol}
+        </strong>
+      </List>
+      <List>
+        <span>
+          <Tooltip text="??.">Order size</Tooltip>
+        </span>
+        <strong>{formatAmount(local.orderSize)}</strong>
       </List>
       <List status={setStyle(local.priceImpact, comparison?.priceImpact)}>
         <span>
