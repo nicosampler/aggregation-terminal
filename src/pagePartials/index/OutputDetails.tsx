@@ -57,7 +57,7 @@ export function OutputDetails({ comparison, local, margin, tokenSymbol }: Props)
       </List>
       <List>
         <span>
-          <Tooltip text="??.">Order size</Tooltip>
+          <Tooltip text="??.">Size</Tooltip>
         </span>
         <strong>{formatAmount(local.orderSize)}</strong>
       </List>
