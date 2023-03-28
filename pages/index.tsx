@@ -3,6 +3,7 @@ import { useReducer, useState } from 'react'
 import styled from 'styled-components'
 
 import { BigNumber } from 'ethers'
+import { AnimatePresence, motion } from 'framer-motion'
 
 import { BaseCard } from '@/src/components/common/BaseCard'
 import { DropdownDirection } from '@/src/components/common/Dropdown'
@@ -34,6 +35,9 @@ const Layout = styled.div`
   @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
     grid-template-columns: repeat(2, 1fr);
   }
+`
+const OutputWrapper = styled.div`
+  overflow: hidden;
 `
 
 const Home: NextPage = () => {
@@ -92,34 +96,48 @@ const Home: NextPage = () => {
             options={chainsStoreNamed(getProtocolChains(form.protocolA))}
           />
         </Label>
-
-        {form.protocolA == 'Kwenta' && form.amount && form.amount != '0' && (
-          <>
-            <SafeSuspense>
-              <KWENTAStats
-                amount={form.amount}
-                chainId={Number(form.chainA) as ChainsValues}
-                fromTokenSymbol="sUSD"
-                leverage={Number(form.leverage)}
-                position={form.position}
-                setValues={setProtocolAValues}
-                toTokenSymbol={form.token}
-              />
-            </SafeSuspense>
-            {protocolAValues && protocolBValues ? (
-              <OutputDetails
-                comparison={{
-                  protocol: 'kwenta',
-                  investmentTokenSymbol: 'USDC',
-                  protocolFee: protocolBValues?.protocolFee,
-                  tradeFee: protocolBValues?.tradeFee,
-                  keeperFee: protocolBValues?.keeperFee,
-                }}
-                local={protocolAValues}
-              />
-            ) : null}
-          </>
-        )}
+        <AnimatePresence mode="wait">
+          {form.protocolA == 'Kwenta' && form.amount && form.amount != '0' && (
+            <>
+              <SafeSuspense>
+                <KWENTAStats
+                  amount={form.amount}
+                  chainId={Number(form.chainA) as ChainsValues}
+                  fromTokenSymbol="sUSD"
+                  leverage={Number(form.leverage)}
+                  position={form.position}
+                  setValues={setProtocolAValues}
+                  toTokenSymbol={form.token}
+                />
+              </SafeSuspense>
+              {protocolAValues && protocolBValues ? (
+                <OutputWrapper
+                  animate={{ opacity: 1, height: 'auto', y: 0 }}
+                  as={motion.div}
+                  exit={{
+                    opacity: 0,
+                    height: 0,
+                    transition: { ease: 'easeOut', duration: 0.5 },
+                  }}
+                  initial={{ opacity: 0, height: 0, y: -30 }}
+                  key="Kwenta"
+                  transition={{ ease: 'easeIn', duration: 0.1 }}
+                >
+                  <OutputDetails
+                    comparison={{
+                      protocol: 'kwenta',
+                      investmentTokenSymbol: 'USDC',
+                      protocolFee: protocolBValues?.protocolFee,
+                      tradeFee: protocolBValues?.tradeFee,
+                      keeperFee: protocolBValues?.keeperFee,
+                    }}
+                    local={protocolAValues}
+                  />
+                </OutputWrapper>
+              ) : null}
+            </>
+          )}
+        </AnimatePresence>
       </Card>
       <Card>
         <Label>
@@ -142,34 +160,49 @@ const Home: NextPage = () => {
             options={chainsStoreNamed(getProtocolChains(form.protocolB))}
           />
         </Label>
+        <AnimatePresence mode="wait">
+          {form.protocolB == 'GMX' && allParamsEntered && (
+            <>
+              <SafeSuspense>
+                <GMXStats
+                  amount={form.amount}
+                  chainId={Number(form.chainB) as ChainsValues}
+                  fromTokenSymbol="USDC"
+                  leverage={Number(form.leverage)}
+                  position={form.position}
+                  setValues={setProtocolBValues}
+                  toTokenSymbol={form.token}
+                />
+              </SafeSuspense>
 
-        {form.protocolB == 'GMX' && allParamsEntered && (
-          <>
-            <SafeSuspense>
-              <GMXStats
-                amount={form.amount}
-                chainId={Number(form.chainB) as ChainsValues}
-                fromTokenSymbol="USDC"
-                leverage={Number(form.leverage)}
-                position={form.position}
-                setValues={setProtocolBValues}
-                toTokenSymbol={form.token}
-              />
-            </SafeSuspense>
-            {protocolBValues && protocolAValues ? (
-              <OutputDetails
-                comparison={{
-                  protocol: 'gmx',
-                  investmentTokenSymbol: 'sUSD',
-                  protocolFee: protocolAValues?.protocolFee,
-                  tradeFee: protocolAValues?.tradeFee,
-                  keeperFee: protocolAValues?.keeperFee,
-                }}
-                local={protocolBValues}
-              />
-            ) : null}
-          </>
-        )}
+              {protocolBValues && protocolAValues ? (
+                <OutputWrapper
+                  animate={{ opacity: 1, height: 'auto', y: 0 }}
+                  as={motion.div}
+                  exit={{
+                    opacity: 0,
+                    height: 0,
+                    transition: { ease: 'easeOut', duration: 0.5 },
+                  }}
+                  initial={{ opacity: 0, height: 0, y: -30 }}
+                  key="GMX"
+                  transition={{ ease: 'easeIn', duration: 0.1 }}
+                >
+                  <OutputDetails
+                    comparison={{
+                      protocol: 'gmx',
+                      investmentTokenSymbol: 'sUSD',
+                      protocolFee: protocolAValues?.protocolFee,
+                      tradeFee: protocolAValues?.tradeFee,
+                      keeperFee: protocolAValues?.keeperFee,
+                    }}
+                    local={protocolBValues}
+                  />
+                </OutputWrapper>
+              ) : null}
+            </>
+          )}
+        </AnimatePresence>
       </Card>
     </Layout>
   )

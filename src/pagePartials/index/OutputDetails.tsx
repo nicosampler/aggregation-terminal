@@ -1,4 +1,5 @@
 import { BigNumber } from 'ethers'
+import { AnimatePresence, Variants, motion } from 'framer-motion'
 
 import { Tooltip } from '@/src/components/common/Tooltip'
 import { List, Stats } from '@/src/components/text/List'
@@ -17,6 +18,21 @@ function setStyle(value?: BigNumber, comparison?: BigNumber) {
   return comparison.gt(value) ? 'better' : 'worse'
 }
 
+const container = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: 0.02,
+      delayChildren: 0.01,
+    },
+  },
+}
+
+const itemVariants = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1 },
+}
+
 export function OutputDetails({ comparison, local }: Props) {
   const getTradeFeeText = () => {
     const text =
@@ -33,12 +49,12 @@ export function OutputDetails({ comparison, local }: Props) {
     return text
   }
   return (
-    <Stats>
-      <List>
+    <Stats animate="show" as={motion.ul} initial="hidden" variants={container}>
+      <List as={motion.li} variants={itemVariants}>
         <span>Investment Token</span>
         <strong>{local.investmentTokenSymbol}</strong>
       </List>
-      <List>
+      <List as={motion.li} variants={itemVariants}>
         <span>
           <Tooltip text="The notional price of the position, expressed in the spot value of the token selected.">
             Fill Price
@@ -46,7 +62,11 @@ export function OutputDetails({ comparison, local }: Props) {
         </span>
         <strong>{formatAmount(local.fillPrice)}</strong>
       </List>
-      <List status={setStyle(local.priceImpact, comparison?.priceImpact)}>
+      <List
+        as={motion.li}
+        status={setStyle(local.priceImpact, comparison?.priceImpact)}
+        variants={itemVariants}
+      >
         <span>
           <Tooltip text="Correlation between the incoming trade, and the price of the asset.">
             Price Impact
@@ -54,32 +74,40 @@ export function OutputDetails({ comparison, local }: Props) {
         </span>
         <strong>{formatAmount(local.priceImpact)}</strong>
       </List>
-      <List status={setStyle(local.protocolFee, comparison?.protocolFee)}>
+      <List
+        as={motion.li}
+        status={setStyle(local.protocolFee, comparison?.protocolFee)}
+        variants={itemVariants}
+      >
         <span>
           <Tooltip text="Overall fees the protocol charges for a trade.">Protocol Fee</Tooltip>
         </span>
         <strong>{formatAmount(local.protocolFee)} </strong>
       </List>
-      <List status={setStyle(local.tradeFee, comparison?.tradeFee)}>
+      <List
+        as={motion.li}
+        status={setStyle(local.tradeFee, comparison?.tradeFee)}
+        variants={itemVariants}
+      >
         <span>
           <Tooltip text={getTradeFeeText()}>Trade Fee </Tooltip>
         </span>
         <strong>{formatAmount(local.tradeFee)}</strong>
       </List>
-      <List>
+      <List as={motion.li} variants={itemVariants}>
         <span>
           <Tooltip text={getKeeperFeeText()}>Position Fee</Tooltip>
         </span>
         <strong>{formatAmount(local.keeperFee)}</strong>
       </List>
 
-      <List>
+      <List as={motion.li} variants={itemVariants}>
         <span>
           <Tooltip text="The price at which the position is liquidated.">Liquidation Price</Tooltip>
         </span>
         <strong>{formatAmount(local.liquidationPrice)}</strong>
       </List>
-      <List>
+      <List as={motion.li} variants={itemVariants}>
         <span>
           <Tooltip text="Hourly payments to or from traders depending on their trade direction.">
             1H Funding

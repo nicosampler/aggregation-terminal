@@ -14,7 +14,18 @@ import { Token } from '@/types/token'
 
 const Wrapper = styled(Dropdown)`
   --inner-padding: 8px;
-
+  &[disabled] {
+    opacity: 1;
+    button {
+      background-color: unset;
+      &:after {
+        display: none;
+      }
+      &:hover {
+        background-color: unset;
+      }
+    }
+  }
   .dropdownItems {
     max-height: 340px;
     overflow: auto;
@@ -85,10 +96,11 @@ const NoResults = styled.div<{ closeOnClick?: boolean }>`
 `
 
 export const TokenDropdown: React.FC<{
+  disabled?: boolean
   onChange?: (token: Token | null) => void
   changeToken: (newToken: string) => void
   defaultToken: string
-}> = ({ changeToken, defaultToken, onChange, ...restProps }) => {
+}> = ({ changeToken, defaultToken, disabled, onChange, ...restProps }) => {
   const {
     onSelectToken,
     searchString,
@@ -122,6 +134,7 @@ export const TokenDropdown: React.FC<{
 
   return (
     <Wrapper
+      disabled={disabled}
       dropdownButton={
         <Button>
           <TokenIcon symbol={token ? token.symbol : selectedToken[0].symbol} />
@@ -132,15 +145,20 @@ export const TokenDropdown: React.FC<{
         </Button>
       }
       items={[
-        <TextfieldContainer closeOnClick={false} key="tokenSearchInput">
-          <Textfield
-            debounceTimeout={300}
-            onChange={(e: { target: { value: string } }) => setSearchString(e.target.value)}
-            placeholder="Search by name or ticker"
-            type="search"
-            value={searchString}
-          />
-        </TextfieldContainer>,
+        tokensList.length > 2 ? (
+          <TextfieldContainer closeOnClick={false} key="tokenSearchInput">
+            <Textfield
+              debounceTimeout={300}
+              onChange={(e: { target: { value: string } }) => setSearchString(e.target.value)}
+              placeholder="Search by name or ticker"
+              type="search"
+              value={searchString}
+            />
+          </TextfieldContainer>
+        ) : (
+          <></>
+        ),
+
         ...tokensList.map((item, index) => (
           <DropdownItem
             key={index}
