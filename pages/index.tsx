@@ -75,7 +75,12 @@ const Home: NextPage = () => {
   return (
     <Layout>
       <PositionParams form={form} setForm={setForm} />
-      <Card>
+      <Card
+        animate={{ opacity: 1, y: 0 }}
+        as={motion.div}
+        initial={{ opacity: 0, y: -20 }}
+        transition={{ ease: 'backInOut', duration: 0.3 }}
+      >
         <Label>
           <span>Exchange</span>
           <Select
@@ -117,7 +122,7 @@ const Home: NextPage = () => {
                   exit={{
                     opacity: 0,
                     height: 0,
-                    transition: { ease: 'easeOut', duration: 0.5 },
+                    transition: { ease: 'easeOut', duration: 0.2 },
                   }}
                   initial={{ opacity: 0, height: 0, y: -30 }}
                   key="Kwenta"
@@ -139,7 +144,12 @@ const Home: NextPage = () => {
           )}
         </AnimatePresence>
       </Card>
-      <Card>
+      <Card
+        animate={{ opacity: 1, y: 0 }}
+        as={motion.div}
+        initial={{ opacity: 0, y: -20 }}
+        transition={{ ease: 'backInOut', duration: 0.3 }}
+      >
         <Label>
           <span>Exchange</span>
           <Select

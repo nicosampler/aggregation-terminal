@@ -1,6 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
 
+import { motion } from 'framer-motion'
+
 import { BaseTitle } from '@/src/components/text/BaseTitle'
 
 const Wrapper = styled.header`
@@ -23,7 +25,12 @@ const H2 = styled.h2`
 
 export const Header: React.FC = () => {
   return (
-    <Wrapper>
+    <Wrapper
+      animate={{ opacity: 1, y: 0 }}
+      as={motion.header}
+      initial={{ opacity: 0, y: 20 }}
+      transition={{ ease: 'backInOut', duration: 0.8 }}
+    >
       <BaseTitle>Aggregation Terminal</BaseTitle>
       <H2>Compare trading data between popular exchanges on any chain.</H2>
     </Wrapper>

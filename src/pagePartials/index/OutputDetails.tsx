@@ -1,5 +1,5 @@
 import { BigNumber } from 'ethers'
-import { AnimatePresence, Variants, motion } from 'framer-motion'
+import { motion } from 'framer-motion'
 
 import { Tooltip } from '@/src/components/common/Tooltip'
 import { List, Stats } from '@/src/components/text/List'
@@ -22,8 +22,8 @@ const container = {
   hidden: {},
   show: {
     transition: {
-      staggerChildren: 0.02,
-      delayChildren: 0.01,
+      staggerChildren: 0.05,
+      delayChildren: 0.02,
     },
   },
 }

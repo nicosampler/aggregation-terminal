@@ -1,5 +1,7 @@
 import styled from 'styled-components'
 
+import { motion } from 'framer-motion'
+
 import { ButtonPrimary } from '@/src/components/buttons/Button'
 import { BaseCard } from '@/src/components/common/BaseCard'
 import { Formfield } from '@/src/components/form/Formfield'
@@ -146,7 +148,12 @@ export const Configuration: React.FC<Props> = ({
   setForm,
 }) => {
   return (
-    <Wrapper>
+    <Wrapper
+      animate={{ opacity: 1, height: 'auto', y: 0 }}
+      as={motion.section}
+      initial={{ opacity: 0, height: 0, y: -40 }}
+      transition={{ ease: 'backInOut', duration: 0.4 }}
+    >
       <Card>
         <Positions>
           <Position
