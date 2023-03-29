@@ -36,16 +36,16 @@ type Props = {
   positionSide: Position
 }
 export function OutputDetails({ comparison, local, margin, positionSide, tokenSymbol }: Props) {
-  const getTradeFeeText = () => {
+  const getTradeFeeText = (protocol: string) => {
     const text =
-      local.protocol === 'kwenta'
+      protocol === 'kwenta'
         ? 'Fees are displayed as maker / taker. Maker fees apply to orders that reduce the market skew. Taker fees apply to orders that increase the market skew.'
         : 'The cost of swapping tokens to execute the trade.'
     return text
   }
-  const getKeeperFeeText = () => {
+  const getKeeperFeeText = (protocol: string) => {
     const text =
-      local.protocol === 'kwenta'
+      protocol === 'kwenta'
         ? 'Fixed fee to cover automated order execution'
         : 'The cost of opening a position.'
     return text
@@ -120,13 +120,13 @@ export function OutputDetails({ comparison, local, margin, positionSide, tokenSy
       </List>
       <List as={motion.li} variants={itemVariants}>
         <span>
-          <Tooltip text={getTradeFeeText()}>Trade Fee </Tooltip>
+          <Tooltip text={getTradeFeeText(local.protocol)}>Trade Fee </Tooltip>
         </span>
         <strong>{formatAmount(local.tradeFee, 18, 2)}</strong>
       </List>
       <List as={motion.li} variants={itemVariants}>
         <span>
-          <Tooltip text={getKeeperFeeText()}>Position Fee</Tooltip>
+          <Tooltip text={getKeeperFeeText(local.protocol)}>Position Fee</Tooltip>
         </span>
         <strong>{formatAmount(local.keeperFee, 18, 2)}</strong>
       </List>
