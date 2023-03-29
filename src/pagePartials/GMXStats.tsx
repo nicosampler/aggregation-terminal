@@ -171,9 +171,10 @@ const GMXStatsComponent = memo(function GMXStats({
 
   setValues({
     protocol: 'gmx',
+    position: nextToUsd.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
     investmentTokenSymbol: 'USDC',
-    fillPrice: nextToAmount, // 18
-    orderSize: nextToUsd.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
+    fillPrice: toTokenPriceUsd.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
+    orderSize: nextToAmount, // 18
     priceImpact: undefined,
     protocolFee: feesUsd.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
     tradeFee: swapFees.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),

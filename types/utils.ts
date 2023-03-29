@@ -82,6 +82,7 @@ export type Position = 'long' | 'short'
 export interface Outputs {
   protocol: Protocol
   investmentTokenSymbol: string
+  position?: BigNumber
   fillPrice?: BigNumber
   orderSize?: BigNumber
   priceImpact?: BigNumber

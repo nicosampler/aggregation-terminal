@@ -36,14 +36,10 @@ export function OutputDetails({ comparison, local, margin, tokenSymbol }: Props)
   return (
     <Stats>
       <List>
-        <span>Investment Token</span>
-        <strong>{local.investmentTokenSymbol}</strong>
-      </List>
-      <List>
-        <span>
-          <Tooltip text="??.">Margin</Tooltip>
-        </span>
-        <strong>{formatAmount(margin, 18, 2)}</strong>
+        <span>Investment</span>
+        <strong>
+          {formatAmount(margin, 18, 2)} {local.investmentTokenSymbol}
+        </strong>
       </List>
       <List>
         <span>
@@ -51,15 +47,21 @@ export function OutputDetails({ comparison, local, margin, tokenSymbol }: Props)
             Fill Price
           </Tooltip>
         </span>
-        <strong>
-          {formatAmount(local.fillPrice)} {tokenSymbol}
-        </strong>
+        <strong>{formatAmount(local.fillPrice)}</strong>
+      </List>
+      <List>
+        <span>
+          <Tooltip text="??.">Position</Tooltip>
+        </span>
+        <strong>{formatAmount(local.position, 18, 2)}</strong>
       </List>
       <List>
         <span>
           <Tooltip text="??.">Size</Tooltip>
         </span>
-        <strong>{formatAmount(local.orderSize)}</strong>
+        <strong>
+          {formatAmount(local.orderSize)} {tokenSymbol}
+        </strong>
       </List>
       <List status={setStyle(local.priceImpact, comparison?.priceImpact)}>
         <span>
