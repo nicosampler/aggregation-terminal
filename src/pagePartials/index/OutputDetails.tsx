@@ -43,7 +43,7 @@ export function OutputDetails({ comparison, local, margin, tokenSymbol }: Props)
       </List>
       <List>
         <span>
-          <Tooltip text="The notional price of the position, expressed in the spot value of the token selected.">
+          <Tooltip text="The estimated price at which the order will be executed.">
             Fill Price
           </Tooltip>
         </span>
@@ -51,13 +51,17 @@ export function OutputDetails({ comparison, local, margin, tokenSymbol }: Props)
       </List>
       <List>
         <span>
-          <Tooltip text="??.">Position</Tooltip>
+          <Tooltip text="The estimated price at which the order will be executed.">
+            Position
+          </Tooltip>
         </span>
         <strong>{formatAmount(local.position, 18, 2)}</strong>
       </List>
       <List>
         <span>
-          <Tooltip text="??.">Size</Tooltip>
+          <Tooltip text="The notional value of the position, expressed in the spot price of the token selected.">
+            Size
+          </Tooltip>
         </span>
         <strong>
           {formatAmount(local.orderSize)} {tokenSymbol}
