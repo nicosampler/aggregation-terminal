@@ -7,7 +7,7 @@ import { extractMarketInfo } from '../hooks/KWENTA/useMarketData'
 import { useMarketInternalV2Data } from '../hooks/KWENTA/useMarketInternal'
 import { useMarketSettingsV2Parameters } from '../hooks/KWENTA/useMarketSettings'
 import { useTradePreview } from '../hooks/KWENTA/usePositionDetails'
-import { FuturesMarketKey, KWENTA_FIXED_FEE } from '@/src/utils/KWENTA/constants'
+import { FuturesMarketKey, KWENTA_FIXED_FEE, ZERO_BIG_NUM } from '@/src/utils/KWENTA/constants'
 import { formatOrderSizes, formatPosition } from '@/src/utils/KWENTA/format'
 import { ChainsValues } from '@/types/chains'
 import { Outputs, Position } from '@/types/utils'
@@ -80,6 +80,13 @@ const KWENTAStatsComponent = memo(function KWENTAStats({
     position,
   )
 
+  const oneHourFunding = oneHourlyFundingRate.gt(ZERO_BIG_NUM)
+    ? position === 'long'
+      ? wei(marketData.assetPrice).mul(oneHourlyFundingRate).neg().toBN()
+      : wei(marketData.assetPrice).mul(oneHourlyFundingRate).toBN() // positive && short position
+    : position === 'short'
+    ? wei(marketData.assetPrice).mul(oneHourlyFundingRate).toBN()
+    : wei(marketData.assetPrice).mul(oneHourlyFundingRate.abs()).toBN() // negative && long position
   setValues({
     protocol: 'kwenta',
     investmentTokenSymbol: 'sUSD',
@@ -89,7 +96,7 @@ const KWENTAStatsComponent = memo(function KWENTAStats({
     tradeFee: positionStats.fee.toBN(),
     keeperFee: KWENTA_FIXED_FEE.toBN(),
     liquidationPrice: positionStats.liqPrice.toBN(),
-    oneHourFunding: wei(marketData.assetPrice).mul(oneHourlyFundingRate).toBN(),
+    oneHourFunding: oneHourFunding,
   })
 
   return null
