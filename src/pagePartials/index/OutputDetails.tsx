@@ -55,7 +55,7 @@ export function OutputDetails({ comparison, local, margin, positionSide, tokenSy
       <List as={motion.li} variants={itemVariants}>
         <span>Investment</span>
         <strong>
-          {formatAmount(margin, 18, 2)} {local.investmentTokenSymbol}
+          {formatAmount(margin, 1, 2)} {local.investmentTokenSymbol}
         </strong>
       </List>
       <List
