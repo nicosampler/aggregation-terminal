@@ -209,7 +209,7 @@ const Home: NextPage = () => {
                   <OutputDetails
                     comparison={{
                       protocol: 'gmx',
-                      investmentTokenSymbol: 'sUSD',
+                      investmentTokenSymbol: 'USDC',
                       fillPrice: protocolAValues?.fillPrice,
                       position: protocolAValues?.position,
                       orderSize: protocolAValues?.orderSize,

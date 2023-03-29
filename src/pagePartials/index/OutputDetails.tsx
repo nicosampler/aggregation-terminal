@@ -36,16 +36,16 @@ type Props = {
   positionSide: Position
 }
 export function OutputDetails({ comparison, local, margin, positionSide, tokenSymbol }: Props) {
-  const getTradeFeeText = () => {
+  const getTradeFeeText = (protocol: string) => {
     const text =
-      local.protocol === 'kwenta'
+      protocol === 'kwenta'
         ? 'Fees are displayed as maker / taker. Maker fees apply to orders that reduce the market skew. Taker fees apply to orders that increase the market skew.'
         : 'The cost of swapping tokens to execute the trade.'
     return text
   }
-  const getKeeperFeeText = () => {
+  const getKeeperFeeText = (protocol: string) => {
     const text =
-      local.protocol === 'kwenta'
+      protocol === 'kwenta'
         ? 'Fixed fee to cover automated order execution'
         : 'The cost of opening a position.'
     return text
@@ -55,7 +55,7 @@ export function OutputDetails({ comparison, local, margin, positionSide, tokenSy
       <List as={motion.li} variants={itemVariants}>
         <span>Investment</span>
         <strong>
-          {formatAmount(margin, 18, 2)} {local.investmentTokenSymbol}
+          {formatAmount(margin, 1, 2)} {local.investmentTokenSymbol}
         </strong>
       </List>
       <List
@@ -68,7 +68,7 @@ export function OutputDetails({ comparison, local, margin, positionSide, tokenSy
             Fill Price
           </Tooltip>
         </span>
-        <strong>{formatAmount(local.fillPrice)}</strong>
+        <strong>{formatAmount(local.fillPrice, 18, 2)}</strong>
       </List>
       <List
         as={motion.li}
@@ -116,19 +116,19 @@ export function OutputDetails({ comparison, local, margin, positionSide, tokenSy
         <span>
           <Tooltip text="Overall fees the protocol charges for a trade.">Protocol Fee</Tooltip>
         </span>
-        <strong>{formatAmount(local.protocolFee)} </strong>
+        <strong>{formatAmount(local.protocolFee, 18, 2)} </strong>
       </List>
       <List as={motion.li} variants={itemVariants}>
         <span>
-          <Tooltip text={getTradeFeeText()}>Trade Fee </Tooltip>
+          <Tooltip text={getTradeFeeText(local.protocol)}>Trade Fee </Tooltip>
         </span>
-        <strong>{formatAmount(local.tradeFee)}</strong>
+        <strong>{formatAmount(local.tradeFee, 18, 2)}</strong>
       </List>
       <List as={motion.li} variants={itemVariants}>
         <span>
-          <Tooltip text={getKeeperFeeText()}>Position Fee</Tooltip>
+          <Tooltip text={getKeeperFeeText(local.protocol)}>Position Fee</Tooltip>
         </span>
-        <strong>{formatAmount(local.keeperFee)}</strong>
+        <strong>{formatAmount(local.keeperFee, 18, 2)}</strong>
       </List>
 
       <List
@@ -143,7 +143,7 @@ export function OutputDetails({ comparison, local, margin, positionSide, tokenSy
         <span>
           <Tooltip text="The price at which the position is liquidated.">Liquidation Price</Tooltip>
         </span>
-        <strong>{formatAmount(local.liquidationPrice)}</strong>
+        <strong>{formatAmount(local.liquidationPrice, 18, 2)}</strong>
       </List>
       <List
         as={motion.li}

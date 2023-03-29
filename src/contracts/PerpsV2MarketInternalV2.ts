@@ -135,17 +135,6 @@ export class FuturesMarketInternal {
       oldPos.size.gte(ZERO_BIG_NUM) === newPos.size.gte(ZERO_BIG_NUM) &&
       newPos.size.abs().lt(oldPos.size.abs())
 
-    const readableELEMENTS = {
-      fee: wei(fee),
-      margin: wei(margin),
-      minInitialMargin: wei(minInitialMargin),
-      oldPosSizeGTEzero: oldPos.size.gte(ZERO_BIG_NUM),
-      newPosSizeGTEzero: newPos.size.gte(ZERO_BIG_NUM),
-      newPosSize: wei(newPos.size),
-      newPosSizeLToldPosSize: newPos.size.abs().lt(oldPos.size.abs()),
-    }
-    // eslint-disable-next-line no-debugger
-    debugger
     // avoids INSUFFICIENT_MARGIN for USD 1 amounts
     // if (!positionDecreasing) {
     //   if (newPos.margin.add(fee).lt(minInitialMargin)) {
