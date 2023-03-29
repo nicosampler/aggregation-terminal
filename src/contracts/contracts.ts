@@ -84,6 +84,12 @@ export const contracts = {
       [Chains.arbitrum]: '',
     },
   },
+  KWENTA_PerpsV2MarketState: {
+    address: {
+      [Chains.optimism]: '0x038dC05D68ED32F23e6856c0D44b0696B325bfC8',
+      [Chains.arbitrum]: '',
+    },
+  },
   KWENTA_SystemStatus: {
     address: {
       [Chains.optimism]: '0xE8c41bE1A167314ABAF2423b72Bf8da826943FFD',
