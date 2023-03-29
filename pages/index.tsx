@@ -103,7 +103,7 @@ const Home: NextPage = () => {
           />
         </Label>
         <AnimatePresence mode="wait">
-          {form.protocolA == 'Kwenta' && form.amount && form.amount != '0' && (
+          {form.protocolA == 'Kwenta' && allParamsEntered && (
             <>
               <SafeSuspense>
                 <KWENTAStats
@@ -132,13 +132,18 @@ const Home: NextPage = () => {
                   <OutputDetails
                     comparison={{
                       protocol: 'kwenta',
-                      investmentTokenSymbol: 'USDC',
+                      investmentTokenSymbol: 'sUSD',
+                      fillPrice: protocolBValues?.fillPrice,
+                      position: protocolBValues?.position,
+                      orderSize: protocolBValues?.orderSize,
+                      priceImpact: protocolBValues?.priceImpact,
                       protocolFee: protocolBValues?.protocolFee,
-                      tradeFee: protocolBValues?.tradeFee,
-                      keeperFee: protocolBValues?.keeperFee,
+                      liquidationPrice: protocolBValues?.liquidationPrice,
+                      oneHourFunding: protocolBValues?.oneHourFunding,
                     }}
                     local={protocolAValues}
                     margin={BigNumber.from(form.amount)}
+                    positionSide={form.position}
                     tokenSymbol={form.token}
                   />
                 </OutputWrapper>
@@ -205,12 +210,17 @@ const Home: NextPage = () => {
                     comparison={{
                       protocol: 'gmx',
                       investmentTokenSymbol: 'sUSD',
+                      fillPrice: protocolAValues?.fillPrice,
+                      position: protocolAValues?.position,
+                      orderSize: protocolAValues?.orderSize,
+                      priceImpact: protocolAValues?.priceImpact,
                       protocolFee: protocolAValues?.protocolFee,
-                      tradeFee: protocolAValues?.tradeFee,
-                      keeperFee: protocolAValues?.keeperFee,
+                      liquidationPrice: protocolAValues?.liquidationPrice,
+                      oneHourFunding: protocolAValues?.oneHourFunding,
                     }}
                     local={protocolBValues}
-                    margin={parseUnits(form.amount)}
+                    margin={BigNumber.from(form.amount)}
+                    positionSide={form.position}
                     tokenSymbol={form.token}
                   />
                 </OutputWrapper>
