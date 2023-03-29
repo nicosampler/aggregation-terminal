@@ -82,7 +82,6 @@ const GMXStatsComponent = memo(function GMXStats({
   // ----------------------
   // Generic calculations
   // ----------------------
-
   const fromUsdMin = fromAmountBN
     .mul(gmxFromTokenInfo.minPrice)
     .div(expandDecimals(1, fromTokenInfo.decimals))
@@ -121,7 +120,7 @@ const GMXStatsComponent = memo(function GMXStats({
 
   const nextToUsd = toNumerator.div(toDenominator)
   const nextToAmount = nextToUsd.mul(expandDecimals(1, toTokenInfo.decimals)).div(toTokenPriceUsd)
-  const nextToValue = formatUnits(nextToAmount, toTokenInfo.decimals)
+  //  const nextToValue = formatUnits(nextToAmount, toTokenInfo.decimals)
 
   // ----------------------
   // entry/exit price
@@ -172,8 +171,10 @@ const GMXStatsComponent = memo(function GMXStats({
 
   setValues({
     protocol: 'gmx',
+    position: nextToUsd.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
     investmentTokenSymbol: 'USDC',
-    fillPrice: nextToAmount, // 18
+    fillPrice: toTokenPriceUsd.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
+    orderSize: nextToAmount, // 18
     priceImpact: undefined,
     protocolFee: feesUsd.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
     tradeFee: swapFees.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
