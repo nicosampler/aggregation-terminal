@@ -1,4 +1,4 @@
-import { BigNumber, BigNumberish, ethers } from 'ethers'
+import { BigNumberish, ethers } from 'ethers'
 
 export const limitDecimals = (amount: BigNumberish, maxDecimals?: number) => {
   let amountStr = amount.toString()
@@ -27,7 +27,7 @@ export const padDecimals = (amount: BigNumberish, minDecimals: number) => {
       amountStr = amountStr.padEnd(amountStr.length + (minDecimals - decimals), '0')
     }
   } else {
-    amountStr = amountStr + '.0000'
+    amountStr = amountStr + '.00'
   }
   return amountStr
 }
