@@ -1,12 +1,14 @@
 import { Dispatch, memo } from 'react'
 
 import { wei } from '@synthetixio/wei'
+import { BigNumber } from 'ethers'
 import { formatBytes32String } from 'ethers/lib/utils'
 
 import { extractMarketInfo } from '../hooks/KWENTA/useMarketData'
 import { useMarketInternalV2Data } from '../hooks/KWENTA/useMarketInternal'
 import { useMarketSettingsV2Parameters } from '../hooks/KWENTA/useMarketSettings'
 import { useTradePreview } from '../hooks/KWENTA/usePositionDetails'
+import { useSynthsRates } from '../hooks/KWENTA/useSynthsRates'
 import { FuturesMarketKey, KWENTA_FIXED_FEE, ZERO_BIG_NUM } from '@/src/utils/KWENTA/constants'
 import { formatOrderSizes, formatPosition } from '@/src/utils/KWENTA/format'
 import { ChainsValues } from '@/types/chains'
@@ -31,6 +33,8 @@ const KWENTAStatsComponent = memo(function KWENTAStats({
   setValues,
   toTokenSymbol,
 }: Props) {
+  const synthRates = useSynthsRates()
+  const sUSDAssetPrice = synthRates[1][0]
   // @todo: fetch marketKey by tokenSymbol
   const marketKey = FuturesMarketKey.sETHPERP
   const marketKeyBytes = formatBytes32String(marketKey)
@@ -68,11 +72,9 @@ const KWENTAStatsComponent = memo(function KWENTAStats({
     marketParams,
   )
   if (tradePreview.status !== 0) {
-    console.log(tradePreview.status)
     throw `There was not possible to fetch Position Stats`
   }
 
-  // destruct object from formatPosition
   const { positionStats } = formatPosition(
     tradePreview,
     skewAdjustedPrice,
@@ -80,6 +82,7 @@ const KWENTAStatsComponent = memo(function KWENTAStats({
     position,
   )
 
+  const positionValue = wei(amount).mul(leverage).div(sUSDAssetPrice).toBN()
   const oneHourFunding = oneHourlyFundingRate.gt(ZERO_BIG_NUM)
     ? position === 'long'
       ? wei(marketData.assetPrice).mul(oneHourlyFundingRate).neg().toBN()
@@ -87,10 +90,13 @@ const KWENTAStatsComponent = memo(function KWENTAStats({
     : position === 'short'
     ? wei(marketData.assetPrice).mul(oneHourlyFundingRate).toBN()
     : wei(marketData.assetPrice).mul(oneHourlyFundingRate.abs()).toBN() // negative && long position
+
   setValues({
     protocol: 'kwenta',
+    position: positionValue,
     investmentTokenSymbol: 'sUSD',
-    fillPrice: wei(amount).mul(leverage).div(marketData.assetPrice).toBN(),
+    fillPrice: BigNumber.from(0),
+    orderSize: wei(amount).mul(leverage).div(marketData.assetPrice).toBN(),
     priceImpact: positionStats.priceImpact.toBN(),
     protocolFee: positionStats.fee.add(KWENTA_FIXED_FEE).toBN(),
     tradeFee: positionStats.fee.toBN(),
