@@ -82,6 +82,7 @@ const KWENTAStatsComponent = memo(function KWENTAStats({
     position,
   )
 
+  const fillPrice = wei(marketData.assetPrice).mul(sUSDAssetPrice).toBN()
   const positionValue = wei(amount).mul(leverage).div(sUSDAssetPrice).toBN()
   const oneHourFunding = oneHourlyFundingRate.gt(ZERO_BIG_NUM)
     ? position === 'long'
@@ -95,7 +96,7 @@ const KWENTAStatsComponent = memo(function KWENTAStats({
     protocol: 'kwenta',
     position: positionValue,
     investmentTokenSymbol: 'sUSD',
-    fillPrice: BigNumber.from(0),
+    fillPrice: fillPrice,
     orderSize: wei(amount).mul(leverage).div(marketData.assetPrice).toBN(),
     priceImpact: positionStats.priceImpact.toBN(),
     protocolFee: positionStats.fee.add(KWENTA_FIXED_FEE).toBN(),
