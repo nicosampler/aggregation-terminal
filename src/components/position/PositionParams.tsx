@@ -8,6 +8,7 @@ import { Formfield } from '@/src/components/form/Formfield'
 import { Label } from '@/src/components/form/Label'
 import { Textfield, TextfieldStatus } from '@/src/components/form/Textfield'
 import { TokenDropdown as BaseDropdown } from '@/src/components/token/TokenDropdown'
+import { useDashboardInfo } from '@/src/providers/dashboardProvider'
 import { ComparisonForm } from '@/types/utils'
 
 const Wrapper = styled.section`
@@ -136,17 +137,11 @@ const TokenDropdown = styled(BaseDropdown)`
   margin-left: auto;
 `
 
-interface Props {
-  form: ComparisonForm
-  setForm: (value: Partial<ComparisonForm>) => void
-  disableTokenDropdown?: boolean
-  onTokenChange?: (token: string) => void
-}
+export const Configuration: React.FC = () => {
+  const { form, setValues } = useDashboardInfo()
+  const { leverage, position, token } = form
+  const setForm = (data: Partial<ComparisonForm>) => setValues({ form: { ...form, ...data } })
 
-export const Configuration: React.FC<Props> = ({
-  form: { leverage, position, token },
-  setForm,
-}) => {
   return (
     <Wrapper
       animate={{ opacity: 1, height: 'auto', y: 0 }}

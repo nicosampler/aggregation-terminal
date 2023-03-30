@@ -1,7 +1,7 @@
 import { Dispatch, memo } from 'react'
 
 import { BigNumber, constants } from 'ethers'
-import { formatUnits, parseUnits } from 'ethers/lib/utils'
+import { parseUnits } from 'ethers/lib/utils'
 
 import { useGMXTokensInfo } from '@/src/hooks/GMX/useGMXTokensInfo'
 import useGMXVaultStats from '@/src/hooks/GMX/useGMXVaultStats'
@@ -12,10 +12,9 @@ import {
   MARGIN_FEE_BASIS_POINTS,
   USD_DECIMALS,
 } from '@/src/utils/GMX/constants'
-import { formatAmount } from '@/src/utils/GMX/format'
 import { getLiquidationPrice } from '@/src/utils/GMX/getLiquidationPrice'
 import { getNextToAmount } from '@/src/utils/GMX/getNextToAmount'
-import { contractDecimals, expandDecimals } from '@/src/utils/GMX/numbers'
+import { expandDecimals } from '@/src/utils/GMX/numbers'
 import { ChainsValues } from '@/types/chains'
 import { Outputs, Position } from '@/types/utils'
 
@@ -38,8 +37,8 @@ const GMXStatsComponent = memo(function GMXStats({
   setValues,
   toTokenSymbol,
 }: Props) {
-  const { exitsTokenInProtocol, getTokenBySymbolAndChain } = useProtocols()
-  const existsTokenInProtocol = exitsTokenInProtocol('GMX', chainId.toString(), toTokenSymbol)
+  const { /* exitsTokenInProtocol, */ getTokenBySymbolAndChain } = useProtocols()
+  // const existsTokenInProtocol = exitsTokenInProtocol('GMX', chainId.toString(), toTokenSymbol)
   const gmxTokensInfo = useGMXTokensInfo(chainId)
 
   const gmxVaultStats = useGMXVaultStats(chainId)
@@ -53,7 +52,7 @@ const GMXStatsComponent = memo(function GMXStats({
   const gmxToTokenInfo = gmxTokensInfo.infoTokens[toTokenInfo?.address as string]
 
   const fromAmountBN = parseUnits(amount, 6) // USDC fixed
-  const toAmountBN = parseUnits(amount, toTokenInfo?.decimals)
+  // const toAmountBN = parseUnits(amount, toTokenInfo?.decimals)
 
   if (!usdgTotalSupply) {
     throw `There was not possible to get USDG total supply`
