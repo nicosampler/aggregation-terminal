@@ -53,10 +53,11 @@ export const Protocol: React.FC<Props> = ({
   const protocols = useProtocols()
   const { getProtocolChains, protocolsNames } = protocols
 
-  const resSWR = useMarketStats(tradeForm, protocolForm)
+  const resSWR = useMarketStats(tradeForm, protocolForm, protocolStats)
 
   useEffect(() => {
-    if (resSWR.data != null && protocolStats?.fillPrice !== resSWR.data.fillPrice) {
+    // Note: we assume that if fillPrice is different, it should update the state
+    if (resSWR.data && protocolStats?.fillPrice !== resSWR.data.fillPrice) {
       setProtocolStats(resSWR.data)
     }
   }, [resSWR, protocolStats, setProtocolStats])

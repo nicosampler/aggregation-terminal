@@ -5,7 +5,6 @@ import {
   createContext,
   useContext,
   useEffect,
-  useMemo,
   useReducer,
 } from 'react'
 
@@ -38,7 +37,7 @@ export const DashboardProvider: FC<PropsWithChildren> = ({ children }) => {
         token: 'ETH',
         leverage: '2',
         position: 'long',
-        amount: '10',
+        amount: '',
       },
       protocolAForm: {
         name: 'Kwenta',
@@ -59,8 +58,6 @@ export const DashboardProvider: FC<PropsWithChildren> = ({ children }) => {
       protocolBStats: null,
     })
   }, [contextValues.tradeForm])
-
-  // const values = useMemo(() => ({ ...contextValues, setValues: setContextValues }), [contextValues])
 
   return (
     <dashboardContext.Provider value={{ ...contextValues, setValues: setContextValues }}>

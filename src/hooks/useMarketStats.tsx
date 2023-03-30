@@ -1,10 +1,7 @@
-import { useEffect } from 'react'
-
 import { BigNumber, constants } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
 import useSWR from 'swr'
 
-import useProtocols from '@/src/hooks/useProtocols'
 import {
   BASIS_POINTS_DIVISOR,
   MARGIN_FEE_BASIS_POINTS,
@@ -25,8 +22,6 @@ async function getGMXStatsFetcher(
   tradeForm: TradeForm,
 ): Promise<ProtocolStats> {
   const protocols = getProtocols()
-
-  console.log('volvi ')
 
   const fromTokenSymbol = 'USDC'
   const toTokenSymbol = tradeForm.token
@@ -181,32 +176,30 @@ function getKwentaStatsFetcher() {
   return {} as Promise<ProtocolStats>
 }
 
-export function useMarketStats(tradeForm: TradeForm, protocolForm: ProtocolForm) {
-  return useSWR(
-    [protocolForm.chain, tradeForm.amount, tradeForm.leverage, tradeForm.position, tradeForm.token],
-    ([chainId, amount, leverage, position, token]) => {
-      return getGMXStatsFetcher(chainId, { amount, leverage, position, token })
-      // if (_triggerFetcher) {
-      //   const res =
-      //   return { data: res }
-      // } else {
-      //   return { data: null }
-      // }
+export function useMarketStats(
+  tradeForm: TradeForm,
+  protocolForm: ProtocolForm,
+  protocolStats: ProtocolStats | null,
+) {
+  const shouldTrigger =
+    protocolStats == null &&
+    tradeForm.amount &&
+    tradeForm.amount != '0' &&
+    Number(tradeForm.leverage) > 0 &&
+    Number(tradeForm.leverage) < 26
 
-      // switch (_protocolForm.name) {
-      //   case 'GMX': {
-      //     if (_triggerFetcher) {
-      //       const res = await getGMXStatsFetcher(_protocols, _protocolForm.chain, _tradeForm)
-      //       return { data: res }
-      //     } else {
-      //       return { data: null }
-      //     }
-      //   }
-      //   // case 'Kwenta':
-      //   //   return getKwentaStatsFetcher()
-      //   default:
-      //     throw 'Protocol not supported'
-      // }
+  return useSWR(
+    shouldTrigger ? [protocolForm, tradeForm] : null,
+    ([_protocolForm, _tradeForm]) => {
+      switch (_protocolForm.name) {
+        case 'GMX': {
+          return getGMXStatsFetcher(_protocolForm.chain, _tradeForm)
+        }
+        // case 'Kwenta':
+        //   return getKwentaStatsFetcher()
+        default:
+          throw 'Protocol not supported'
+      }
     },
     { refreshInterval: 5_000 },
   )

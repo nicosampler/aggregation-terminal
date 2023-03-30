@@ -1,5 +1,4 @@
 import type { NextPage } from 'next'
-import { useCallback } from 'react'
 import styled from 'styled-components'
 
 import SafeSuspense, { withGenericSuspense } from '@/src/components/helpers/SafeSuspense'
@@ -23,16 +22,6 @@ const Home: NextPage = () => {
   const { protocolAForm, protocolAStats, protocolBForm, protocolBStats, setValues, tradeForm } =
     useDashboardInfo()
 
-  const setProtocolFormB = useCallback(
-    (newValues: ProtocolForm) => setValues({ protocolBForm: newValues }),
-    [setValues],
-  )
-
-  const setProtocolStatsB = useCallback(
-    (newValues: ProtocolStats | null) => setValues({ protocolBStats: newValues }),
-    [setValues],
-  )
-
   return (
     <Layout>
       <TradeParams />
@@ -51,8 +40,10 @@ const Home: NextPage = () => {
           protocolForm={protocolBForm}
           protocolStats={protocolBStats}
           protocolStatsForeign={protocolAStats}
-          setProtocolForm={setProtocolFormB}
-          setProtocolStats={setProtocolStatsB}
+          setProtocolForm={(newValues: ProtocolForm) => setValues({ protocolBForm: newValues })}
+          setProtocolStats={(newValues: ProtocolStats | null) =>
+            setValues({ protocolBStats: newValues })
+          }
           tradeForm={tradeForm}
         />
       </SafeSuspense>
