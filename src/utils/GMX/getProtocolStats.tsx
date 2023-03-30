@@ -1,8 +1,5 @@
-import { useEffect } from 'react'
-
 import { BigNumber, constants } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
-import useSWR from 'swr'
 
 import useProtocols from '@/src/hooks/useProtocols'
 import {
@@ -16,18 +13,14 @@ import { getLiquidationPrice } from '@/src/utils/GMX/getLiquidationPrice'
 import { getNextToAmount } from '@/src/utils/GMX/getNextToAmount'
 import { getUSDGStats } from '@/src/utils/GMX/getUSDGStats'
 import { expandDecimals } from '@/src/utils/GMX/numbers'
-import getProtocols from '@/src/utils/getProtocols'
 import { ChainsValues } from '@/types/chains'
 import { ProtocolForm, ProtocolStats, TradeForm } from '@/types/utils'
 
-async function getGMXStatsFetcher(
+export async function getGMXStatsFetcher(
+  protocols: ReturnType<typeof useProtocols>,
   chainId: ChainsValues,
   tradeForm: TradeForm,
 ): Promise<ProtocolStats> {
-  const protocols = getProtocols()
-
-  console.log('volvi ')
-
   const fromTokenSymbol = 'USDC'
   const toTokenSymbol = tradeForm.token
   const amount = tradeForm.amount
@@ -175,39 +168,4 @@ async function getGMXStatsFetcher(
     liquidationPrice: liquidationPrice.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
     oneHourFunding: borrowFeeAmount.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
   }
-}
-
-function getKwentaStatsFetcher() {
-  return {} as Promise<ProtocolStats>
-}
-
-export function useMarketStats(tradeForm: TradeForm, protocolForm: ProtocolForm) {
-  return useSWR(
-    [protocolForm.chain, tradeForm.amount, tradeForm.leverage, tradeForm.position, tradeForm.token],
-    ([chainId, amount, leverage, position, token]) => {
-      return getGMXStatsFetcher(chainId, { amount, leverage, position, token })
-      // if (_triggerFetcher) {
-      //   const res =
-      //   return { data: res }
-      // } else {
-      //   return { data: null }
-      // }
-
-      // switch (_protocolForm.name) {
-      //   case 'GMX': {
-      //     if (_triggerFetcher) {
-      //       const res = await getGMXStatsFetcher(_protocols, _protocolForm.chain, _tradeForm)
-      //       return { data: res }
-      //     } else {
-      //       return { data: null }
-      //     }
-      //   }
-      //   // case 'Kwenta':
-      //   //   return getKwentaStatsFetcher()
-      //   default:
-      //     throw 'Protocol not supported'
-      // }
-    },
-    { refreshInterval: 5_000 },
-  )
 }

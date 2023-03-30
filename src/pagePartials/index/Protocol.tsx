@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import styled from 'styled-components'
 
 import { parseUnits } from 'ethers/lib/utils'
@@ -11,6 +12,7 @@ import { chainsConfig } from '@/src/config/web3'
 import { useMarketStats } from '@/src/hooks/useMarketStats'
 import useProtocols from '@/src/hooks/useProtocols'
 import { OutputDetails } from '@/src/pagePartials/index/OutputDetails'
+import { getGMXStatsFetcher } from '@/src/utils/GMX/getProtocolStats'
 import { ChainsValues } from '@/types/chains'
 import { ProtocolForm, ProtocolNames, ProtocolStats, TradeForm } from '@/types/utils'
 
@@ -31,7 +33,7 @@ type Props = {
   protocolStats: ProtocolStats | null
   protocolStatsForeign: ProtocolStats | null
   setProtocolForm: (newValues: ProtocolForm) => void
-  setProtocolStats: (newValues: ProtocolStats) => void
+  setProtocolStats: (newValues: ProtocolStats | null) => void
 }
 
 const chainsStoreNamed = (chainsStore: Array<number>) =>
@@ -48,15 +50,23 @@ export const Protocol: React.FC<Props> = ({
   setProtocolStats,
   tradeForm,
 }) => {
-  const { getProtocolChains, protocolsNames } = useProtocols()
+  const protocols = useProtocols()
+  const { getProtocolChains, protocolsNames } = protocols
 
-  useMarketStats(
-    tradeForm,
-    protocolStats !== null,
-    protocolForm.name,
-    protocolForm.chain,
-    setProtocolStats,
-  )
+  const resSWR = useMarketStats(tradeForm, protocolForm)
+
+  useEffect(() => {
+    if (resSWR.data != null && protocolStats?.fillPrice !== resSWR.data.fillPrice) {
+      setProtocolStats(resSWR.data)
+    }
+  }, [resSWR, protocolStats, setProtocolStats])
+
+  const showOutput =
+    protocolStats !== null &&
+    tradeForm.amount &&
+    tradeForm.amount != '0' &&
+    Number(tradeForm.leverage) > 0 &&
+    Number(tradeForm.leverage) < 26
 
   return (
     <Card
@@ -90,7 +100,7 @@ export const Protocol: React.FC<Props> = ({
         />
       </Label>
       <AnimatePresence mode="wait">
-        {protocolStats && (
+        {showOutput && (
           <OutputWrapper
             animate={{ opacity: 1, height: 'auto', y: 0 }}
             as={motion.div}
