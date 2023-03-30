@@ -1,7 +1,6 @@
 import { BigNumber, constants } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
 
-import useProtocols from '@/src/hooks/useProtocols'
 import {
   BASIS_POINTS_DIVISOR,
   MARGIN_FEE_BASIS_POINTS,
@@ -13,11 +12,12 @@ import { getLiquidationPrice } from '@/src/utils/GMX/getLiquidationPrice'
 import { getNextToAmount } from '@/src/utils/GMX/getNextToAmount'
 import { getUSDGStats } from '@/src/utils/GMX/getUSDGStats'
 import { expandDecimals } from '@/src/utils/GMX/numbers'
+import getProtocols from '@/src/utils/getProtocols'
 import { ChainsValues } from '@/types/chains'
-import { ProtocolForm, ProtocolStats, TradeForm } from '@/types/utils'
+import { ProtocolStats, TradeForm } from '@/types/utils'
 
 export async function getGMXStatsFetcher(
-  protocols: ReturnType<typeof useProtocols>,
+  protocols: ReturnType<typeof getProtocols>,
   chainId: ChainsValues,
   tradeForm: TradeForm,
 ): Promise<ProtocolStats> {

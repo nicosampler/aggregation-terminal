@@ -6,7 +6,6 @@ import { getNetworkConfig } from '@/src/config/web3'
 import { contracts } from '@/src/contracts/contracts'
 import { useContractCallWithChain } from '@/src/hooks/useContractCall'
 import { useReadContractInstance } from '@/src/hooks/useContractInstance'
-import useProtocols from '@/src/hooks/useProtocols'
 import { GMX_URL } from '@/src/utils/GMX/backend'
 import {
   BASIS_POINTS_DIVISOR,
@@ -15,13 +14,14 @@ import {
 } from '@/src/utils/GMX/constants'
 import { getFundingRates } from '@/src/utils/GMX/getFundingRates'
 import { expandDecimals } from '@/src/utils/GMX/numbers'
+import getProtocols from '@/src/utils/getProtocols'
 import { InfoTokens, TokenInfo } from '@/types/GMX/types'
 import { ChainsValues } from '@/types/chains'
 import { VaultReader__factory } from '@/types/generated/typechain'
 import { Token } from '@/types/token'
 
 export async function getGMXTokensInfo(
-  protocols: ReturnType<typeof useProtocols>,
+  protocols: ReturnType<typeof getProtocols>,
   chainId: ChainsValues,
 ) {
   const tokens = protocols.getProtocolTokens('GMX', chainId.toString())

@@ -2,12 +2,12 @@ import { JsonRpcProvider } from '@ethersproject/providers'
 
 import { getNetworkConfig } from '@/src/config/web3'
 import { contracts } from '@/src/contracts/contracts'
-import useProtocols from '@/src/hooks/useProtocols'
+import getProtocols from '@/src/utils/getProtocols'
 import { ChainsValues } from '@/types/chains'
 import { ReaderV2__factory } from '@/types/generated/typechain'
 
 export async function getFundingRates(
-  protocols: ReturnType<typeof useProtocols>,
+  protocols: ReturnType<typeof getProtocols>,
   chainId: ChainsValues,
 ) {
   const provider = new JsonRpcProvider(getNetworkConfig(chainId)?.rpcUrl, chainId)

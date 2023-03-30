@@ -10,9 +10,9 @@ import { Label } from '@/src/components/form/Label'
 import Select from '@/src/components/form/Select'
 import { chainsConfig } from '@/src/config/web3'
 import { useMarketStats } from '@/src/hooks/useMarketStats'
-import useProtocols from '@/src/hooks/useProtocols'
 import { OutputDetails } from '@/src/pagePartials/index/OutputDetails'
 import { getGMXStatsFetcher } from '@/src/utils/GMX/getProtocolStats'
+import getProtocols from '@/src/utils/getProtocols'
 import { ChainsValues } from '@/types/chains'
 import { ProtocolForm, ProtocolNames, ProtocolStats, TradeForm } from '@/types/utils'
 
@@ -50,7 +50,7 @@ export const Protocol: React.FC<Props> = ({
   setProtocolStats,
   tradeForm,
 }) => {
-  const protocols = useProtocols()
+  const protocols = getProtocols()
   const { getProtocolChains, protocolsNames } = protocols
 
   const resSWR = useMarketStats(tradeForm, protocolForm, protocolStats)
