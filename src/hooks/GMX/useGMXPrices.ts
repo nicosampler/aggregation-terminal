@@ -5,10 +5,10 @@ import useSWR from 'swr'
 import { GMX_URL } from '@/src/utils/GMX/backend'
 import { ChainsValues } from '@/types/chains'
 
-export function usePrices(chainId: ChainsValues) {
+export function useGMXPrices(chainId: ChainsValues, shouldFetch: boolean) {
   const url = `${GMX_URL[chainId]}/prices`
   const { data: indexPrices } = useSWR<{ data: { [address: string]: BigNumber } }>(
-    url,
+    shouldFetch ? url : null,
     () => axios.get(url),
     { refreshInterval: 30_000 },
   )

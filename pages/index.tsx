@@ -1,10 +1,11 @@
 import type { NextPage } from 'next'
 import styled from 'styled-components'
 
-import { withGenericSuspense } from '@/src/components/helpers/SafeSuspense'
+import SafeSuspense, { withGenericSuspense } from '@/src/components/helpers/SafeSuspense'
 import { Configuration as PositionParams } from '@/src/components/position/PositionParams'
-import { ProtocolA } from '@/src/pagePartials/index/ProtocolA'
-import { ProtocolB } from '@/src/pagePartials/index/ProtocolB'
+import { Protocol } from '@/src/pagePartials/index/Protocol'
+import { useDashboardInfo } from '@/src/providers/dashboardProvider'
+import { ProtocolForm, ProtocolStats } from '@/types/utils'
 
 const Layout = styled.div`
   display: grid;
@@ -18,11 +19,31 @@ const Layout = styled.div`
 `
 
 const Home: NextPage = () => {
+  const { protocolAForm, protocolAStats, protocolBForm, protocolBStats, setValues, tradeForm } =
+    useDashboardInfo()
   return (
     <Layout>
       <PositionParams />
-      <ProtocolA />
-      <ProtocolB />
+      {/* <SafeSuspense>
+        <Protocol
+          protocolForm={protocolAForm}
+          protocolStats={protocolAStats}
+          protocolStatsForeign={protocolBStats}
+          setProtocolForm={(newValues: ProtocolForm) => setValues({ protocolAForm: newValues })}
+          setProtocolStats={(newValues: ProtocolStats) => setValues({ protocolAStats: newValues })}
+          tradeForm={tradeForm}
+        />
+      </SafeSuspense> */}
+      <SafeSuspense>
+        <Protocol
+          protocolForm={protocolBForm}
+          protocolStats={protocolBStats}
+          protocolStatsForeign={protocolAStats}
+          setProtocolForm={(newValues: ProtocolForm) => setValues({ protocolBForm: newValues })}
+          setProtocolStats={(newValues: ProtocolStats) => setValues({ protocolBStats: newValues })}
+          tradeForm={tradeForm}
+        />
+      </SafeSuspense>
     </Layout>
   )
 }

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { Tooltip } from '@/src/components/common/Tooltip'
 import { List, Stats } from '@/src/components/text/List'
 import { formatAmount } from '@/src/utils/GMX/format'
-import { Outputs, Position } from '@/types/utils'
+import { Position, ProtocolStats } from '@/types/utils'
 
 function setStyle(value?: BigNumber, comparison?: BigNumber) {
   if (!comparison || !value || value.eq(comparison)) {
@@ -31,8 +31,8 @@ const itemVariants = {
 type Props = {
   tokenSymbol: string
   margin: BigNumber
-  local: Outputs
-  comparison?: Outputs
+  local: ProtocolStats
+  comparison?: ProtocolStats
   positionSide: Position
 }
 export function OutputDetails({ comparison, local, margin, positionSide, tokenSymbol }: Props) {
@@ -55,7 +55,7 @@ export function OutputDetails({ comparison, local, margin, positionSide, tokenSy
       <List as={motion.li} variants={itemVariants}>
         <span>Investment</span>
         <strong>
-          {formatAmount(margin, 0, 2)} {local.investmentTokenSymbol}
+          {formatAmount(margin, 18, 2)} {local.investmentTokenSymbol}
         </strong>
       </List>
       <List

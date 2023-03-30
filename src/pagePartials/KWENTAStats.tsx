@@ -12,7 +12,7 @@ import { useSynthsRates } from '../hooks/KWENTA/useSynthsRates'
 import { FuturesMarketKey, KWENTA_FIXED_FEE, ZERO_BIG_NUM } from '@/src/utils/KWENTA/constants'
 import { formatOrderSizes, formatPosition } from '@/src/utils/KWENTA/format'
 import { ChainsValues } from '@/types/chains'
-import { Outputs, Position } from '@/types/utils'
+import { Position, ProtocolStats } from '@/types/utils'
 
 type Props = {
   amount: string
@@ -21,7 +21,7 @@ type Props = {
   position: Position
   fromTokenSymbol: string
   toTokenSymbol: string
-  setValues: Dispatch<Outputs>
+  setValues: Dispatch<ProtocolStats>
 }
 
 const KWENTAStatsComponent = memo(function KWENTAStats({
@@ -93,7 +93,7 @@ const KWENTAStatsComponent = memo(function KWENTAStats({
     : wei(marketData.assetPrice).mul(oneHourlyFundingRate.abs()).toBN() // negative && long position
 
   setValues({
-    protocol: 'kwenta',
+    protocol: 'Kwenta',
     position: positionValue,
     investmentTokenSymbol: 'sUSD',
     fillPrice: fillPrice,

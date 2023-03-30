@@ -9,7 +9,7 @@ import { Label } from '@/src/components/form/Label'
 import { Textfield, TextfieldStatus } from '@/src/components/form/Textfield'
 import { TokenDropdown as BaseDropdown } from '@/src/components/token/TokenDropdown'
 import { useDashboardInfo } from '@/src/providers/dashboardProvider'
-import { ComparisonForm } from '@/types/utils'
+import { TradeForm } from '@/types/utils'
 
 const Wrapper = styled.section`
   grid-area: unset;
@@ -138,9 +138,9 @@ const TokenDropdown = styled(BaseDropdown)`
 `
 
 export const Configuration: React.FC = () => {
-  const { form, setValues } = useDashboardInfo()
+  const { setValues, tradeForm: form } = useDashboardInfo()
   const { leverage, position, token } = form
-  const setForm = (data: Partial<ComparisonForm>) => setValues({ form: { ...form, ...data } })
+  const setForm = (data: Partial<TradeForm>) => setValues({ tradeForm: { ...form, ...data } })
 
   return (
     <Wrapper

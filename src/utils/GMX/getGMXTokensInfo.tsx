@@ -1,9 +1,9 @@
+import { JsonRpcProvider } from '@ethersproject/providers'
 import { BigNumber } from 'ethers'
-import { chain } from 'lodash'
 
+import { getNetworkConfig } from '@/src/config/web3'
 import { contracts } from '@/src/contracts/contracts'
-import useFundingRates from '@/src/hooks/GMX/useFundingRates'
-import { usePrices } from '@/src/hooks/GMX/usePrices'
+import { useGMXPrices } from '@/src/hooks/GMX/useGMXPrices'
 import { useContractCallWithChain } from '@/src/hooks/useContractCall'
 import { useReadContractInstance } from '@/src/hooks/useContractInstance'
 import useProtocols from '@/src/hooks/useProtocols'
@@ -12,44 +12,43 @@ import {
   DEFAULT_MAX_USDG_AMOUNT,
   MAX_PRICE_DEVIATION_BASIS_POINTS,
 } from '@/src/utils/GMX/constants'
+import { getFundingRates } from '@/src/utils/GMX/getFundingRates'
 import { expandDecimals } from '@/src/utils/GMX/numbers'
 import { InfoTokens, TokenInfo } from '@/types/GMX/types'
 import { ChainsValues } from '@/types/chains'
 import { VaultReader, VaultReader__factory } from '@/types/generated/typechain'
 import { Token } from '@/types/token'
 
-export function useGMXTokensInfo(chainId: ChainsValues) {
-  const protocols = useProtocols()
+export async function getGMXTokensInfo(
+  protocols: ReturnType<typeof useProtocols>,
+  chainId: ChainsValues,
+  gmxPrices: ReturnType<typeof useGMXPrices>,
+) {
   const tokens = protocols.getProtocolTokens('GMX', chainId.toString())
 
   const tokensAddresses = tokens.map((t) => t.address)
-  const indexPrices = usePrices(chainId)
-  const fundingRateInfo = useFundingRates(chainId)
+  const fundingRateInfo = await getFundingRates(protocols, chainId)
 
-  const vaultReader = useReadContractInstance(chainId, VaultReader__factory, 'GMX_VaultReader')
-  const calls = [vaultReader.getVaultTokenInfoV4] as const
-  const res = useContractCallWithChain<VaultReader, typeof calls>(
-    chainId,
-    calls,
-    [
-      [
-        contracts['GMX_Vault'].address[chainId],
-        contracts['GMX_PositionRouter'].address[chainId],
-        contracts['WETH'].address[chainId],
-        expandDecimals(1, 18),
-        tokensAddresses,
-      ],
-    ],
-    `GMX_vaultTokenInfoV4_${chainId}`,
+  const provider = new JsonRpcProvider(getNetworkConfig(chainId)?.rpcUrl, chainId)
+
+  const vaultReader = VaultReader__factory.connect(
+    contracts['GMX_VaultReader'].address[chainId],
+    provider,
   )
 
-  const vaultTokenInfoV4 = (res[0].data || [])[0]
+  const vaultTokenInfoV4 = await vaultReader.getVaultTokenInfoV4(
+    contracts['GMX_Vault'].address[chainId],
+    contracts['GMX_PositionRouter'].address[chainId],
+    contracts['WETH'].address[chainId],
+    expandDecimals(1, 18),
+    tokensAddresses,
+  )
 
   return {
     infoTokens: getInfoTokens(
       tokens,
       vaultTokenInfoV4,
-      indexPrices,
+      gmxPrices,
       contracts['WETH'].address[chainId],
       fundingRateInfo,
     ),

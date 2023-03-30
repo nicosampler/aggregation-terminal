@@ -1,53 +1,47 @@
-import { Dispatch, memo } from 'react'
+import { Dispatch } from 'react'
 
 import { BigNumber, constants } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
+import useSWR from 'swr'
 
-import { useGMXTokensInfo } from '@/src/hooks/GMX/useGMXTokensInfo'
-import useGMXVaultStats from '@/src/hooks/GMX/useGMXVaultStats'
-import useUSDGStats from '@/src/hooks/GMX/useUSDGStats'
+import { useGMXPrices } from '@/src/hooks/GMX/useGMXPrices'
 import useProtocols from '@/src/hooks/useProtocols'
+import { DashboardValues, useDashboardInfo } from '@/src/providers/dashboardProvider'
 import {
   BASIS_POINTS_DIVISOR,
   MARGIN_FEE_BASIS_POINTS,
   USD_DECIMALS,
 } from '@/src/utils/GMX/constants'
+import { getGMXTokensInfo } from '@/src/utils/GMX/getGMXTokensInfo'
+import { getGMXVaultStats } from '@/src/utils/GMX/getGMXVaultStats'
 import { getLiquidationPrice } from '@/src/utils/GMX/getLiquidationPrice'
 import { getNextToAmount } from '@/src/utils/GMX/getNextToAmount'
+import { getUSDGStats } from '@/src/utils/GMX/getUSDGStats'
 import { expandDecimals } from '@/src/utils/GMX/numbers'
+import getCacheKey from '@/src/utils/cacheKey'
 import { ChainsValues } from '@/types/chains'
-import { Outputs, Position } from '@/types/utils'
+import { ProtocolNames, ProtocolStats, TradeForm } from '@/types/utils'
 
-type Props = {
-  amount: string
-  chainId: ChainsValues
-  leverage: number
-  position: Position
-  fromTokenSymbol: string
-  toTokenSymbol: string
-  setValues: Dispatch<Outputs>
-}
+async function getGMXStatsFetcher(
+  protocols: ReturnType<typeof useProtocols>,
+  prices: ReturnType<typeof useGMXPrices>,
+  chainId: ChainsValues,
+  tradeForm: TradeForm,
+): Promise<ProtocolStats> {
+  const fromTokenSymbol = 'USDC'
+  const toTokenSymbol = tradeForm.token
+  const amount = tradeForm.amount
+  const position = tradeForm.position
+  const leverage = Number(tradeForm.leverage)
 
-const GMXStatsComponent = memo(function GMXStats({
-  amount,
-  chainId,
-  fromTokenSymbol,
-  leverage,
-  position,
-  setValues,
-  toTokenSymbol,
-}: Props) {
-  const { /* exitsTokenInProtocol, */ getTokenBySymbolAndChain } = useProtocols()
-  // const existsTokenInProtocol = exitsTokenInProtocol('GMX', chainId.toString(), toTokenSymbol)
-  const gmxTokensInfo = useGMXTokensInfo(chainId)
+  const gmxTokensInfo = await getGMXTokensInfo(protocols, chainId, prices)
+  const gmxVaultStats = await getGMXVaultStats(chainId)
+  const usdgStats = await getUSDGStats(chainId)
 
-  const gmxVaultStats = useGMXVaultStats(chainId)
-  const totalTokenWeights = gmxVaultStats[0].data ? gmxVaultStats[0].data[0] : null
-
-  const usdgStats = useUSDGStats(chainId)
-  const usdgTotalSupply = usdgStats[0].data ? usdgStats[0].data[0] : null
-  const fromTokenInfo = getTokenBySymbolAndChain(fromTokenSymbol, chainId.toString())
-  const toTokenInfo = getTokenBySymbolAndChain(toTokenSymbol, chainId.toString())
+  const totalTokenWeights = gmxVaultStats
+  const usdgTotalSupply = usdgStats
+  const fromTokenInfo = protocols.getTokenBySymbolAndChain(fromTokenSymbol, chainId.toString())
+  const toTokenInfo = protocols.getTokenBySymbolAndChain(toTokenSymbol, chainId.toString())
   const gmxFromTokenInfo = gmxTokensInfo.infoTokens[fromTokenInfo?.address as string]
   const gmxToTokenInfo = gmxTokensInfo.infoTokens[toTokenInfo?.address as string]
 
@@ -168,8 +162,8 @@ const GMXStatsComponent = memo(function GMXStats({
   // Set values
   // ----------------------
 
-  setValues({
-    protocol: 'gmx',
+  return {
+    protocol: 'GMX',
     position: nextToUsd.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
     investmentTokenSymbol: 'USDC',
     fillPrice: toTokenPriceUsd.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
@@ -180,13 +174,45 @@ const GMXStatsComponent = memo(function GMXStats({
     keeperFee: positionFee.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
     liquidationPrice: liquidationPrice.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
     oneHourFunding: borrowFeeAmount.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
-  })
+  }
+}
 
-  // ----------------------
-  // Render
-  // ----------------------
-  // This component is only used to call setValues
-  return null
-})
+function getKwentaStatsFetcher() {
+  console.log('kwenta')
+}
 
-export default GMXStatsComponent
+export function useMarketStats(
+  tradeForm: TradeForm,
+  hasStats: boolean,
+  protocolName: ProtocolNames,
+  chainId: ChainsValues,
+  setProtocolStats: (value: ProtocolStats) => void,
+) {
+  const protocols = useProtocols()
+  const gmxPrices = useGMXPrices(chainId, protocolName == 'GMX')
+
+  const triggerFetcher =
+    !hasStats &&
+    tradeForm.amount &&
+    tradeForm.amount != '0' &&
+    Number(tradeForm.leverage) > 0 &&
+    Number(tradeForm.leverage) < 26
+
+  useSWR(
+    triggerFetcher ? getCacheKey([protocolName, ...Object.values(tradeForm)]) : null,
+    async () => {
+      switch (protocolName) {
+        case 'GMX': {
+          const res = await getGMXStatsFetcher(protocols, gmxPrices, chainId, tradeForm)
+          setProtocolStats(res)
+          return
+        }
+
+        case 'Kwenta':
+          return getKwentaStatsFetcher()
+        default:
+          throw 'Protocol not supported'
+      }
+    },
+  )
+}

@@ -11,12 +11,14 @@ import {
 import isEmpty from 'lodash/isEmpty'
 
 import { Chains } from '@/src/config/web3'
-import { ComparisonForm, Outputs } from '@/types/utils'
+import { ProtocolForm, ProtocolStats, TradeForm } from '@/types/utils'
 
-type DashboardValues = {
-  form: ComparisonForm
-  protocolAStats: Outputs | null
-  protocolBStats: Outputs | null
+export type DashboardValues = {
+  tradeForm: TradeForm
+  protocolAForm: ProtocolForm
+  protocolAStats: ProtocolStats | null
+  protocolBForm: ProtocolForm
+  protocolBStats: ProtocolStats | null
 }
 
 type DashboardContext = DashboardValues & { setValues: Dispatch<Partial<DashboardValues>> }
@@ -31,24 +33,31 @@ export const DashboardProvider: FC<PropsWithChildren> = ({ children }) => {
       ...partial,
     }),
     {
-      form: {
+      tradeForm: {
         token: 'ETH',
         leverage: '2',
         position: 'long',
-        protocolA: 'Kwenta',
-        chainA: Chains.optimism.toString(),
-        protocolB: 'GMX',
-        chainB: Chains.arbitrum.toString(),
         amount: '',
       },
+      protocolAForm: {
+        name: 'Kwenta',
+        chain: Chains.optimism,
+      },
       protocolAStats: null,
+      protocolBForm: {
+        name: 'GMX',
+        chain: Chains.arbitrum,
+      },
       protocolBStats: null,
     },
   )
 
   useEffect(() => {
-    setContextValues({ protocolAStats: null, protocolBStats: null })
-  }, [contextValues.form])
+    setContextValues({
+      protocolAStats: null,
+      protocolBStats: null,
+    })
+  }, [contextValues.tradeForm])
 
   return (
     <dashboardContext.Provider value={{ ...contextValues, setValues: setContextValues }}>
