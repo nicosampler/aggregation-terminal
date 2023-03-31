@@ -16,6 +16,7 @@ import Toast from '@/src/components/toast/Toast'
 import { Head } from '@/src/pagePartials/index/Head'
 import { TransactionNotificationProvider } from '@/src/providers/TransactionNotificationProvider'
 import CookiesWarningProvider from '@/src/providers/cookiesWarningProvider'
+import DashboardProvider from '@/src/providers/dashboardProvider'
 import ThemeProvider from '@/src/providers/themeProvider'
 import 'sanitize.css'
 import TokenIconsProvider from '@/src/providers/tokenIconsProvider'
@@ -57,7 +58,9 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
                 <CookiesWarningProvider>
                   <Header />
                   <TokenIconsProvider>
-                    <Container>{getLayout(<Component {...pageProps} />)}</Container>
+                    <DashboardProvider>
+                      <Container>{getLayout(<Component {...pageProps} />)}</Container>
+                    </DashboardProvider>
                   </TokenIconsProvider>
                   <Footer />
                 </CookiesWarningProvider>

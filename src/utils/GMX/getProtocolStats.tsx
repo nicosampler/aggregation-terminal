@@ -1,59 +1,45 @@
-import { Dispatch, memo } from 'react'
-
 import { BigNumber, constants } from 'ethers'
-import { formatUnits, parseUnits } from 'ethers/lib/utils'
+import { parseUnits } from 'ethers/lib/utils'
 
-import { useGMXTokensInfo } from '@/src/hooks/GMX/useGMXTokensInfo'
-import useGMXVaultStats from '@/src/hooks/GMX/useGMXVaultStats'
-import useUSDGStats from '@/src/hooks/GMX/useUSDGStats'
-import useProtocols from '@/src/hooks/useProtocols'
 import {
   BASIS_POINTS_DIVISOR,
   MARGIN_FEE_BASIS_POINTS,
   USD_DECIMALS,
 } from '@/src/utils/GMX/constants'
-import { formatAmount } from '@/src/utils/GMX/format'
+import { getGMXTokensInfo } from '@/src/utils/GMX/getGMXTokensInfo'
+import { getGMXVaultStats } from '@/src/utils/GMX/getGMXVaultStats'
 import { getLiquidationPrice } from '@/src/utils/GMX/getLiquidationPrice'
 import { getNextToAmount } from '@/src/utils/GMX/getNextToAmount'
-import { contractDecimals, expandDecimals } from '@/src/utils/GMX/numbers'
+import { getUSDGStats } from '@/src/utils/GMX/getUSDGStats'
+import { expandDecimals } from '@/src/utils/GMX/numbers'
+import getProtocols from '@/src/utils/getProtocols'
 import { ChainsValues } from '@/types/chains'
-import { Outputs, Position } from '@/types/utils'
+import { ProtocolStats, TradeForm } from '@/types/utils'
 
-type Props = {
-  amount: string
-  chainId: ChainsValues
-  leverage: number
-  position: Position
-  fromTokenSymbol: string
-  toTokenSymbol: string
-  setValues: Dispatch<Outputs>
-}
+export async function getGMXStatsFetcher(
+  protocols: ReturnType<typeof getProtocols>,
+  chainId: ChainsValues,
+  tradeForm: TradeForm,
+): Promise<ProtocolStats> {
+  const fromTokenSymbol = 'USDC'
+  const toTokenSymbol = tradeForm.token
+  const amount = tradeForm.amount
+  const position = tradeForm.position
+  const leverage = Number(tradeForm.leverage)
 
-const GMXStatsComponent = memo(function GMXStats({
-  amount,
-  chainId,
-  fromTokenSymbol,
-  leverage,
-  position,
-  setValues,
-  toTokenSymbol,
-}: Props) {
-  const { exitsTokenInProtocol, getTokenBySymbolAndChain } = useProtocols()
-  const existsTokenInProtocol = exitsTokenInProtocol('GMX', chainId.toString(), toTokenSymbol)
-  const gmxTokensInfo = useGMXTokensInfo(chainId)
+  const gmxTokensInfo = await getGMXTokensInfo(protocols, chainId)
+  const gmxVaultStats = await getGMXVaultStats(chainId)
+  const usdgStats = await getUSDGStats(chainId)
 
-  const gmxVaultStats = useGMXVaultStats(chainId)
-  const totalTokenWeights = gmxVaultStats[0].data ? gmxVaultStats[0].data[0] : null
-
-  const usdgStats = useUSDGStats(chainId)
-  const usdgTotalSupply = usdgStats[0].data ? usdgStats[0].data[0] : null
-  const fromTokenInfo = getTokenBySymbolAndChain(fromTokenSymbol, chainId.toString())
-  const toTokenInfo = getTokenBySymbolAndChain(toTokenSymbol, chainId.toString())
+  const totalTokenWeights = gmxVaultStats
+  const usdgTotalSupply = usdgStats
+  const fromTokenInfo = protocols.getTokenBySymbolAndChain(fromTokenSymbol, chainId.toString())
+  const toTokenInfo = protocols.getTokenBySymbolAndChain(toTokenSymbol, chainId.toString())
   const gmxFromTokenInfo = gmxTokensInfo.infoTokens[fromTokenInfo?.address as string]
   const gmxToTokenInfo = gmxTokensInfo.infoTokens[toTokenInfo?.address as string]
 
   const fromAmountBN = parseUnits(amount, 6) // USDC fixed
-  const toAmountBN = parseUnits(amount, toTokenInfo?.decimals)
+  // const toAmountBN = parseUnits(amount, toTokenInfo?.decimals)
 
   if (!usdgTotalSupply) {
     throw `There was not possible to get USDG total supply`
@@ -169,8 +155,8 @@ const GMXStatsComponent = memo(function GMXStats({
   // Set values
   // ----------------------
 
-  setValues({
-    protocol: 'gmx',
+  return {
+    protocol: 'GMX',
     position: nextToUsd.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
     investmentTokenSymbol: 'USDC',
     fillPrice: toTokenPriceUsd.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
@@ -181,13 +167,5 @@ const GMXStatsComponent = memo(function GMXStats({
     keeperFee: positionFee.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
     liquidationPrice: liquidationPrice.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
     oneHourFunding: borrowFeeAmount.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
-  })
-
-  // ----------------------
-  // Render
-  // ----------------------
-  // This component is only used to call setValues
-  return null
-})
-
-export default GMXStatsComponent
+  }
+}

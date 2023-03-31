@@ -1,9 +1,8 @@
-import { wei } from '@synthetixio/wei'
 import BN from 'bn.js'
-import { BigNumber, ethers } from 'ethers'
+import { BigNumber } from 'ethers'
 
-import { MarketData } from '../hooks/KWENTA/useMarketInternal'
-import { MarketParams } from '../hooks/KWENTA/useMarketSettings'
+import { MarketData } from '@/src/utils/KWENTA/getMarketInternalData'
+import { MarketParams } from '@/src/utils/KWENTA/getMarketParameters'
 import {
   KWENTA_TRACKING_CODE,
   PotentialTradeStatus,
@@ -54,11 +53,7 @@ export class FuturesMarketInternal {
   _marketParams: MarketParams
   _position: Position
 
-  constructor(
-    provider: ethers.providers.Provider,
-    marketData: MarketData,
-    marketParams: MarketParams,
-  ) {
+  constructor(marketData: MarketData, marketParams: MarketParams) {
     this._onChainData = {
       assetPrice: marketData.assetPrice,
       marketSkew: marketData.marketSkew,
@@ -77,7 +72,6 @@ export class FuturesMarketInternal {
 
   getTradePreview = (sizeDelta: BigNumber, marginDelta: BigNumber, blockTimestamp: number) => {
     this._onChainData.blockTimestamp = blockTimestamp
-    // await ethcallProvider.init(this._provider)
 
     const position = this._position
     const price = this._onChainData.assetPrice
@@ -135,7 +129,7 @@ export class FuturesMarketInternal {
       oldPos.size.gte(ZERO_BIG_NUM) === newPos.size.gte(ZERO_BIG_NUM) &&
       newPos.size.abs().lt(oldPos.size.abs())
 
-    // avoids INSUFFICIENT_MARGIN for USD 1 amounts
+    // avoids INSUFFICIENT_MARGIN for 2 USD or less amounts
     // if (!positionDecreasing) {
     //   if (newPos.margin.add(fee).lt(minInitialMargin)) {
     //     return {

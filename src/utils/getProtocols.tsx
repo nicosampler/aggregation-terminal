@@ -8,7 +8,7 @@ type Protocols = Record<string, Record<string, string[]>>
 
 type Tokens = Record<'tokens', Token[]>
 
-export default function useProtocols() {
+export default function getProtocols() {
   const protocolsInfo: Protocols = protocols
 
   const protocolsNames = Object.keys(protocolsInfo)

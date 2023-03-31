@@ -76,11 +76,18 @@ export const isFulfilled = <T>(
   input: PromiseSettledResult<T>,
 ): input is PromiseFulfilledResult<T> => input.status === 'fulfilled'
 
-export type Protocol = 'kwenta' | 'gmx'
+export type ProtocolNames = 'Kwenta' | 'GMX'
 export type Position = 'long' | 'short'
 
-export interface Outputs {
-  protocol: Protocol
+export interface TradeForm {
+  token: string
+  amount: string
+  leverage: string
+  position: Position
+}
+
+export interface ProtocolStats {
+  protocol: ProtocolNames
   investmentTokenSymbol: string
   position?: BigNumber
   fillPrice?: BigNumber
@@ -93,13 +100,7 @@ export interface Outputs {
   oneHourFunding?: BigNumber
 }
 
-export interface ComparisonForm {
-  token: string
-  amount: string
-  leverage: string
-  position: Position
-  protocolA: string
-  chainA: string
-  protocolB: string
-  chainB: string
+export interface ProtocolForm {
+  name: ProtocolNames
+  chain: ChainsValues
 }
