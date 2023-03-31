@@ -38,15 +38,25 @@ export async function getMarketInternalData(chainId: ChainsValues): Promise<Mark
     contracts['KWENTA_PerpsV2Market'].address[chainId],
     provider,
   )
-  const assetPrice = await marketInternalReader.assetPrice()
-  const marketSkew = await marketInternalReader.marketSkew()
-  const marketSize = await marketInternalReader.marketSize()
-  const fundingSequenceLength = await marketInternalReader.fundingSequenceLength()
-  const fundingLastRecomputed = await marketInternalReader.fundingLastRecomputed()
-  const currentFundingRate = await marketInternalReader.currentFundingRate()
-
+  // pasar esto a promiseAll
   const addressZero = ethers.constants.AddressZero
-  const accruedFunding = await marketInternalReader.accruedFunding(addressZero)
+  const marketInternalData = await Promise.all([
+    marketInternalReader.assetPrice(),
+    marketInternalReader.marketSkew(),
+    marketInternalReader.marketSize(),
+    marketInternalReader.fundingSequenceLength(),
+    marketInternalReader.fundingLastRecomputed(),
+    marketInternalReader.currentFundingRate(),
+    marketInternalReader.accruedFunding(addressZero),
+  ])
+  const assetPrice = marketInternalData[0]
+  const marketSkew = marketInternalData[1]
+  const marketSize = marketInternalData[2]
+  const fundingSequenceLength = marketInternalData[3]
+  const fundingLastRecomputed = marketInternalData[4]
+  const currentFundingRate = marketInternalData[5]
+  const accruedFunding = marketInternalData[6]
+
   // skipped since error typing object || !Position -> PositionStructOutput ??
   // const position = await marketInternalReader.positions(addressZero)
   const position = {

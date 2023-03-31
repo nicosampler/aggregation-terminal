@@ -38,16 +38,23 @@ type Props = {
 export function OutputDetails({ comparison, local, margin, positionSide, tokenSymbol }: Props) {
   const getTradeFeeText = (protocol: string) => {
     const text =
-      protocol === 'kwenta'
+      protocol === 'Kwenta'
         ? 'Fees are displayed as maker / taker. Maker fees apply to orders that reduce the market skew. Taker fees apply to orders that increase the market skew.'
         : 'The cost of swapping tokens to execute the trade.'
     return text
   }
   const getKeeperFeeText = (protocol: string) => {
     const text =
-      protocol === 'kwenta'
+      protocol === 'Kwenta'
         ? 'Fixed fee to cover automated order execution'
         : 'The cost of opening a position.'
+    return text
+  }
+  const get1hrFundingText = (protocol: string) => {
+    const text =
+      protocol === 'Kwenta'
+        ? 'If the number is negative, the fee is received by the user. If not, the fee is charged to the user.'
+        : 'Hourly payments to maintain an open position.'
     return text
   }
   return (
@@ -76,7 +83,7 @@ export function OutputDetails({ comparison, local, margin, positionSide, tokenSy
         variants={itemVariants}
       >
         <span>
-          <Tooltip text="The estimated price at which the order will be executed.">
+          <Tooltip text="The notional value of the position, expressed in the investment currency.">
             Position
           </Tooltip>
         </span>
@@ -147,13 +154,15 @@ export function OutputDetails({ comparison, local, margin, positionSide, tokenSy
       </List>
       <List
         as={motion.li}
-        status={setStyle(local.oneHourFunding, comparison?.oneHourFunding)}
+        status={
+          positionSide == 'long' && local.oneHourFunding?.lt(0)
+            ? setStyle(comparison?.oneHourFunding, local.oneHourFunding)
+            : setStyle(local.oneHourFunding, comparison?.oneHourFunding)
+        }
         variants={itemVariants}
       >
         <span>
-          <Tooltip text="Hourly payments to or from traders depending on their trade direction.">
-            1H Funding
-          </Tooltip>
+          <Tooltip text={get1hrFundingText(local.protocol)}>1H Funding</Tooltip>
         </span>
         <strong>{formatAmount(local.oneHourFunding)}</strong>
       </List>

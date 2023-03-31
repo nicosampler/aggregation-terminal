@@ -187,19 +187,31 @@ async function getKwentaStatsFetcher(
   tradeForm: TradeForm,
 ): Promise<ProtocolStats> {
   // locked to sUSD
-  const sUSDRate = await getSUSDRate(chainId)
   // // @todo: fetch marketKey by tokenSymbol
   const marketKey = FuturesMarketKey.sETHPERP
   const marketKeyBytes = formatBytes32String(marketKey)
   // const { marketKey, marketKeyBytes } = getFuturesMarketKey(tradeForm.token)
-  const marketData = await getMarketInternalData(chainId)
+  const provider = new JsonRpcProvider(getNetworkConfig(chainId)?.rpcUrl, chainId)
+
+  const marketInformation = await Promise.all([
+    getMarketInternalData(chainId),
+    getMarketParameters(chainId, marketKeyBytes),
+    getSUSDRate(chainId),
+    provider.getBlockNumber(),
+  ])
+  if (marketInformation.length !== 4) {
+    throw `There was not possible to fetch market information`
+  }
+  const marketData = marketInformation[0]
   if (!marketData) {
     throw `There was not possible to fetch data for market`
   }
-  const marketParams = await getMarketParameters(chainId, marketKeyBytes)
+  const marketParams = marketInformation[1]
   if (!marketParams) {
     throw `There was not possible to fetch parameters for market`
   }
+  const sUSDRate = marketInformation[2]
+  const blockNum = marketInformation[3]
   const { oneHourlyFundingRate, skewAdjustedPrice } = extractMarketInfo(marketData, marketParams)
   if (!skewAdjustedPrice) {
     throw `There was not possible to fetch skew adjusted price`
@@ -218,9 +230,6 @@ async function getKwentaStatsFetcher(
     positionSide,
   )
 
-  const provider = new JsonRpcProvider(getNetworkConfig(chainId)?.rpcUrl, chainId)
-
-  const blockNum = await provider.getBlockNumber()
   const block = await provider.getBlock(blockNum)
   const blockTimestamp = block.timestamp
   const tradePreview = getTradePreview(
@@ -245,11 +254,11 @@ async function getKwentaStatsFetcher(
   const positionValue = wei(margin).mul(leverage).div(sUSDRate).toBN()
   const oneHourFunding = oneHourlyFundingRate.gt(ZERO_BIG_NUM)
     ? positionSide === 'long'
-      ? wei(marketData.assetPrice).mul(oneHourlyFundingRate).neg().toBN()
-      : wei(marketData.assetPrice).mul(oneHourlyFundingRate).toBN() // positive && short position
+      ? wei(marketData.assetPrice).mul(oneHourlyFundingRate).toBN()
+      : wei(marketData.assetPrice).mul(oneHourlyFundingRate).neg().toBN() // positive && short position
     : positionSide === 'short'
     ? wei(marketData.assetPrice).mul(oneHourlyFundingRate).toBN()
-    : wei(marketData.assetPrice).mul(oneHourlyFundingRate.abs()).toBN() // negative && long position
+    : wei(marketData.assetPrice).mul(oneHourlyFundingRate).abs().toBN() // negative && long position
 
   return {
     protocol: 'Kwenta',
