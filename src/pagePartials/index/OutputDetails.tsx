@@ -68,7 +68,7 @@ export function OutputDetails({ comparison, local, margin, positionSide, tokenSy
             Fill Price
           </Tooltip>
         </span>
-        <strong>{formatAmount(local.fillPrice, 18, 4)}</strong>
+        <strong>{formatAmount(local.fillPrice, 18, 2)}</strong>
       </List>
       <List
         as={motion.li}
@@ -80,7 +80,7 @@ export function OutputDetails({ comparison, local, margin, positionSide, tokenSy
             Position
           </Tooltip>
         </span>
-        <strong>{formatAmount(local.position, 18, 4)}</strong>
+        <strong>{formatAmount(local.position, 18, 2)}</strong>
       </List>
       <List
         as={motion.li}
@@ -116,19 +116,19 @@ export function OutputDetails({ comparison, local, margin, positionSide, tokenSy
         <span>
           <Tooltip text="Overall fees the protocol charges for a trade.">Protocol Fee</Tooltip>
         </span>
-        <strong>{formatAmount(local.protocolFee, 18, 4)} </strong>
+        <strong>{formatAmount(local.protocolFee, 18, 2)} </strong>
       </List>
       <List as={motion.li} variants={itemVariants}>
         <span>
           <Tooltip text={getTradeFeeText(local.protocol)}>Trade Fee </Tooltip>
         </span>
-        <strong>{formatAmount(local.tradeFee, 18, 4)}</strong>
+        <strong>{formatAmount(local.tradeFee, 18, 2)}</strong>
       </List>
       <List as={motion.li} variants={itemVariants}>
         <span>
           <Tooltip text={getKeeperFeeText(local.protocol)}>Position Fee</Tooltip>
         </span>
-        <strong>{formatAmount(local.keeperFee, 18, 4)}</strong>
+        <strong>{formatAmount(local.keeperFee, 18, 2)}</strong>
       </List>
 
       <List
@@ -143,7 +143,7 @@ export function OutputDetails({ comparison, local, margin, positionSide, tokenSy
         <span>
           <Tooltip text="The price at which the position is liquidated.">Liquidation Price</Tooltip>
         </span>
-        <strong>{formatAmount(local.liquidationPrice, 18, 4)}</strong>
+        <strong>{formatAmount(local.liquidationPrice, 18, 2)}</strong>
       </List>
       <List
         as={motion.li}
