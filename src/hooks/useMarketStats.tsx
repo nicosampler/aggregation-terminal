@@ -1,7 +1,10 @@
+import { JsonRpcProvider } from '@ethersproject/providers'
+import { wei } from '@synthetixio/wei'
 import { BigNumber, constants } from 'ethers'
-import { parseUnits } from 'ethers/lib/utils'
+import { formatBytes32String, parseUnits } from 'ethers/lib/utils'
 import useSWR from 'swr'
 
+import { getNetworkConfig } from '@/src/config/web3'
 import {
   BASIS_POINTS_DIVISOR,
   MARGIN_FEE_BASIS_POINTS,
@@ -13,6 +16,13 @@ import { getLiquidationPrice } from '@/src/utils/GMX/getLiquidationPrice'
 import { getNextToAmount } from '@/src/utils/GMX/getNextToAmount'
 import { getUSDGStats } from '@/src/utils/GMX/getUSDGStats'
 import { expandDecimals } from '@/src/utils/GMX/numbers'
+import { FuturesMarketKey, KWENTA_FIXED_FEE, ZERO_BIG_NUM } from '@/src/utils/KWENTA/constants'
+import { formatOrderSizes, formatPosition } from '@/src/utils/KWENTA/format'
+import { extractMarketInfo } from '@/src/utils/KWENTA/getMarketInternalData'
+import { getMarketInternalData } from '@/src/utils/KWENTA/getMarketInternalData'
+import { getMarketParameters } from '@/src/utils/KWENTA/getMarketParameters'
+import { getTradePreview } from '@/src/utils/KWENTA/getPositionDetails'
+import { getSUSDRate } from '@/src/utils/KWENTA/getSynthsRates'
 import getProtocols from '@/src/utils/getProtocols'
 import { ChainsValues } from '@/types/chains'
 import { ProtocolForm, ProtocolStats, TradeForm } from '@/types/utils'
@@ -172,8 +182,88 @@ async function getGMXStatsFetcher(
   }
 }
 
-function getKwentaStatsFetcher() {
-  return {} as Promise<ProtocolStats>
+async function getKwentaStatsFetcher(
+  chainId: ChainsValues,
+  tradeForm: TradeForm,
+): Promise<ProtocolStats> {
+  // locked to sUSD
+  const sUSDRate = await getSUSDRate(chainId)
+  // // @todo: fetch marketKey by tokenSymbol
+  const marketKey = FuturesMarketKey.sETHPERP
+  const marketKeyBytes = formatBytes32String(marketKey)
+  // const { marketKey, marketKeyBytes } = getFuturesMarketKey(tradeForm.token)
+  const marketData = await getMarketInternalData(chainId)
+  if (!marketData) {
+    throw `There was not possible to fetch data for market`
+  }
+  const marketParams = await getMarketParameters(chainId, marketKeyBytes)
+  if (!marketParams) {
+    throw `There was not possible to fetch parameters for market`
+  }
+  const { oneHourlyFundingRate, skewAdjustedPrice } = extractMarketInfo(marketData, marketParams)
+  if (!skewAdjustedPrice) {
+    throw `There was not possible to fetch skew adjusted price`
+  }
+  if (!oneHourlyFundingRate) {
+    throw `There was not possible to fetch 1hr funding rate`
+  }
+
+  const leverage = Number(tradeForm.leverage)
+  const margin = tradeForm.amount
+  const positionSide = tradeForm.position
+  const { marginDelta, nativeSizeDelta, sizeDelta } = formatOrderSizes(
+    margin,
+    leverage,
+    wei(marketData.assetPrice),
+    positionSide,
+  )
+
+  const provider = new JsonRpcProvider(getNetworkConfig(chainId)?.rpcUrl, chainId)
+
+  const blockNum = await provider.getBlockNumber()
+  const block = await provider.getBlock(blockNum)
+  const blockTimestamp = block.timestamp
+  const tradePreview = getTradePreview(
+    sizeDelta,
+    marginDelta,
+    marketData,
+    marketParams,
+    blockTimestamp,
+  )
+  if (tradePreview.status !== 0) {
+    throw `There was not possible to fetch Position Stats. ErrorCode: ${tradePreview.status}`
+  }
+
+  const { positionStats } = formatPosition(
+    tradePreview,
+    skewAdjustedPrice,
+    nativeSizeDelta,
+    tradeForm.position,
+  )
+
+  const fillPrice = wei(marketData.assetPrice).mul(sUSDRate).toBN()
+  const positionValue = wei(margin).mul(leverage).div(sUSDRate).toBN()
+  const oneHourFunding = oneHourlyFundingRate.gt(ZERO_BIG_NUM)
+    ? positionSide === 'long'
+      ? wei(marketData.assetPrice).mul(oneHourlyFundingRate).neg().toBN()
+      : wei(marketData.assetPrice).mul(oneHourlyFundingRate).toBN() // positive && short position
+    : positionSide === 'short'
+    ? wei(marketData.assetPrice).mul(oneHourlyFundingRate).toBN()
+    : wei(marketData.assetPrice).mul(oneHourlyFundingRate.abs()).toBN() // negative && long position
+
+  return {
+    protocol: 'Kwenta',
+    investmentTokenSymbol: 'sUSD',
+    position: positionValue,
+    fillPrice: fillPrice,
+    orderSize: wei(margin).mul(leverage).div(marketData.assetPrice).toBN(),
+    priceImpact: positionStats.priceImpact.toBN(),
+    protocolFee: positionStats.fee.add(KWENTA_FIXED_FEE).toBN(),
+    tradeFee: positionStats.fee.toBN(),
+    keeperFee: KWENTA_FIXED_FEE.toBN(),
+    liquidationPrice: positionStats.liqPrice.toBN(),
+    oneHourFunding: oneHourFunding,
+  }
 }
 
 export function useMarketStats(
@@ -195,8 +285,8 @@ export function useMarketStats(
         case 'GMX': {
           return getGMXStatsFetcher(_protocolForm.chain, _tradeForm)
         }
-        // case 'Kwenta':
-        //   return getKwentaStatsFetcher()
+        case 'Kwenta':
+          return getKwentaStatsFetcher(_protocolForm.chain, _tradeForm)
         default:
           throw 'Protocol not supported'
       }

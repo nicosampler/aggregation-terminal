@@ -25,16 +25,18 @@ const Home: NextPage = () => {
   return (
     <Layout>
       <TradeParams />
-      {/* <SafeSuspense>
+      <SafeSuspense>
         <Protocol
           protocolForm={protocolAForm}
           protocolStats={protocolAStats}
           protocolStatsForeign={protocolBStats}
           setProtocolForm={(newValues: ProtocolForm) => setValues({ protocolAForm: newValues })}
-          setProtocolStats={(newValues: ProtocolStats) => setValues({ protocolAStats: newValues })}
+          setProtocolStats={(newValues: ProtocolStats | null) =>
+            setValues({ protocolAStats: newValues })
+          }
           tradeForm={tradeForm}
         />
-      </SafeSuspense> */}
+      </SafeSuspense>
       <SafeSuspense>
         <Protocol
           protocolForm={protocolBForm}
