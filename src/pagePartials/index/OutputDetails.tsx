@@ -53,7 +53,7 @@ export function OutputDetails({ comparison, local, margin, positionSide, tokenSy
   const get1hrFundingText = (protocol: string) => {
     const text =
       protocol === 'Kwenta'
-        ? 'If the number is negative, the fee is received by the user. If not, the fee is charged to the user.'
+        ? 'Hourly payments to maintain an open position. If the number is negative, the fee is received by the user. If not, the fee is charged to the user.'
         : 'Hourly payments to maintain an open position.'
     return text
   }
