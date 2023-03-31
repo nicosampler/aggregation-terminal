@@ -32,20 +32,32 @@ export async function getMarketParameters(
     provider,
   )
 
-  const takerFee = await marketSettingsReader.takerFeeOffchainDelayedOrder(marketKey)
-  const makerFee = await marketSettingsReader.makerFeeOffchainDelayedOrder(marketKey)
-  const minInitialMargin = await marketSettingsReader.minInitialMargin()
-  const maxLeverage = await marketSettingsReader.maxLeverage(marketKey)
-  const maxMarketValue = await marketSettingsReader.maxMarketValue(marketKey)
-  const skewScale = await marketSettingsReader.skewScale(marketKey)
-  const maxFundingVelocity = await marketSettingsReader.maxFundingVelocity(marketKey)
-  const liquidationBufferRatio = await marketSettingsReader.liquidationBufferRatio()
-  const liquidationFeeRatio = await marketSettingsReader.liquidationFeeRatio()
-  const maxKeeperFee = await marketSettingsReader.maxKeeperFee()
-  const minKeeperFee = await marketSettingsReader.minKeeperFee()
-  const liquidationPremiumMultiplier = await marketSettingsReader.liquidationPremiumMultiplier(
-    marketKey,
-  )
+  const marketSettingsParams = await Promise.all([
+    marketSettingsReader.takerFeeOffchainDelayedOrder(marketKey),
+    marketSettingsReader.makerFeeOffchainDelayedOrder(marketKey),
+    marketSettingsReader.minInitialMargin(),
+    marketSettingsReader.maxLeverage(marketKey),
+    marketSettingsReader.maxMarketValue(marketKey),
+    marketSettingsReader.skewScale(marketKey),
+    marketSettingsReader.maxFundingVelocity(marketKey),
+    marketSettingsReader.liquidationBufferRatio(),
+    marketSettingsReader.liquidationFeeRatio(),
+    marketSettingsReader.maxKeeperFee(),
+    marketSettingsReader.minKeeperFee(),
+    marketSettingsReader.liquidationPremiumMultiplier(marketKey),
+  ])
+  const takerFee = marketSettingsParams[0]
+  const makerFee = marketSettingsParams[1]
+  const minInitialMargin = marketSettingsParams[2]
+  const maxLeverage = marketSettingsParams[3]
+  const maxMarketValue = marketSettingsParams[4]
+  const skewScale = marketSettingsParams[5]
+  const maxFundingVelocity = marketSettingsParams[6]
+  const liquidationBufferRatio = marketSettingsParams[7]
+  const liquidationFeeRatio = marketSettingsParams[8]
+  const maxKeeperFee = marketSettingsParams[9]
+  const minKeeperFee = marketSettingsParams[10]
+  const liquidationPremiumMultiplier = marketSettingsParams[11]
 
   return {
     takerFee,
