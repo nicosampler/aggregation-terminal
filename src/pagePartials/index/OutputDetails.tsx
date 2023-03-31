@@ -147,7 +147,11 @@ export function OutputDetails({ comparison, local, margin, positionSide, tokenSy
       </List>
       <List
         as={motion.li}
-        status={setStyle(local.oneHourFunding, comparison?.oneHourFunding)}
+        status={
+          positionSide == 'long' && local.oneHourFunding?.lt(0)
+            ? setStyle(comparison?.oneHourFunding, local.oneHourFunding)
+            : setStyle(local.oneHourFunding, comparison?.oneHourFunding)
+        }
         variants={itemVariants}
       >
         <span>

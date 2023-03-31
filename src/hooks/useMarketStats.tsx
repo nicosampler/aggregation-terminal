@@ -252,7 +252,13 @@ async function getKwentaStatsFetcher(
 
   const fillPrice = wei(marketData.assetPrice).mul(sUSDRate).toBN()
   const positionValue = wei(margin).mul(leverage).div(sUSDRate).toBN()
-  const oneHourFunding = wei(marketData.assetPrice).mul(oneHourlyFundingRate).toBN()
+  const oneHourFunding = oneHourlyFundingRate.gt(ZERO_BIG_NUM)
+    ? positionSide === 'long'
+      ? wei(marketData.assetPrice).mul(oneHourlyFundingRate).toBN()
+      : wei(marketData.assetPrice).mul(oneHourlyFundingRate).neg().toBN() // positive && short position
+    : positionSide === 'short'
+    ? wei(marketData.assetPrice).mul(oneHourlyFundingRate).toBN()
+    : wei(marketData.assetPrice).mul(oneHourlyFundingRate).abs().toBN() // negative && long position
 
   return {
     protocol: 'Kwenta',
