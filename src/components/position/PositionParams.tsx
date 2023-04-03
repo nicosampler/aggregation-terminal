@@ -139,7 +139,7 @@ const TokenDropdown = styled(BaseDropdown)`
 
 export const Configuration: React.FC = () => {
   const { setValues, tradeForm: form } = useDashboardInfo()
-  const { leverage, position, token } = form
+  const { amount, leverage, position, token } = form
   const setForm = (data: Partial<TradeForm>) => setValues({ tradeForm: { ...form, ...data } })
 
   return (
@@ -170,16 +170,24 @@ export const Configuration: React.FC = () => {
             <span>Amount in usd </span>
             <InputWrapper>
               <span>$</span>
-              <Textfield
-                onChange={(event) => setForm({ amount: event.target.value })}
-                onKeyDown={(event) => {
-                  const key = event.key
-                  if (key == '-') {
-                    event.preventDefault()
-                  }
-                }}
-                placeholder="0.00"
-                type="number"
+              <Formfield
+                formControl={
+                  <Textfield
+                    onChange={(event) => setForm({ amount: event.target.value })}
+                    onKeyDown={(event) => {
+                      const key = event.key
+                      if (key == '-') {
+                        event.preventDefault()
+                      }
+                    }}
+                    placeholder="0.00"
+                    type="number"
+                  />
+                }
+                status={amount && Number(amount) < 2.8 ? TextfieldStatus.error : undefined}
+                statusText={
+                  amount && Number(amount) < 2.8 ? 'Amount must be greater than 2.8' : undefined
+                }
               />
             </InputWrapper>
           </Label>
