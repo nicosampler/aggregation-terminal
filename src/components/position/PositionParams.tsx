@@ -184,9 +184,9 @@ export const Configuration: React.FC = () => {
                     type="number"
                   />
                 }
-                status={amount && Number(amount) <= 2 ? TextfieldStatus.error : undefined}
+                status={amount && Number(amount) < 2.8 ? TextfieldStatus.error : undefined}
                 statusText={
-                  amount && Number(amount) <= 2 ? 'Amount must be greater than 2' : undefined
+                  amount && Number(amount) < 2.8 ? 'Amount must be greater than 2.8' : undefined
                 }
               />
             </InputWrapper>
