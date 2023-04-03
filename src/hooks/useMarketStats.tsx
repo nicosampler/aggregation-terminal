@@ -280,10 +280,10 @@ export function useMarketStats(
   protocolForm: ProtocolForm,
   protocolStats: ProtocolStats | null,
 ) {
+  const validKwentaAmount = Number(tradeForm.amount) > 2
   const shouldTrigger =
     protocolStats == null &&
-    tradeForm.amount &&
-    tradeForm.amount != '0' &&
+    validKwentaAmount &&
     Number(tradeForm.leverage) > 0 &&
     Number(tradeForm.leverage) < 26
 
