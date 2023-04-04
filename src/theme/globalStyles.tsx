@@ -13,13 +13,23 @@ export const GlobalStyles = createGlobalStyle<{ theme: any }>`
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;
     background-color: ${({ theme: { body } }) => body.backgroundColor};
-    background-image: ${({ theme: { body } }) => body.backgroundImage};
-    background-size: cover;
     color: ${({ theme: { colors } }) => colors.textColor};
     font-family: ${({ theme: { fonts } }) => fonts.family};
     font-size: ${({ theme: { fonts } }) => fonts.defaultSize};
+    line-height: 1.4;
     min-height: 100vh;
     outline-color: ${({ theme: { colors } }) => colors.secondary};
+    &:after{
+      background-image: ${({ theme: { body } }) => body.backgroundImage};
+      background-size: cover;
+      height: 400px;
+      width: 100%;
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
   }
 
   code {
@@ -42,6 +52,24 @@ export const GlobalStyles = createGlobalStyle<{ theme: any }>`
 
   a {
     color: ${({ theme: { colors } }) => colors.textColor};
+  }
+
+  ::selection {
+    color: ${({ theme }) => theme.colors.white} !important;
+    background: #000 !important;
+    *{
+      color: ${({ theme }) => theme.colors.white} !important;
+    }
+  }
+  ::-moz-selection {
+    color: ${({ theme }) => theme.colors.white} !important;
+    background: #000 !important;
+    *{
+      color: ${({ theme }) => theme.colors.white} !important;
+    }
+  }
+  a, button{
+    transition: all 0.3s ease-in-out;
   }
 
   ${onBoardCSS}

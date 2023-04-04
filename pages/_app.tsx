@@ -16,13 +16,13 @@ import Toast from '@/src/components/toast/Toast'
 import { Head } from '@/src/pagePartials/index/Head'
 import { TransactionNotificationProvider } from '@/src/providers/TransactionNotificationProvider'
 import CookiesWarningProvider from '@/src/providers/cookiesWarningProvider'
+import DashboardProvider from '@/src/providers/dashboardProvider'
 import ThemeProvider from '@/src/providers/themeProvider'
 import 'sanitize.css'
+import TokenIconsProvider from '@/src/providers/tokenIconsProvider'
 
 const Container = styled(InnerContainer)`
   flex-grow: 1;
-  padding-bottom: 25px;
-  padding-top: 25px;
 `
 
 const Web3ConnectionProvider = dynamic(() => import('@/src/providers/web3ConnectionProvider'), {
@@ -57,7 +57,11 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
               <TransactionNotificationProvider>
                 <CookiesWarningProvider>
                   <Header />
-                  <Container>{getLayout(<Component {...pageProps} />)}</Container>
+                  <TokenIconsProvider>
+                    <DashboardProvider>
+                      <Container>{getLayout(<Component {...pageProps} />)}</Container>
+                    </DashboardProvider>
+                  </TokenIconsProvider>
                   <Footer />
                 </CookiesWarningProvider>
               </TransactionNotificationProvider>

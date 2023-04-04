@@ -72,9 +72,9 @@ const Items = styled.div<ItemsProps>`
   box-shadow: ${({ theme: { dropdown } }) => dropdown.boxShadow};
   display: ${({ isOpen }) => (isOpen ? 'block' : 'none')};
   min-width: 90px;
+  width: 100%;
   position: absolute;
   white-space: nowrap;
-
   ${({ dropdownPosition }) =>
     dropdownPosition === DropdownPosition.left &&
     css`
@@ -125,17 +125,16 @@ export interface ItemProps {
 export const DropdownItemCSS = css<ItemProps>`
   align-items: center;
   background-color: ${({ theme: { dropdown } }) => dropdown.item.backgroundColor};
-  border-bottom: 1px solid ${({ theme: { dropdown } }) => dropdown.item.borderColor};
   cursor: pointer;
   display: flex;
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   font-weight: 400;
   gap: 10px;
   justify-content: ${({ justifyContent }) => justifyContent};
   line-height: 1.4;
   min-height: 30px;
   overflow: hidden;
-  padding: 0 12px;
+  padding: 16px 20px;
   text-decoration: none;
   transition: background-color 0.15s linear;
   user-select: none;
@@ -292,7 +291,7 @@ export const Dropdown: React.FC<Props> = (props) => {
                 e.stopPropagation()
 
                 if (item.props.closeOnClick) {
-                  setIsOpen(false)
+                  setIsOpen(true)
                 }
 
                 if (!item.props.onClick) {

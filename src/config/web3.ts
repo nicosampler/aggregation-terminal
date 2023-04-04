@@ -4,18 +4,18 @@ import { ChainConfig, ChainsValues } from '@/types/chains'
 import { ObjectValues, ProviderChains, RPCProviders, RPCProvidersENV } from '@/types/utils'
 
 export const Chains = {
-  //mainnet: 1,
-  goerli: 5,
+  optimism: 10,
+  arbitrum: 42161,
 } as const
 
 export const providerChains: ProviderChains = {
   [RPCProviders.infura]: {
-    //[Chains.mainnet]: 'mainnet',
-    [Chains.goerli]: 'goerli',
+    [Chains.optimism]: 'optimism-mainnet',
+    [Chains.arbitrum]: 'arbitrum-mainnet',
   },
   [RPCProviders.alchemy]: {
-    //[Chains.mainnet]: 'eth-mainnet',
-    [Chains.goerli]: 'eth-goerli',
+    [Chains.optimism]: 'opt-mainnet',
+    [Chains.arbitrum]: 'arb-mainnet',
   },
 }
 
@@ -57,26 +57,26 @@ export const INITIAL_APP_CHAIN_ID = Number(
 ) as ChainsValues
 
 export const chainsConfig: Record<ChainsValues, ChainConfig> = {
-  [Chains.goerli]: {
-    id: Chains.goerli,
-    name: 'Görli Testnet',
-    shortName: 'Goerli',
-    chainId: Chains.goerli,
-    chainIdHex: '0x5',
-    rpcUrl: getProviderUrl(Chains.goerli),
-    blockExplorerUrls: ['https://goerli.etherscan.io/'],
+  [Chains.arbitrum]: {
+    id: Chains.arbitrum,
+    name: 'Arbitrum mainnet',
+    shortName: 'Arbitrum',
+    chainId: Chains.arbitrum,
+    chainIdHex: `0x${Number(Chains.arbitrum).toString(16)}`,
+    rpcUrl: getProviderUrl(Chains.arbitrum),
+    blockExplorerUrls: ['https://arbiscan.io/'],
     token: 'ETH',
   },
-  // [Chains.mainnet]: {
-  //   id: Chains.mainnet,
-  //   name: 'Mainnet',
-  //   shortName: 'Mainnet',
-  //   chainId: Chains.mainnet,
-  //   chainIdHex: '0x1',
-  //   rpcUrl: getProviderUrl(Chains.mainnet),
-  //   blockExplorerUrls: ['https://etherscan.io/'],
-  //   token: 'ETH',
-  // },
+  [Chains.optimism]: {
+    id: Chains.optimism,
+    name: 'Optimism mainnet',
+    shortName: 'Optimism',
+    chainId: Chains.optimism,
+    chainIdHex: `0x${Number(Chains.optimism).toString(16)}`,
+    rpcUrl: getProviderUrl(Chains.optimism),
+    blockExplorerUrls: ['https://optimistic.etherscan.io/'],
+    token: 'ETH',
+  },
 }
 
 export function getNetworkConfig(chainId: ChainsValues): ChainConfig {
@@ -89,7 +89,8 @@ export function getNetworkConfig(chainId: ChainsValues): ChainConfig {
  * The list follow the standard from: https://tokenlists.org/
  */
 export const TokensLists = {
-  '1INCH': 'https://gateway.ipfs.io/ipns/tokens.1inch.eth',
-  COINGECKO: 'https://tokens.coingecko.com/uniswap/all.json',
-  OPTIMISM: 'https://static.optimism.io/optimism.tokenlist.json',
+  // '1INCH': 'https://gateway.ipfs.io/ipns/tokens.1inch.eth',
+  // COINGECKO: 'https://tokens.coingecko.com/uniswap/all.json',
+  // OPTIMISM: 'https://static.optimism.io/optimism.tokenlist.json',
+  dashborad: '/tokens.json',
 } as const

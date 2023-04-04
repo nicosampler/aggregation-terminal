@@ -7,7 +7,7 @@ import { ButtonDropdown as Button } from '@/src/components/buttons/Button'
 import { Modal as BaseModal } from '@/src/components/common/Modal'
 import { TextfieldCSS } from '@/src/components/form/Textfield'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
-import { useTokensLists } from '@/src/hooks/useTokensLists'
+import { useTokensLists } from '@/src/components/token/useTokensLists'
 import { Token } from '@/types/token'
 
 const Modal = styled(BaseModal)`

@@ -1,40 +1,55 @@
 import type { NextPage } from 'next'
 import styled from 'styled-components'
 
-import { BaseCard } from '@/src/components/common/BaseCard'
-import { BaseParagraph } from '@/src/components/text/BaseParagraph'
-import { BaseTitle } from '@/src/components/text/BaseTitle'
-import { Code } from '@/src/components/text/Code'
-import { useWeb3ConnectedApp, useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
+import SafeSuspense, { withGenericSuspense } from '@/src/components/helpers/SafeSuspense'
+import { Configuration as TradeParams } from '@/src/components/position/PositionParams'
+import { Protocol } from '@/src/pagePartials/index/Protocol'
+import { useDashboardInfo } from '@/src/providers/dashboardProvider'
+import { ProtocolForm, ProtocolStats } from '@/types/utils'
 
-const Card = styled(BaseCard)`
-  min-height: 300px;
+const Layout = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 3fr;
+  grid-column-gap: 20px;
+  grid-row-gap: 20px;
+  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
+    grid-template-columns: repeat(2, 1fr);
+  }
 `
 
-const Address: React.FC = () => {
-  const { address } = useWeb3ConnectedApp()
-
-  return address ? <Code>{address}</Code> : null
-}
-
 const Home: NextPage = () => {
-  const { isAppConnected } = useWeb3Connection()
+  const { protocolAForm, protocolAStats, protocolBForm, protocolBStats, setValues, tradeForm } =
+    useDashboardInfo()
 
   return (
-    <>
-      <BaseTitle>Welcome to BootNode-web3-Next.js!</BaseTitle>
-      <Card>
-        <BaseParagraph>
-          Get started by editing <Code>pages/index.tsx</Code>
-        </BaseParagraph>
-        {isAppConnected && (
-          <BaseParagraph>
-            Your wallet address: <Address />
-          </BaseParagraph>
-        )}
-      </Card>
-    </>
+    <Layout>
+      <TradeParams />
+      <SafeSuspense>
+        <Protocol
+          protocolForm={protocolAForm}
+          protocolStats={protocolAStats}
+          protocolStatsForeign={protocolBStats}
+          setProtocolForm={(newValues: ProtocolForm) => setValues({ protocolAForm: newValues })}
+          setProtocolStats={(newValues: ProtocolStats | null) =>
+            setValues({ protocolAStats: newValues })
+          }
+          tradeForm={tradeForm}
+        />
+      </SafeSuspense>
+      <SafeSuspense>
+        <Protocol
+          protocolForm={protocolBForm}
+          protocolStats={protocolBStats}
+          protocolStatsForeign={protocolAStats}
+          setProtocolForm={(newValues: ProtocolForm) => setValues({ protocolBForm: newValues })}
+          setProtocolStats={(newValues: ProtocolStats | null) =>
+            setValues({ protocolBStats: newValues })
+          }
+          tradeForm={tradeForm}
+        />
+      </SafeSuspense>
+    </Layout>
   )
 }
-
-export default Home
+export default withGenericSuspense(Home)

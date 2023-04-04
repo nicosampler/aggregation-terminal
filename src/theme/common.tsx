@@ -1,19 +1,19 @@
 /* Properties common to any themes                     */
 /* Add dimensions, fonts, paddings, margins, etc. here */
 
-const borderRadius = '6px'
+const borderRadius = '8px'
 const radioAndCheckDimensions = '14px'
-const componentPaddingHorizontal = '20px'
-const componentPaddingVertical = '18px'
+const componentPaddingHorizontal = '40px'
+const componentPaddingVertical = '40px'
 
 export const common = {
   common: {
     borderRadius: borderRadius,
   },
   fonts: {
-    defaultSize: '1.4rem',
+    defaultSize: '1.6rem',
     family:
-      "'Roboto', 'Helvetica Neue', 'Arial', 'Segoe UI', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'",
+      "'Bai Jamjuree', 'Helvetica Neue', 'Arial', 'Segoe UI', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'",
     familyCode: "'source-code-pro', 'Menlo', 'Monaco', 'Consolas', 'Courier New', 'monospace'",
   },
   checkBox: {
@@ -29,12 +29,12 @@ export const common = {
     height: '60px',
   },
   layout: {
-    horizontalPaddingDesktopStart: '20px',
-    horizontalPaddingDesktopWideStart: '20px',
+    horizontalPaddingDesktopStart: '40px',
+    horizontalPaddingDesktopWideStart: '40px',
     horizontalPaddingMobile: '10px',
-    horizontalPaddingTabletLandscapeStart: '15px',
-    horizontalPaddingTabletPortraitStart: '15px',
-    maxWidth: '1360px',
+    horizontalPaddingTabletLandscapeStart: '20px',
+    horizontalPaddingTabletPortraitStart: '20px',
+    maxWidth: '1000px',
   },
   breakPoints: {
     desktopStart: '1025px',

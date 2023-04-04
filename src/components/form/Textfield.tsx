@@ -20,7 +20,7 @@ export const TexfieldPartsCSS = css<TexfieldCSSProps>`
       status === TextfieldStatus.error
         ? textField.errorColor
         : status === TextfieldStatus.success
-        ? textField.successColor
+        ? textField.borderColor
         : textField.active.borderColor};
     box-shadow: ${({ theme: { textField } }) => textField.active.boxShadow};
     color: ${({ status, theme: { textField } }) =>
@@ -80,10 +80,10 @@ export const TexfieldPartsCSS = css<TexfieldCSSProps>`
 
 export const TextfieldCSS = css<TexfieldCSSProps>`
   --textfield-border-radius: 8px;
-  --texfield-font-size: 1.4rem;
-  --textfield-padding: 0 12px;
-  --textfield-height: 36px;
-  --textfield-font-weight: 400;
+  --texfield-font-size: 1.6rem;
+  --textfield-padding: 20px;
+  --textfield-height: 60px;
+  --textfield-font-weight: 500;
 
   background-color: ${({ theme: { textField } }) => textField.backgroundColor};
   border-color: ${({ status, theme: { textField } }) =>

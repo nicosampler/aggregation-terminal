@@ -2,7 +2,7 @@ import Image from 'next/image'
 import { useState } from 'react'
 import styled from 'styled-components'
 
-import { useTokenIcons } from '@/src/providers/tokenIconsProvider'
+import { useTokensInfo } from '@/src/providers/tokenIconsProvider'
 
 const Placeholder = styled.div<{ dimensions: string }>`
   align-items: center;
@@ -24,8 +24,8 @@ interface Props {
   symbol: string
 }
 
-export const TokenIcon: React.FC<Props> = ({ dimensions = 18, symbol, ...restProps }) => {
-  const { tokensBySymbol } = useTokenIcons()
+export const TokenIcon: React.FC<Props> = ({ dimensions = 28, symbol, ...restProps }) => {
+  const { tokensBySymbol } = useTokensInfo()
   const [error, setError] = useState(false)
   const tokenImage = tokensBySymbol[symbol.toLowerCase()]?.logoURI
 

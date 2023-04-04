@@ -1,6 +1,7 @@
 import type { DetailedHTMLProps, HTMLAttributes } from 'react'
 
 import { Contract } from '@ethersproject/contracts'
+import { BigNumber } from 'ethers'
 import { KeyedMutator } from 'swr'
 
 import { ChainsValues } from '@/types/chains'
@@ -74,3 +75,32 @@ export type IntrinsicElements<H extends HTMLElement = HTMLElement> = DetailedHTM
 export const isFulfilled = <T>(
   input: PromiseSettledResult<T>,
 ): input is PromiseFulfilledResult<T> => input.status === 'fulfilled'
+
+export type ProtocolNames = 'Kwenta' | 'GMX'
+export type Position = 'long' | 'short'
+
+export interface TradeForm {
+  token: string
+  amount: string
+  leverage: string
+  position: Position
+}
+
+export interface ProtocolStats {
+  protocol: ProtocolNames
+  investmentTokenSymbol: string
+  position?: BigNumber
+  fillPrice?: BigNumber
+  orderSize?: BigNumber
+  priceImpact?: BigNumber
+  protocolFee?: BigNumber
+  tradeFee?: BigNumber
+  keeperFee?: BigNumber
+  liquidationPrice?: BigNumber
+  oneHourFunding?: BigNumber
+}
+
+export interface ProtocolForm {
+  name: ProtocolNames
+  chain: ChainsValues
+}

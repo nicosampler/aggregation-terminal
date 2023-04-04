@@ -7,9 +7,8 @@ export const Head = () => {
       : { hostname: 'localhost', port: 3000, protocol: 'http:' }
   const portString = port ? `:${port}` : ''
   const siteURL = typeof window !== 'undefined' ? `${protocol}//${hostname}${portString}` : ''
-  const title = 'BootNode - Frontend Starter Kit'
-  const description = 'BootNode - Frontend Starter Kit'
-  const twitterHandle = '@'
+  const title = 'Aggregation Terminal'
+  const description = 'Compare trading data between popular exchanges on any chain. Kwenta / GMX'
 
   return (
     <NextHead>
@@ -22,7 +21,6 @@ export const Head = () => {
       <meta content={description} property="og:description" />
       <meta content="summary_large_image" name="twitter:card" />
       <meta content={title} name="twitter:site" />
-      <meta content={twitterHandle} name="twitter:creator" />
     </NextHead>
   )
 }

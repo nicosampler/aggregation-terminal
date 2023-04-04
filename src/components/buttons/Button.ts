@@ -18,20 +18,20 @@ export const ActiveButtonCSS = css`
 
 export const ButtonCSS = css`
   align-items: center;
-  border-radius: 6px;
+  border-radius: ${({ theme: { common } }) => common.borderRadius};
   border-style: solid;
   border-width: 1px;
   column-gap: 10px;
   cursor: pointer;
   display: flex;
   font-family: ${({ theme: { fonts } }) => fonts.family};
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   font-weight: 500;
-  height: 34px;
+  height: 60px;
   justify-content: center;
   line-height: 1;
   outline: none;
-  padding: 0 12px;
+  padding: 0 20px;
   text-align: center;
   text-decoration: none;
   transition: all 0.15s ease-out;
@@ -58,7 +58,8 @@ export const ButtonPrimaryCSS = css`
   border-color: ${({ theme: { buttonPrimary } }) => buttonPrimary.borderColor};
   color: ${({ theme: { buttonPrimary } }) => buttonPrimary.color};
 
-  &:hover {
+  &:hover,
+  &.active {
     background-color: ${({ theme: { buttonPrimary } }) => buttonPrimary.backgroundColorHover};
     border-color: ${({ theme: { buttonPrimary } }) => buttonPrimary.borderColorHover};
     color: ${({ theme: { buttonPrimary } }) => buttonPrimary.colorHover};
@@ -110,10 +111,10 @@ export const ButtonDropdownCSS = css<{ currentThemeName?: ThemeType }>`
     ${({ currentThemeName }) =>
       currentThemeName === 'dark'
         ? css`
-            background-image: url('data:image/svg+xml;base64, PHN2ZyB3aWR0aD0iOCIgaGVpZ2h0PSI2IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik00IDZMLjUzNiAwaDYuOTI4TDQgNnoiIGZpbGw9IiNmZmYiLz48L3N2Zz4=');
+            background-image: url('data:image/svg+xml;base64, PHN2ZyB3aWR0aD0iMTAiIGhlaWdodD0iNiIgdmlld0JveD0iMCAwIDEwIDYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNOS40MTk3IDAuNTI1MDg3QzkuNzEyNiAwLjgxNzk3NyA5LjcxMjYgMS4yOTI4NiA5LjQxOTcgMS41ODU3NUw1LjUzMDYyIDUuNDc0ODRDNS4yMzc3MiA1Ljc2Nzc0IDQuNzYyODUgNS43Njc3NCA0LjQ2OTk2IDUuNDc0ODRMMC41ODEwMDMgMS41ODU4OEMwLjI4ODEwMyAxLjI5Mjk5IDAuMjg4MTAzIDAuODE4MTA4IDAuNTgxMDAzIDAuNTI1MjE4QzAuODczODkzIDAuMjMyMzI4IDEuMzQ4NzcgMC4yMzIzMjggMS42NDE2NiAwLjUyNTIxOEw1LjAwMDI5IDMuODgzODVMOC4zNTkgMC41MjUwODdDOC42NTE5IDAuMjMyMTk3IDkuMTI2OCAwLjIzMjE5NyA5LjQxOTcgMC41MjUwODdaIiBmaWxsPSIjNzM3RDhEIi8+Cjwvc3ZnPgo=');
           `
         : css`
-            background-image: url('data:image/svg+xml;base64, PHN2ZyB3aWR0aD0iOCIgaGVpZ2h0PSI2IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik00IDZMLjUzNiAwaDYuOTI4TDQgNnoiIGZpbGw9IiM2NjYiLz48L3N2Zz4=');
+            background-image: url('data:image/svg+xml;base64, PHN2ZyB3aWR0aD0iMTAiIGhlaWdodD0iNiIgdmlld0JveD0iMCAwIDEwIDYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNOS40MTk3IDAuNTI1MDg3QzkuNzEyNiAwLjgxNzk3NyA5LjcxMjYgMS4yOTI4NiA5LjQxOTcgMS41ODU3NUw1LjUzMDYyIDUuNDc0ODRDNS4yMzc3MiA1Ljc2Nzc0IDQuNzYyODUgNS43Njc3NCA0LjQ2OTk2IDUuNDc0ODRMMC41ODEwMDMgMS41ODU4OEMwLjI4ODEwMyAxLjI5Mjk5IDAuMjg4MTAzIDAuODE4MTA4IDAuNTgxMDAzIDAuNTI1MjE4QzAuODczODkzIDAuMjMyMzI4IDEuMzQ4NzcgMC4yMzIzMjggMS42NDE2NiAwLjUyNTIxOEw1LjAwMDI5IDMuODgzODVMOC4zNTkgMC41MjUwODdDOC42NTE5IDAuMjMyMTk3IDkuMTI2OCAwLjIzMjE5NyA5LjQxOTcgMC41MjUwODdaIiBmaWxsPSIjNzM3RDhEIi8+Cjwvc3ZnPgo=');
           `}
   }
 
