@@ -108,11 +108,7 @@ export function OutputDetails({ comparison, local, margin, positionSide, tokenSy
           {formatAmount(local.orderSize)} {tokenSymbol}
         </strong>
       </List>
-      <List
-        as={motion.li}
-        status={setStyle(local.priceImpact, comparison?.priceImpact)}
-        variants={itemVariants}
-      >
+      <List as={motion.li} variants={itemVariants}>
         <span>
           <Tooltip text="Correlation between the incoming trade, and the price of the asset.">
             Price Impact
@@ -157,11 +153,7 @@ export function OutputDetails({ comparison, local, margin, positionSide, tokenSy
         </span>
         <strong>{formatAmount(local.liquidationPrice, 18, 2)}</strong>
       </List>
-      <List
-        as={motion.li}
-        status={local.protocol == 'Kwenta' ? setStyle(local.oneHourFunding) : 'equals'}
-        variants={itemVariants}
-      >
+      <List as={motion.li} variants={itemVariants}>
         <span>
           <Tooltip text={get1hrFundingText(local.protocol)}>1H Funding</Tooltip>
         </span>
