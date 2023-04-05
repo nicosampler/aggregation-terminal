@@ -18,7 +18,7 @@ import { getUSDGStats } from '@/src/utils/GMX/getUSDGStats'
 import { expandDecimals } from '@/src/utils/GMX/numbers'
 import { FuturesMarketKey, KWENTA_FIXED_FEE, ZERO_BIG_NUM } from '@/src/utils/KWENTA/constants'
 import { formatOrderSizes, formatPosition } from '@/src/utils/KWENTA/format'
-import { extractMarketInfo } from '@/src/utils/KWENTA/getMarketInternalData'
+import { extractMarketInfo, getFillPrice } from '@/src/utils/KWENTA/getMarketInternalData'
 import { getMarketInternalData } from '@/src/utils/KWENTA/getMarketInternalData'
 import { getMarketParameters } from '@/src/utils/KWENTA/getMarketParameters'
 import { getTradePreview } from '@/src/utils/KWENTA/getPositionDetails'
@@ -223,27 +223,25 @@ async function getKwentaStatsFetcher(
   const leverage = Number(tradeForm.leverage)
   const margin = tradeForm.amount
   const positionSide = tradeForm.position
-  const { marginDelta, nativeSizeDelta, sizeDelta, susdSizeDelta } = formatOrderSizes(
+  const { marginDelta, nativeSizeDelta, sizeDelta, susdSize, susdSizeDelta } = formatOrderSizes(
     margin,
     leverage,
     wei(marketData.assetPrice),
     positionSide,
   )
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const orderSizes = {
-    marginDelta: wei(marginDelta),
-    nativeSizeDelta: wei(nativeSizeDelta),
-    sizeDelta: wei(sizeDelta),
-    susdSizeDelta: wei(susdSizeDelta),
-  }
-  // eslint-disable-next-line no-debugger
-  debugger
 
   const block = await provider.getBlock(blockNum)
   const blockTimestamp = block.timestamp
+  const fillPrice = getFillPrice(
+    susdSize.toBN(),
+    skewAdjustedPrice.toBN(),
+    marketData.marketSkew,
+    marketParams.skewScale,
+  )
   const tradePreview = getTradePreview(
     sizeDelta,
     marginDelta,
+    fillPrice,
     marketData,
     marketParams,
     blockTimestamp,
@@ -252,9 +250,6 @@ async function getKwentaStatsFetcher(
     throw `There was not possible to fetch Position Stats. ErrorCode: ${tradePreview.status}`
   }
 
-  const fillPrice = wei(marketData.assetPrice)
-  // eslint-disable-next-line no-debugger
-  debugger
   const { positionStats } = formatPosition(
     tradePreview,
     fillPrice,
@@ -276,7 +271,7 @@ async function getKwentaStatsFetcher(
     protocol: 'Kwenta',
     investmentTokenSymbol: 'sUSD',
     position: positionValue,
-    fillPrice: fillPrice.toBN(),
+    fillPrice: fillPrice,
     orderSize: wei(margin).mul(leverage).div(marketData.assetPrice).toBN(),
     priceImpact: positionStats.priceImpact.toBN(),
     protocolFee: positionStats.fee.add(KWENTA_FIXED_FEE).toBN(),

@@ -14,7 +14,7 @@ export type PostTradeDetailsResponse = {
 
 export const formatPosition = (
   preview: PostTradeDetailsResponse,
-  fillPrice: Wei,
+  fillPrice: BigNumber,
   basePrice: Wei,
   nativeSizeDelta: Wei,
   leverageSide: Position,
@@ -35,8 +35,6 @@ export const formatPosition = (
   const leverage = notionalValue.div(wei(margin))
 
   const priceImpact = wei(wei(fillPrice).sub(basePrice)).div(basePrice)
-  // eslint-disable-next-line no-debugger
-  debugger
   const slippageDirection = nativeSizeDelta.gt(0)
     ? priceImpact.gt(0)
       ? -1
