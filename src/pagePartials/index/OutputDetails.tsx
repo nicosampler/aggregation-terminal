@@ -1,15 +1,16 @@
+import { wei } from '@synthetixio/wei'
 import { BigNumber } from 'ethers'
 import { motion } from 'framer-motion'
 
 import { Tooltip } from '@/src/components/common/Tooltip'
 import { List, Stats } from '@/src/components/text/List'
 import { formatAmount } from '@/src/utils/GMX/format'
+import { ZERO_BIG_NUM } from '@/src/utils/KWENTA/constants'
 import { Position, ProtocolStats } from '@/types/utils'
 
 function setStyle(value?: BigNumber, comparison?: BigNumber) {
-  if (!comparison || !value || value.eq(comparison)) {
-    return 'equal'
-  }
+  if (!comparison) return value?.lte(ZERO_BIG_NUM) ? 'negative' : 'positive'
+  if (!value || value.eq(comparison)) return 'equal'
   return comparison.gt(value) ? 'better' : 'worse'
 }
 
@@ -158,11 +159,7 @@ export function OutputDetails({ comparison, local, margin, positionSide, tokenSy
       </List>
       <List
         as={motion.li}
-        status={
-          positionSide == 'long' && local.oneHourFunding?.lt(0)
-            ? setStyle(comparison?.oneHourFunding, local.oneHourFunding)
-            : setStyle(local.oneHourFunding, comparison?.oneHourFunding)
-        }
+        status={local.protocol == 'Kwenta' ? setStyle(local.oneHourFunding) : 'equals'}
         variants={itemVariants}
       >
         <span>
