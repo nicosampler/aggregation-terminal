@@ -223,12 +223,21 @@ async function getKwentaStatsFetcher(
   const leverage = Number(tradeForm.leverage)
   const margin = tradeForm.amount
   const positionSide = tradeForm.position
-  const { marginDelta, nativeSizeDelta, sizeDelta } = formatOrderSizes(
+  const { marginDelta, nativeSizeDelta, sizeDelta, susdSizeDelta } = formatOrderSizes(
     margin,
     leverage,
     wei(marketData.assetPrice),
     positionSide,
   )
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const orderSizes = {
+    marginDelta: wei(marginDelta),
+    nativeSizeDelta: wei(nativeSizeDelta),
+    sizeDelta: wei(sizeDelta),
+    susdSizeDelta: wei(susdSizeDelta),
+  }
+  // eslint-disable-next-line no-debugger
+  debugger
 
   const block = await provider.getBlock(blockNum)
   const blockTimestamp = block.timestamp
@@ -243,14 +252,17 @@ async function getKwentaStatsFetcher(
     throw `There was not possible to fetch Position Stats. ErrorCode: ${tradePreview.status}`
   }
 
+  const fillPrice = wei(marketData.assetPrice)
+  // eslint-disable-next-line no-debugger
+  debugger
   const { positionStats } = formatPosition(
     tradePreview,
+    fillPrice,
     skewAdjustedPrice,
     nativeSizeDelta,
     tradeForm.position,
   )
 
-  const fillPrice = wei(marketData.assetPrice).mul(sUSDRate).toBN()
   const positionValue = wei(margin).mul(leverage).div(sUSDRate).toBN()
   const oneHourFunding = oneHourlyFundingRate.gt(ZERO_BIG_NUM)
     ? positionSide === 'long'
@@ -264,7 +276,7 @@ async function getKwentaStatsFetcher(
     protocol: 'Kwenta',
     investmentTokenSymbol: 'sUSD',
     position: positionValue,
-    fillPrice: fillPrice,
+    fillPrice: fillPrice.toBN(),
     orderSize: wei(margin).mul(leverage).div(marketData.assetPrice).toBN(),
     priceImpact: positionStats.priceImpact.toBN(),
     protocolFee: positionStats.fee.add(KWENTA_FIXED_FEE).toBN(),

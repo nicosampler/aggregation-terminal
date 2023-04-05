@@ -97,5 +97,13 @@ export function extractMarketInfo(marketData: MarketData, marketParams: MarketPa
     ? wei(marketData.assetPrice).mul(wei(marketData.marketSkew).div(marketParams.skewScale).add(1))
     : zeroBN
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const marketInfo = {
+    assetPrice: wei(marketData.assetPrice),
+    marketSkew: wei(marketData.marketSkew),
+    skewScale: wei(marketParams.skewScale),
+  }
+  // eslint-disable-next-line no-debugger
+  debugger
   return { oneHourlyFundingRate, skewAdjustedPrice }
 }
