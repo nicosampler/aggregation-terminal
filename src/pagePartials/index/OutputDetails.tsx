@@ -43,13 +43,6 @@ export function OutputDetails({ comparison, local, margin, positionSide, tokenSy
         : 'The cost of swapping tokens to execute the trade.'
     return text
   }
-  const getKeeperFeeText = (protocol: string) => {
-    const text =
-      protocol === 'Kwenta'
-        ? 'Fixed fee to cover automated order execution'
-        : 'The cost of opening a position.'
-    return text
-  }
   const get1hrFundingText = (protocol: string) => {
     const text =
       protocol === 'Kwenta'
@@ -125,21 +118,29 @@ export function OutputDetails({ comparison, local, margin, positionSide, tokenSy
         variants={itemVariants}
       >
         <span>
-          <Tooltip text="Overall fees the protocol charges for a trade.">Protocol Fee</Tooltip>
+          <Tooltip text="Fees the protocol charges for opening a position.">Protocol Fee</Tooltip>
         </span>
         <strong>{formatAmount(local.protocolFee, 18, 2)} </strong>
       </List>
-      <List as={motion.li} variants={itemVariants}>
+      <List
+        as={motion.li}
+        status={setStyle(local.swapFee, comparison?.swapFee)}
+        variants={itemVariants}
+      >
         <span>
-          <Tooltip text={getTradeFeeText(local.protocol)}>Trade Fee </Tooltip>
+          <Tooltip text={getTradeFeeText(local.protocol)}>Swap Fee </Tooltip>
         </span>
-        <strong>{formatAmount(local.tradeFee, 18, 2)}</strong>
+        <strong>{formatAmount(local.swapFee, 18, 2)}</strong>
       </List>
-      <List as={motion.li} variants={itemVariants}>
+      <List
+        as={motion.li}
+        status={setStyle(local.executionFee, comparison?.executionFee)}
+        variants={itemVariants}
+      >
         <span>
-          <Tooltip text={getKeeperFeeText(local.protocol)}>Position Fee</Tooltip>
+          <Tooltip text="Fixed fee to cover automated order execution">Execution Fee</Tooltip>
         </span>
-        <strong>{formatAmount(local.keeperFee, 18, 2)}</strong>
+        <strong>{formatAmount(local.executionFee, 18, 2)}</strong>
       </List>
 
       <List

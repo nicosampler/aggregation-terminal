@@ -1,12 +1,14 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { wei } from '@synthetixio/wei'
 import { BigNumber, constants } from 'ethers'
-import { formatBytes32String, parseUnits } from 'ethers/lib/utils'
+import { formatBytes32String, formatUnits, parseUnits } from 'ethers/lib/utils'
 import useSWR from 'swr'
 
-import { getNetworkConfig } from '@/src/config/web3'
+import { Chains, getNetworkConfig } from '@/src/config/web3'
+import { useTokensInfo } from '@/src/providers/tokenIconsProvider'
 import {
   BASIS_POINTS_DIVISOR,
+  INCREASE_ORDER_EXECUTION_GAS_FEE,
   MARGIN_FEE_BASIS_POINTS,
   USD_DECIMALS,
 } from '@/src/utils/GMX/constants'
@@ -24,12 +26,14 @@ import { getMarketParameters } from '@/src/utils/KWENTA/getMarketParameters'
 import { getTradePreview } from '@/src/utils/KWENTA/getPositionDetails'
 import { getSUSDRate } from '@/src/utils/KWENTA/getSynthsRates'
 import getProtocols from '@/src/utils/getProtocols'
+import { TokenInfo } from '@/types/GMX/types'
 import { ChainsValues } from '@/types/chains'
 import { ProtocolForm, ProtocolStats, TradeForm } from '@/types/utils'
 
 async function getGMXStatsFetcher(
   chainId: ChainsValues,
   tradeForm: TradeForm,
+  tokens: TokenInfo[],
 ): Promise<ProtocolStats> {
   const protocols = getProtocols()
 
@@ -49,6 +53,8 @@ async function getGMXStatsFetcher(
   const toTokenInfo = protocols.getTokenBySymbolAndChain(toTokenSymbol, chainId.toString())
   const gmxFromTokenInfo = gmxTokensInfo.infoTokens[fromTokenInfo?.address as string]
   const gmxToTokenInfo = gmxTokensInfo.infoTokens[toTokenInfo?.address as string]
+  const nativeToken = tokens.find((t) => t.symbol == 'ETH')
+  const nativeTokenInfo = gmxTokensInfo.infoTokens[nativeToken?.address as string]
 
   const fromAmountBN = parseUnits(amount, 6) // USDC fixed
   // const toAmountBN = parseUnits(amount, toTokenInfo?.decimals)
@@ -75,6 +81,10 @@ async function getGMXStatsFetcher(
 
   if (!gmxToTokenInfo || !gmxToTokenInfo.minPrice || !gmxToTokenInfo.maxPrice) {
     throw `There was not possible to get GMX token stats for ${toTokenSymbol}. (token.minPrice and token.minPrice are required)`
+  }
+
+  if (!nativeTokenInfo || !nativeTokenInfo.maxPrice) {
+    throw `There was not possible to get the native token price`
   }
 
   // ----------------------
@@ -145,12 +155,12 @@ async function getGMXStatsFetcher(
   // ----------------------
 
   const positionFee = sizeDelta.mul(MARGIN_FEE_BASIS_POINTS).div(BASIS_POINTS_DIVISOR)
-  let feesUsd = positionFee
+  const positionFeeUsd = positionFee
   let swapFees = constants.Zero
 
   if (feeBasisPoints) {
     swapFees = fromUsdMin.mul(feeBasisPoints).div(BASIS_POINTS_DIVISOR)
-    feesUsd = feesUsd.add(swapFees)
+    // positionFeeUsd = positionFeeUsd.add(swapFees)
   }
 
   // ----------------------
@@ -174,9 +184,11 @@ async function getGMXStatsFetcher(
     fillPrice: toTokenPriceUsd.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
     orderSize: nextToAmount, // 18
     priceImpact: undefined,
-    protocolFee: feesUsd.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
-    tradeFee: swapFees.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
-    keeperFee: positionFee.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
+    protocolFee: positionFeeUsd.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
+    swapFee: swapFees.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
+    executionFee: nativeTokenInfo.maxPrice
+      .mul(INCREASE_ORDER_EXECUTION_GAS_FEE)
+      .div(BigNumber.from(10).pow(USD_DECIMALS)),
     liquidationPrice: liquidationPrice.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
     oneHourFunding: borrowFeeAmount.div(BigNumber.from(10).pow(USD_DECIMALS - 18)),
   }
@@ -268,8 +280,8 @@ async function getKwentaStatsFetcher(
     orderSize: wei(margin).mul(leverage).div(marketData.assetPrice).toBN(),
     priceImpact: positionStats.priceImpact.toBN(),
     protocolFee: positionStats.fee.add(KWENTA_FIXED_FEE).toBN(),
-    tradeFee: positionStats.fee.toBN(),
-    keeperFee: KWENTA_FIXED_FEE.toBN(),
+    swapFee: positionStats.fee.toBN(),
+    executionFee: KWENTA_FIXED_FEE.toBN(),
     liquidationPrice: positionStats.liqPrice.toBN(),
     oneHourFunding: oneHourFunding,
   }
@@ -280,6 +292,7 @@ export function useMarketStats(
   protocolForm: ProtocolForm,
   protocolStats: ProtocolStats | null,
 ) {
+  const { tokensByNetwork } = useTokensInfo()
   const validKwentaAmount = Number(tradeForm.amount) >= 3
   const shouldTrigger =
     protocolStats == null &&
@@ -292,7 +305,11 @@ export function useMarketStats(
     ([_protocolForm, _tradeForm]) => {
       switch (_protocolForm.name) {
         case 'GMX': {
-          return getGMXStatsFetcher(_protocolForm.chain, _tradeForm)
+          return getGMXStatsFetcher(
+            _protocolForm.chain,
+            _tradeForm,
+            tokensByNetwork[Chains.arbitrum],
+          )
         }
         case 'Kwenta':
           return getKwentaStatsFetcher(_protocolForm.chain, _tradeForm)
