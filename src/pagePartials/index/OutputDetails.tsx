@@ -67,7 +67,11 @@ export function OutputDetails({ comparison, local, margin, positionSide, tokenSy
       </List>
       <List
         as={motion.li}
-        status={setStyle(comparison?.fillPrice, local.fillPrice)}
+        status={
+          positionSide == 'long'
+            ? setStyle(local.fillPrice, comparison?.fillPrice)
+            : setStyle(comparison?.fillPrice, local.fillPrice)
+        }
         variants={itemVariants}
       >
         <span>
