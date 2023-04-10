@@ -109,15 +109,13 @@ export function OutputDetails({ comparison, local, margin, positionSide, tokenSy
         </span>
         <strong>{formatAmount(local.priceImpact)}</strong>
       </List>
-      <List
-        as={motion.li}
-        status={setStyle(local.protocolFee, comparison?.protocolFee)}
-        variants={itemVariants}
-      >
+      <List as={motion.li} variants={itemVariants}>
         <span>
           <Tooltip text="Fees the protocol charges for opening a position.">Protocol Fee</Tooltip>
         </span>
-        <strong>{formatAmount(local.protocolFee, 18, 2)} </strong>
+        <strong>
+          {local.protocol === 'Kwenta' ? '-' : formatAmount(local.protocolFee, 18, 2)}{' '}
+        </strong>
       </List>
       <List
         as={motion.li}
