@@ -1,15 +1,16 @@
+import { wei } from '@synthetixio/wei'
 import { BigNumber } from 'ethers'
 import { motion } from 'framer-motion'
 
 import { Tooltip } from '@/src/components/common/Tooltip'
 import { List, Stats } from '@/src/components/text/List'
 import { formatAmount } from '@/src/utils/GMX/format'
+import { ZERO_BIG_NUM } from '@/src/utils/KWENTA/constants'
 import { Position, ProtocolStats } from '@/types/utils'
 
 function setStyle(value?: BigNumber, comparison?: BigNumber) {
-  if (!comparison || !value || value.eq(comparison)) {
-    return 'equal'
-  }
+  if (!comparison) return value?.lte(ZERO_BIG_NUM) ? 'negative' : 'positive'
+  if (!value || value.eq(comparison)) return 'equal'
   return comparison.gt(value) ? 'better' : 'worse'
 }
 
@@ -100,11 +101,7 @@ export function OutputDetails({ comparison, local, margin, positionSide, tokenSy
           {formatAmount(local.orderSize)} {tokenSymbol}
         </strong>
       </List>
-      <List
-        as={motion.li}
-        status={setStyle(local.priceImpact, comparison?.priceImpact)}
-        variants={itemVariants}
-      >
+      <List as={motion.li} variants={itemVariants}>
         <span>
           <Tooltip text="Correlation between the incoming trade, and the price of the asset.">
             Price Impact
@@ -157,15 +154,7 @@ export function OutputDetails({ comparison, local, margin, positionSide, tokenSy
         </span>
         <strong>{formatAmount(local.liquidationPrice, 18, 2)}</strong>
       </List>
-      <List
-        as={motion.li}
-        status={
-          positionSide == 'long' && local.oneHourFunding?.lt(0)
-            ? setStyle(comparison?.oneHourFunding, local.oneHourFunding)
-            : setStyle(local.oneHourFunding, comparison?.oneHourFunding)
-        }
-        variants={itemVariants}
-      >
+      <List as={motion.li} variants={itemVariants}>
         <span>
           <Tooltip text={get1hrFundingText(local.protocol)}>1H Funding</Tooltip>
         </span>
