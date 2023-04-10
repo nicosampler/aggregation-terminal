@@ -103,4 +103,5 @@ export interface ProtocolStats {
 export interface ProtocolForm {
   name: ProtocolNames
   chain: ChainsValues
+  url: string
 }
