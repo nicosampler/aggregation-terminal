@@ -20,7 +20,7 @@ import { getUSDGStats } from '@/src/utils/GMX/getUSDGStats'
 import { expandDecimals } from '@/src/utils/GMX/numbers'
 import { FuturesMarketKey, KWENTA_FIXED_FEE, ZERO_BIG_NUM } from '@/src/utils/KWENTA/constants'
 import { formatOrderSizes, formatPosition } from '@/src/utils/KWENTA/format'
-import { extractMarketInfo } from '@/src/utils/KWENTA/getMarketInternalData'
+import { extractMarketInfo, getFillPrice } from '@/src/utils/KWENTA/getMarketInternalData'
 import { getMarketInternalData } from '@/src/utils/KWENTA/getMarketInternalData'
 import { getMarketParameters } from '@/src/utils/KWENTA/getMarketParameters'
 import { getTradePreview } from '@/src/utils/KWENTA/getPositionDetails'
@@ -235,7 +235,7 @@ async function getKwentaStatsFetcher(
   const leverage = Number(tradeForm.leverage)
   const margin = tradeForm.amount
   const positionSide = tradeForm.position
-  const { marginDelta, nativeSizeDelta, sizeDelta } = formatOrderSizes(
+  const { marginDelta, nativeSizeDelta, sizeDelta, susdSize, susdSizeDelta } = formatOrderSizes(
     margin,
     leverage,
     wei(marketData.assetPrice),
@@ -244,9 +244,16 @@ async function getKwentaStatsFetcher(
 
   const block = await provider.getBlock(blockNum)
   const blockTimestamp = block.timestamp
+  const fillPrice = getFillPrice(
+    susdSize.toBN(),
+    skewAdjustedPrice.toBN(),
+    marketData.marketSkew,
+    marketParams.skewScale,
+  )
   const tradePreview = getTradePreview(
     sizeDelta,
     marginDelta,
+    fillPrice,
     marketData,
     marketParams,
     blockTimestamp,
@@ -257,12 +264,12 @@ async function getKwentaStatsFetcher(
 
   const { positionStats } = formatPosition(
     tradePreview,
+    fillPrice,
     skewAdjustedPrice,
     nativeSizeDelta,
     tradeForm.position,
   )
 
-  const fillPrice = wei(marketData.assetPrice).mul(sUSDRate).toBN()
   const positionValue = wei(margin).mul(leverage).div(sUSDRate).toBN()
   const oneHourFunding = oneHourlyFundingRate.gt(ZERO_BIG_NUM)
     ? positionSide === 'long'

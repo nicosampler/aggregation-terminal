@@ -14,17 +14,27 @@ export type PostTradeDetailsResponse = {
 
 export const formatPosition = (
   preview: PostTradeDetailsResponse,
+  fillPrice: BigNumber,
   basePrice: Wei,
   nativeSizeDelta: Wei,
   leverageSide: Position,
 ) => {
   const { fee, liqPrice, margin, price, size, status } = preview
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const previewELEMENTS = {
+    fee: wei(fee),
+    liqPrice: wei(liqPrice),
+    margin: wei(margin),
+    price: wei(price),
+    size: wei(size),
+    status: wei(status),
+  }
 
   const tradeValueWithoutSlippage = wei(nativeSizeDelta).abs().mul(wei(basePrice))
   const notionalValue = wei(size).mul(wei(basePrice))
   const leverage = notionalValue.div(wei(margin))
 
-  const priceImpact = wei(price).sub(basePrice).div(basePrice)
+  const priceImpact = wei(wei(fillPrice).sub(basePrice)).div(basePrice)
   const slippageDirection = nativeSizeDelta.gt(0)
     ? priceImpact.gt(0)
       ? -1
