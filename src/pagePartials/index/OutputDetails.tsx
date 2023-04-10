@@ -125,7 +125,9 @@ export function OutputDetails({ comparison, local, margin, positionSide, tokenSy
         variants={itemVariants}
       >
         <span>
-          <Tooltip text={getTradeFeeText(local.protocol)}>Swap Fee </Tooltip>
+          <Tooltip text={getTradeFeeText(local.protocol)}>
+            {local.protocol === 'Kwenta' ? 'Trade Fee' : 'Swap Fee'}{' '}
+          </Tooltip>
         </span>
         <strong>{formatAmount(local.swapFee, 18, 2)}</strong>
       </List>
