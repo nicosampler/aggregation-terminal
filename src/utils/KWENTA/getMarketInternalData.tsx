@@ -2,7 +2,7 @@ import { JsonRpcProvider } from '@ethersproject/providers'
 import { wei } from '@synthetixio/wei'
 import { BigNumber, ethers } from 'ethers'
 
-import { divideDecimal, multiplyDecimal } from './constants'
+import { divideDecimal } from './constants'
 import { getNetworkConfig } from '@/src/config/web3'
 import { contracts } from '@/src/contracts/contracts'
 import { MarketParams } from '@/src/utils/KWENTA/getMarketParameters'
@@ -110,11 +110,18 @@ export function getFillPrice(
   const skew = marketSkew
   const skewScale = marketSkewScale
 
+  const oneScaled = BigNumber.from(10).pow(18)
+
   const pdBefore = divideDecimal(skew, skewScale)
   const pdAfter = divideDecimal(skew.add(size), skewScale)
-  const priceBefore = price.add(multiplyDecimal(price, pdBefore))
-  const priceAfter = price.add(multiplyDecimal(price, pdAfter))
+  const priceBefore = price.mul(oneScaled.add(pdBefore))
+  const priceAfter = price.mul(oneScaled.add(pdAfter))
 
+  // original code from syntethix
+  // const pdBefore = divideDecimal(skew, skewScale)
+  // const pdAfter = divideDecimal(size.add(skew), skewScale)
+  // const priceBefore = price.add(multiplyDecimal(pdBefore, price))
+  // const priceAfter = price.add(multiplyDecimal(pdAfter, price))
   // How is the p/d-adjusted price calculated using an example:
   //
   // price      = $1200 USD (oracle)
@@ -142,5 +149,10 @@ export function getFillPrice(
   // fill_price = (price_before + price_after) / 2
   //            = (1200 + 1200.12) / 2
   //            = 1200.06
-  return divideDecimal(priceBefore.add(priceAfter), BigNumber.from(10).pow(18)).div(2)
+
+  const sumPrices = priceBefore.add(priceAfter)
+  const sumPriceDiv2 = sumPrices.div(2)
+  const fillPrice = sumPriceDiv2.div(oneScaled)
+
+  return fillPrice
 }

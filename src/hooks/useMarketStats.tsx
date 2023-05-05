@@ -1,7 +1,7 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { wei } from '@synthetixio/wei'
 import { BigNumber, constants } from 'ethers'
-import { formatBytes32String, formatUnits, parseUnits } from 'ethers/lib/utils'
+import { formatBytes32String, parseUnits } from 'ethers/lib/utils'
 import useSWR from 'swr'
 
 import { Chains, getNetworkConfig } from '@/src/config/web3'
@@ -235,7 +235,7 @@ async function getKwentaStatsFetcher(
   const leverage = Number(tradeForm.leverage)
   const margin = tradeForm.amount
   const positionSide = tradeForm.position
-  const { marginDelta, nativeSizeDelta, sizeDelta, susdSize, susdSizeDelta } = formatOrderSizes(
+  const { marginDelta, nativeSizeDelta, sizeDelta, susdSize } = formatOrderSizes(
     margin,
     leverage,
     wei(marketData.assetPrice),
@@ -245,11 +245,12 @@ async function getKwentaStatsFetcher(
   const block = await provider.getBlock(blockNum)
   const blockTimestamp = block.timestamp
   const fillPrice = getFillPrice(
-    susdSize.toBN(),
+    sizeDelta.toBN(),
     skewAdjustedPrice.toBN(),
     marketData.marketSkew,
     marketParams.skewScale,
   )
+
   const tradePreview = getTradePreview(
     sizeDelta,
     marginDelta,
@@ -264,7 +265,6 @@ async function getKwentaStatsFetcher(
 
   const { positionStats } = formatPosition(
     tradePreview,
-    fillPrice,
     skewAdjustedPrice,
     nativeSizeDelta,
     tradeForm.position,
@@ -273,11 +273,11 @@ async function getKwentaStatsFetcher(
   const positionValue = wei(margin).mul(leverage).div(sUSDRate).toBN()
   const oneHourFunding = oneHourlyFundingRate.gt(ZERO_BIG_NUM)
     ? positionSide === 'long'
-      ? wei(marketData.assetPrice).mul(oneHourlyFundingRate).neg().toBN()
-      : wei(marketData.assetPrice).mul(oneHourlyFundingRate).toBN() // positive && short position
+      ? susdSize.mul(oneHourlyFundingRate).neg().toBN()
+      : susdSize.mul(oneHourlyFundingRate).toBN() // positive && short position
     : positionSide === 'short'
-    ? wei(marketData.assetPrice).mul(oneHourlyFundingRate).toBN()
-    : wei(marketData.assetPrice).mul(oneHourlyFundingRate).abs().toBN() // negative && long position
+    ? susdSize.mul(oneHourlyFundingRate).toBN()
+    : susdSize.mul(oneHourlyFundingRate).abs().toBN() // negative && long position
   return {
     protocol: 'Kwenta',
     investmentTokenSymbol: 'sUSD',
