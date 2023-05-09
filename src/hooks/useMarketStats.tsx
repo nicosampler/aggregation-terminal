@@ -273,11 +273,12 @@ async function getKwentaStatsFetcher(
   const positionValue = wei(margin).mul(leverage).div(sUSDRate).toBN()
   const oneHourFunding = oneHourlyFundingRate.gt(ZERO_BIG_NUM)
     ? positionSide === 'long'
-      ? susdSize.mul(oneHourlyFundingRate).neg().toBN()
-      : susdSize.mul(oneHourlyFundingRate).toBN() // positive && short position
+      ? wei(marketData.assetPrice).mul(sizeDelta).mul(oneHourlyFundingRate).neg().toBN()
+      : wei(marketData.assetPrice).mul(sizeDelta).mul(oneHourlyFundingRate).toBN() // positive && short position
     : positionSide === 'short'
-    ? susdSize.mul(oneHourlyFundingRate).toBN()
-    : susdSize.mul(oneHourlyFundingRate).abs().toBN() // negative && long position
+    ? wei(marketData.assetPrice).mul(sizeDelta).mul(oneHourlyFundingRate).toBN()
+    : wei(marketData.assetPrice).mul(sizeDelta).mul(oneHourlyFundingRate).abs().toBN() // negative && long position
+  console.log('FULL PRICE IMPACT ', positionStats.priceImpact)
   return {
     protocol: 'Kwenta',
     investmentTokenSymbol: 'sUSD',
